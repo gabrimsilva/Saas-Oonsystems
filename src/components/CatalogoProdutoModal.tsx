@@ -25,19 +25,32 @@ export default function CatalogoProdutoModal({
 }: CatalogoProdutoModalProps) {
   if (!produto) return null
 
-  const precoExibicao = produto.precoPromocional && produto.precoPromocional > 0
-    ? produto.precoPromocional
-    : produto.preco
-
-  const temPromocao = produto.precoPromocional && produto.precoPromocional > 0
-
   const handleWhatsApp = () => {
     console.log('🔍 Dados WhatsApp:')
     console.log('  - Telefone recebido:', whatsapp)
     console.log('  - Produto:', produto.nome)
+    console.log('  - Tipo do telefone:', typeof whatsapp)
+    console.log('  - Telefone vazio?:', whatsapp === '' || !whatsapp)
+    console.log('  - Telefone length:', whatsapp?.length)
     
-    if (!whatsapp || whatsapp.trim() === '') {
+    // Verificar se o telefone existe e tem conteúdo
+    if (!whatsapp || whatsapp.trim() === '' || whatsapp === 'undefined' || whatsapp === 'null') {
       console.error('❌ WhatsApp não configurado!')
+      console.error('   Valor recebido:', JSON.stringify(whatsapp))
+      
+      // Tentar buscar de localStorage como fallback
+      const fallbackTelefone = localStorage.getItem('estabelecimento_telefone')
+      console.log('   Tentando fallback do localStorage:', fallbackTelefone)
+      
+      if (fallbackTelefone && fallbackTelefone.trim() !== '') {
+        console.log('✅ Usando telefone do fallback')
+        const mensagem = `Olá! Vi o produto *${produto.nome}* no catálogo e fiquei interessado(a)!\n\nPoderia me passar mais informações sobre disponibilidade e formas de pagamento?\n\nAguardo retorno!`
+        const whatsappClean = fallbackTelefone.replace(/\D/g, '')
+        const url = `https://wa.me/55${whatsappClean}?text=${encodeURIComponent(mensagem)}`
+        window.open(url, '_blank')
+        return
+      }
+      
       alert('WhatsApp não configurado. Entre em contato pelo site.')
       return
     }
@@ -45,11 +58,22 @@ export default function CatalogoProdutoModal({
     // Mensagem simples sem emojis para evitar problemas de codificação
     const mensagem = `Olá! Vi o produto *${produto.nome}* no catálogo e fiquei interessado(a)!\n\nPoderia me passar mais informações sobre disponibilidade e formas de pagamento?\n\nAguardo retorno!`
     const whatsappClean = whatsapp.replace(/\D/g, '') // Remove caracteres não numéricos
+    
+    // Validar que o telefone limpo tem dígitos suficientes
+    if (whatsappClean.length < 10) {
+      console.error('❌ Telefone inválido! Muito curto:', whatsappClean)
+      alert('Número de WhatsApp inválido. Entre em contato pelo site.')
+      return
+    }
+    
     const url = `https://wa.me/55${whatsappClean}?text=${encodeURIComponent(mensagem)}`
     
     console.log('  - Telefone limpo:', whatsappClean)
     console.log('  - URL gerada:', url)
     console.log('  - Mensagem:', mensagem)
+    
+    // Salvar no localStorage para fallback
+    localStorage.setItem('estabelecimento_telefone', whatsapp)
     
     window.open(url, '_blank')
   }
@@ -65,13 +89,6 @@ export default function CatalogoProdutoModal({
         >
           <X className="h-3.5 w-3.5" />
         </button>
-
-        {/* Badge de Promoção no topo da imagem */}
-        {temPromocao && (
-          <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-sm font-bold px-4 py-1.5 rounded-full shadow-lg">
-            {Math.round(((produto.preco - precoExibicao) / produto.preco) * 100)}% OFF
-          </div>
-        )}
 
         {/* Imagem do produto */}
         <div className="w-full h-56 bg-gray-100 max-md:h-[40vh] max-md:flex-shrink-0">
@@ -110,24 +127,13 @@ export default function CatalogoProdutoModal({
             )}
           </AlertDialogHeader>
 
-          {/* Preço */}
+          {/* Informação sobre contato */}
           <div className="mt-4 mb-4 text-left">
-            {temPromocao ? (
-              <div className="flex items-center justify-start gap-3">
-                <span className="text-3xl font-bold text-purple-600">
-                  R$ {precoExibicao.toFixed(2).replace('.', ',')}
-                </span>
-                <div className="flex flex-col">
-                  <span className="text-sm text-gray-400 line-through">
-                    R$ {produto.preco.toFixed(2).replace('.', ',')}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <span className="text-3xl font-bold text-purple-600">
-                R$ {precoExibicao.toFixed(2).replace('.', ',')}
-              </span>
-            )}
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+              <p className="text-sm text-purple-800 font-medium text-center">
+                💬 Entre em contato pelo WhatsApp para saber mais sobre valores e disponibilidade!
+              </p>
+            </div>
           </div>
 
           {/* Botão WhatsApp */}

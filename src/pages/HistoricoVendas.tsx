@@ -20,7 +20,8 @@ import {
   Filter,
   X,
   Eye,
-  Printer
+  Printer,
+  Trash2
 } from "lucide-react"
 import { vendaService, receiptService, type Sale } from "@/services"
 import { format } from "date-fns"
@@ -46,6 +47,9 @@ export default function HistoricoVendas() {
   const [cupomHTML, setCupomHTML] = useState("")
   const [vendaSelecionada, setVendaSelecionada] = useState<Sale | null>(null)
   const [gerandoCupom, setGerandoCupom] = useState(false)
+
+  // Exclusão de venda
+  const [excluindoVenda, setExcluindoVenda] = useState<string | null>(null)
 
   useEffect(() => {
     carregarVendas()
@@ -264,6 +268,29 @@ export default function HistoricoVendas() {
     }
   }
 
+  const handleExcluirVenda = async (venda: Sale) => {
+    // Confirmar exclusão
+    if (!window.confirm(`Tem certeza que deseja excluir a venda ${venda.sale_number}?\n\nEsta ação não pode ser desfeita e a venda será removida das métricas.`)) {
+      return
+    }
+
+    try {
+      setExcluindoVenda(venda.id)
+      
+      await vendaService.excluir(venda.id)
+      
+      // Remover da lista local
+      setVendas(vendas.filter(v => v.id !== venda.id))
+      
+      toast.success('Venda excluída com sucesso')
+    } catch (error) {
+      console.error('Erro ao excluir venda:', error)
+      toast.error('Erro ao excluir venda')
+    } finally {
+      setExcluindoVenda(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
@@ -445,7 +472,7 @@ export default function HistoricoVendas() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleVisualizarVenda(venda)}
-                            disabled={gerandoCupom}
+                            disabled={gerandoCupom || excluindoVenda === venda.id}
                             className="h-8 w-8 p-0"
                             title="Visualizar detalhes"
                           >
@@ -459,7 +486,7 @@ export default function HistoricoVendas() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleImprimirCupom(venda)}
-                            disabled={gerandoCupom}
+                            disabled={gerandoCupom || excluindoVenda === venda.id}
                             className="h-8 w-8 p-0"
                             title="Imprimir cupom"
                           >
@@ -467,6 +494,20 @@ export default function HistoricoVendas() {
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <Printer className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleExcluirVenda(venda)}
+                            disabled={gerandoCupom || excluindoVenda === venda.id}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Excluir venda"
+                          >
+                            {excluindoVenda === venda.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
                             )}
                           </Button>
                         </div>

@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { DangerButton } from "@/components/ui/danger-button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShoppingCart, Trash2, Plus, Minus, CheckCircle, MessageSquare } from "lucide-react"
+import { ShoppingCart, Trash2, Plus, Minus, CheckCircle, MessageSquare, Tag } from "lucide-react"
 import { type ItemCarrinhoPDV, type DadosClientePDV } from "./types"
 import { renderizarDetalhesCombo } from "@/utils/comboFormatacao"
+import { useState } from "react"
 
 /**
  * Props para o componente CarrinhoPDV
@@ -33,6 +34,10 @@ interface CarrinhoPDVProps {
   onFinalizarPedido: () => void
   /** Modo simplificado (sem desconto) */
   simplified?: boolean
+  /** Callback para abrir modal de desconto do item */
+  onAbrirModalDesconto?: (index: number) => void
+  /** Callback para alterar quantidade diretamente */
+  onAlterarQuantidade?: (index: number, novaQuantidade: number) => void
 }
 
 /**
@@ -66,8 +71,40 @@ export default function CarrinhoPDV({
   entregaDomicilio,
   taxaEntrega,
   taxaExtraKm = 0,
-  onFinalizarPedido
+  onFinalizarPedido,
+  onAbrirModalDesconto,
+  onAlterarQuantidade
 }: CarrinhoPDVProps) {
+  const [editandoQuantidade, setEditandoQuantidade] = useState<number | null>(null)
+  const [quantidadeTemp, setQuantidadeTemp] = useState<string>('')
+  
+  const handleClickQuantidade = (index: number, quantidadeAtual: number) => {
+    setEditandoQuantidade(index)
+    setQuantidadeTemp(quantidadeAtual.toString())
+  }
+  
+  const handleBlurQuantidade = (index: number) => {
+    const novaQuantidade = parseInt(quantidadeTemp)
+    
+    if (!isNaN(novaQuantidade) && novaQuantidade > 0 && novaQuantidade !== carrinho[index].quantidade) {
+      if (onAlterarQuantidade) {
+        onAlterarQuantidade(index, novaQuantidade)
+      }
+    }
+    
+    setEditandoQuantidade(null)
+    setQuantidadeTemp('')
+  }
+  
+  const handleKeyDownQuantidade = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'Enter') {
+      handleBlurQuantidade(index)
+    } else if (e.key === 'Escape') {
+      setEditandoQuantidade(null)
+      setQuantidadeTemp('')
+    }
+  }
+  
   const subtotal = carrinho.reduce((total, item) => total + item.precoTotal, 0)
   const valorTaxaEntrega = entregaDomicilio ? taxaEntrega : 0
   const valorTaxaExtraKm = entregaDomicilio ? taxaExtraKm : 0
@@ -104,81 +141,149 @@ export default function CarrinhoPDV({
             </div>
           ) : (
             <div className="space-y-3">
-              {carrinho.map((item, index) => (
-                <div key={`${item.produto.id}-${index}`} className="flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
-                  <img
-                    src={item.produto.urlImagem}
-                    alt={item.produto.nome}
-                    className="w-10 h-10 md:w-12 md:h-12 object-cover rounded"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-xs md:text-sm truncate">
-                      {item.produto.nome}
-                      {item.variantLabel && ` - ${item.variantLabel}`}
-                    </p>
-                    
-                    {/* Renderizar detalhes do combo se for um combo */}
-                    {renderizarDetalhesCombo(item)}
-                    
-                    {/* Renderizar detalhes normais se não for combo */}
-                    {!item.produtosCombo && (
-                      <>
-                        {item.tamanhoSelecionado && (
-                          <p className="text-xs text-gray-500">
-                            Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
-                          </p>
+              {carrinho.map((item, index) => {
+                // Calcular desconto se existir
+                const precoOriginalItem = item.precoOriginal || item.precoTotal
+                const descontoItem = item.desconto || 0
+                const tipoDescontoItem = item.tipoDesconto || 'valor'
+                
+                let valorDescontoItem = 0
+                if (descontoItem > 0) {
+                  valorDescontoItem = tipoDescontoItem === 'percentual' 
+                    ? (precoOriginalItem * descontoItem) / 100
+                    : descontoItem
+                }
+                
+                const precoFinalItem = precoOriginalItem - valorDescontoItem
+
+                return (
+                  <div key={`${item.produto.id}-${index}`} className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
+                    <img
+                      src={item.produto.urlImagem}
+                      alt={item.produto.nome}
+                      className="w-10 h-10 md:w-12 md:h-12 object-cover rounded flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-xs md:text-sm break-words">
+                        {item.produto.nome}
+                        {item.variantLabel && (
+                          <span className="text-gray-600"> - {item.variantLabel}</span>
                         )}
-                        {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                          <p className="text-xs text-gray-500">
-                            Sabores: {item.saboresSelecionados.map((s: any) => s.nome).join(', ')}
-                          </p>
+                      </p>
+                      
+                      {/* Renderizar detalhes do combo se for um combo */}
+                      {renderizarDetalhesCombo(item)}
+                      
+                      {/* Renderizar detalhes normais se não for combo */}
+                      {!item.produtosCombo && (
+                        <>
+                          {item.tamanhoSelecionado && (
+                            <p className="text-xs text-gray-500">
+                              Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
+                            </p>
+                          )}
+                          {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
+                            <p className="text-xs text-gray-500">
+                              Sabores: {item.saboresSelecionados.map((s: any) => s.nome).join(', ')}
+                            </p>
+                          )}
+                          {item.bordaSelecionada && (
+                            <p className="text-xs text-gray-500">
+                              Borda: {item.bordaSelecionada.nome}
+                            </p>
+                          )}
+                          {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
+                            <p className="text-xs text-gray-500">
+                              Adicionais: {item.adicionaisSelecionados.map((a: any) => `${a.quantidade}x ${a.nome}`).join(', ')}
+                            </p>
+                          )}
+                          {item.observacoes && (
+                            <p className="text-xs text-gray-500 italic">
+                              <MessageSquare className="inline h-3 w-3 mr-1" />
+                              Obs: {item.observacoes}
+                            </p>
+                          )}
+                        </>
+                      )}
+                      
+                      {/* Preço e Desconto */}
+                      <div className="space-y-1 mt-1">
+                        <p className="text-xs text-gray-600">
+                          R$ {item.precoUnitario.toFixed(2).replace('.', ',')} x {item.quantidade}
+                        </p>
+                        
+                        {descontoItem > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs line-through text-gray-400">
+                              R$ {precoOriginalItem.toFixed(2).replace('.', ',')}
+                            </span>
+                            <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">
+                              -{tipoDescontoItem === 'percentual' ? `${descontoItem}%` : `R$ ${descontoItem.toFixed(2).replace('.', ',')}`}
+                            </span>
+                          </div>
                         )}
-                        {item.bordaSelecionada && (
-                          <p className="text-xs text-gray-500">
-                            Borda: {item.bordaSelecionada.nome}
-                          </p>
-                        )}
-                        {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                          <p className="text-xs text-gray-500">
-                            Adicionais: {item.adicionaisSelecionados.map((a: any) => `${a.quantidade}x ${a.nome}`).join(', ')}
-                          </p>
-                        )}
-                        {item.observacoes && (
-                          <p className="text-xs text-gray-500 italic">
-                            <MessageSquare className="inline h-3 w-3 mr-1" />
-                            Obs: {item.observacoes}
-                          </p>
-                        )}
-                      </>
-                    )}
-                    
-                    <p className="text-xs text-gray-600">
-                      R$ {item.precoUnitario.toFixed(2).replace('.', ',')} x {item.quantidade}
-                    </p>
-                    <p className="font-bold text-sm text-[color:var(--price-color)]">
-                      R$ {item.precoTotal.toFixed(2).replace('.', ',')}
-                    </p>
+                        
+                        <p className="font-bold text-sm text-[color:var(--price-color)]">
+                          R$ {precoFinalItem.toFixed(2).replace('.', ',')}
+                        </p>
+                      </div>
+                      
+                      {/* Botão de Desconto */}
+                      {onAbrirModalDesconto && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => onAbrirModalDesconto(index)}
+                          className="h-6 px-2 text-xs mt-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                        >
+                          <Tag className="h-3 w-3 mr-1" />
+                          {descontoItem > 0 ? 'Alterar Desconto' : 'Aplicar Desconto'}
+                        </Button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onRemoverItem(item.produto.id, (item.saboresSelecionados || item.tamanhoSelecionado || item.bordaSelecionada || item.adicionaisSelecionados) ? index : undefined)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      
+                      {/* Input editável de quantidade */}
+                      {editandoQuantidade === index ? (
+                        <input
+                          type="number"
+                          min="1"
+                          value={quantidadeTemp}
+                          onChange={(e) => setQuantidadeTemp(e.target.value)}
+                          onBlur={() => handleBlurQuantidade(index)}
+                          onKeyDown={(e) => handleKeyDownQuantidade(e, index)}
+                          autoFocus
+                          className="w-10 text-center text-sm border border-indigo-500 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 px-1 py-1"
+                        />
+                      ) : (
+                        <button
+                          onClick={() => handleClickQuantidade(index, item.quantidade)}
+                          className="w-10 text-center text-sm hover:bg-gray-100 rounded transition-colors py-1 cursor-pointer"
+                          title="Clique para editar"
+                        >
+                          {item.quantidade}
+                        </button>
+                      )}
+                      
+                      <Button
+                        size="sm"
+                        onClick={() => onAdicionarItem(item.produto.id, (item.saboresSelecionados || item.tamanhoSelecionado || item.bordaSelecionada || item.adicionaisSelecionados) ? index : undefined)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onRemoverItem(item.produto.id, (item.saboresSelecionados || item.tamanhoSelecionado || item.bordaSelecionada || item.adicionaisSelecionados) ? index : undefined)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-8 text-center text-sm">{item.quantidade}</span>
-                    <Button
-                      size="sm"
-                      onClick={() => onAdicionarItem(item.produto.id, (item.saboresSelecionados || item.tamanhoSelecionado || item.bordaSelecionada || item.adicionaisSelecionados) ? index : undefined)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </CardContent>

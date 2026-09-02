@@ -52,6 +52,12 @@ export interface ItemCarrinhoPDV {
   variantId?: string
   /** Label da variante selecionada (para exibição) */
   variantLabel?: string
+  /** Desconto aplicado ao item */
+  desconto?: number
+  /** Tipo de desconto ('percentual' ou 'valor') */
+  tipoDesconto?: 'percentual' | 'valor'
+  /** Preço original antes do desconto */
+  precoOriginal?: number
 }
 
 /**

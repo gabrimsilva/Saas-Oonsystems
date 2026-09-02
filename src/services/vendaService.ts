@@ -271,6 +271,32 @@ class VendaService {
   }
 
   /**
+   * Exclui uma venda do banco de dados
+   * Remove a venda e todas as suas referências
+   * 
+   * @param vendaId - ID da venda a ser excluída
+   */
+  async excluir(vendaId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('sales')
+        .delete()
+        .eq('id', vendaId)
+        .eq('estabelecimento_id', tenantId())
+
+      if (error) {
+        console.error('Erro ao excluir venda:', error)
+        throw new Error(`Erro ao excluir venda: ${error.message}`)
+      }
+
+      console.log(`✅ Venda ${vendaId} excluída com sucesso`)
+    } catch (error) {
+      console.error('Erro ao excluir venda:', error)
+      throw error
+    }
+  }
+
+  /**
    * Cria uma venda a partir de um pedido delivery finalizado
    * 
    * @param pedido - Dados do pedido delivery

@@ -49,19 +49,19 @@ export default function ConfiguracoesGeraisPage() {
 
       configuracoes.forEach(cfg => {
         switch (cfg.chave) {
-          case 'nome_loja':
+          case 'nome_estabelecimento':
             configCarregada.nomeEstabelecimento = cfg.valor
             break
-          case 'endereco_loja':
+          case 'endereco':
             configCarregada.endereco = cfg.valor
             break
-          case 'cep_loja':
+          case 'cep':
             configCarregada.cep = cfg.valor
             break
-          case 'telefone_loja':
+          case 'telefone':
             configCarregada.telefone = formatarTelefone(cfg.valor)
             break
-          case 'email_loja':
+          case 'email':
             configCarregada.email = cfg.valor
             break
         }
@@ -82,11 +82,11 @@ export default function ConfiguracoesGeraisPage() {
       setError(null)
 
       const configuracoesParaSalvar = [
-        { chave: 'nome_loja', valor: config.nomeEstabelecimento, categoria: 'loja', descricao: 'Nome da loja' },
-        { chave: 'endereco_loja', valor: config.endereco, categoria: 'loja', descricao: 'Endereço da loja' },
-        { chave: 'cep_loja', valor: config.cep, categoria: 'loja', descricao: 'CEP da loja' },
-        { chave: 'telefone_loja', valor: config.telefone, categoria: 'loja', descricao: 'Telefone da loja' },
-        { chave: 'email_loja', valor: config.email, categoria: 'loja', descricao: 'Email da loja' }
+        { chave: 'nome_estabelecimento', valor: config.nomeEstabelecimento, categoria: 'loja', descricao: 'Nome do estabelecimento' },
+        { chave: 'endereco', valor: config.endereco, categoria: 'loja', descricao: 'Endereço' },
+        { chave: 'cep', valor: config.cep, categoria: 'loja', descricao: 'CEP' },
+        { chave: 'telefone', valor: config.telefone, categoria: 'loja', descricao: 'Telefone WhatsApp' },
+        { chave: 'email', valor: config.email, categoria: 'loja', descricao: 'Email' }
       ]
 
       for (const cfg of configuracoesParaSalvar) {

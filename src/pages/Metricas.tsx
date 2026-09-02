@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
-import { supabase, getEstabelecimentoAtivo, estabelecimentoService, configuracaoService, auditoriaService } from "@/services"
-import { useEstabelecimento } from "@/contexts/EstabelecimentoContext"
-import toast from "react-hot-toast"
+import { supabase, getEstabelecimentoAtivo, estabelecimentoService } from "@/services"
 import { usePermissoes } from "@/hooks/usePermissoes"
 import type { Estabelecimento } from "@/types/estabelecimento"
 import RelatorioMetricas from "@/components/RelatorioMetricas"
+import CardConsumoInterno from "@/components/metrics/CardConsumoInterno"
+import LineChartConsumoInterno from "@/components/metrics/LineChartConsumoInterno"
+import ListaConsumoInterno from "@/components/metrics/ListaConsumoInterno"
 import {
   BarChart,
   Bar,
@@ -1146,6 +1147,35 @@ export default function Metricas() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Seção de Consumo Interno */}
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+          🔄 Consumo Interno
+        </h3>
+
+        {/* Card resumo + Gráfico de evolução */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="md:col-span-1">
+            <CardConsumoInterno
+              dataInicio={dataInicio}
+              dataFim={dataFim}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <LineChartConsumoInterno
+              dataInicio={dataInicio}
+              dataFim={dataFim}
+            />
+          </div>
+        </div>
+
+        {/* Tabela de produtos consumidos */}
+        <ListaConsumoInterno
+          dataInicio={dataInicio}
+          dataFim={dataFim}
+        />
+      </div>
     </div>
   )
 }

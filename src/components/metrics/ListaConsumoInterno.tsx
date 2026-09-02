@@ -69,28 +69,8 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
         fimAjustado
       })
 
-      // Buscar consumos internos de ambas as fontes
-      // Fonte 1: internal_consumptions
-      const { data: consumosInternos, error: erro1 } = await supabase
-        .from('internal_consumptions')
-        .select('items_json')
-        .eq('estabelecimento_id', estabelecimentoId)
-        .gte('consumed_at', inicio)
-        .lt('consumed_at', fimAjustado) // Usar < ao invés de <=
-
-      // Fonte 2: sales com sale_type='INTERNAL_CONSUMPTION'
-      // Primeiro, buscar IDs de sales que já estão em internal_consumptions
-      const { data: consumosExistentes } = await supabase
-        .from('internal_consumptions')
-        .select('sale_id')
-        .eq('estabelecimento_id', estabelecimentoId)
-        .gte('consumed_at', inicio)
-        .lt('consumed_at', fimAjustado) // Usar < ao invés de <=
-
-      const salesJaRegistradas = consumosExistentes?.map(c => c.sale_id) || []
-
-      // Buscar vendas internas que NÃO estão em internal_consumptions
-      let queryVendas = supabase
+      // Buscar vendas de consumo interno em sales (fonte gravada pelo PDV)
+      const { data: vendasInternas, error: erroVendas } = await supabase
         .from('sales')
         .select('id, items')
         .eq('estabelecimento_id', estabelecimentoId)
@@ -98,49 +78,25 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
         .gte('created_at', inicio)
         .lt('created_at', fimAjustado) // Usar < ao invés de <=
 
-      const { data: vendasInternas, error: erro2 } = await queryVendas
+      if (erroVendas && erroVendas.code !== 'PGRST116') throw erroVendas
 
-      if (erro1 && erro1.code !== 'PGRST116') throw erro1
-      if (erro2 && erro2.code !== 'PGRST116') throw erro2
-
-      // Agregar produtos de ambas as fontes
+      // Agregar produtos por nome (+ variante quando houver)
       const produtosMap = new Map<string, { quantidade: number; precoUnitario: number }>()
 
-      // Processar internal_consumptions
-      if (consumosInternos) {
-        consumosInternos.forEach((consumo) => {
-          const items = Array.isArray(consumo.items_json) ? consumo.items_json : []
-          items.forEach((item: any) => {
-            // Suportar ambas estruturas: nova (produto) e antiga (product_name)
-            const nome = item.produto?.nome || item.product_name || 'Produto sem nome'
-            const quantidade = item.quantidade || 0
-            const precoUnitario = item.produto?.preco || item.precoUnitario || 0
-            const atual = produtosMap.get(nome) || { quantidade: 0, precoUnitario }
-            produtosMap.set(nome, {
-              quantidade: atual.quantidade + quantidade,
-              precoUnitario // Mantém o preço do primeiro registro
-            })
-          })
-        })
-      }
-
-      // Processar vendas internas (excluindo as que já estão em internal_consumptions)
       if (vendasInternas) {
         vendasInternas.forEach((venda) => {
-          // Verificar se esta venda já foi registrada em internal_consumptions
-          const jáRegistrada = salesJaRegistradas.includes(venda.id)
-          if (jáRegistrada) return // Pular se já está registrada
-
           const items = Array.isArray(venda.items) ? venda.items : []
           items.forEach((item: any) => {
             // Suportar ambas estruturas: nova (produto) e antiga (product_name)
-            const nome = item.produto?.nome || item.product_name || 'Produto sem nome'
-            const quantidade = item.quantidade || 0
-            const precoUnitario = item.produto?.preco || item.precoUnitario || 0
+            const nomeBase = item.produto?.nome || item.product_name || 'Produto sem nome'
+            const variante = item.variantName || item.produto?.variantName
+            const nome = variante ? `${nomeBase} - ${variante}` : nomeBase
+            const quantidade = item.quantidade || item.quantity || 0
+            const precoUnitario = item.precoUnitario || item.produto?.preco || item.unit_price || 0
             const atual = produtosMap.get(nome) || { quantidade: 0, precoUnitario }
             produtosMap.set(nome, {
               quantidade: atual.quantidade + quantidade,
-              precoUnitario // Mantém o preço do primeiro registro
+              precoUnitario: atual.precoUnitario || precoUnitario
             })
           })
         })
@@ -163,9 +119,7 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
         periodo: `${dataInicio.toLocaleDateString('pt-BR')} a ${dataFim.toLocaleDateString('pt-BR')}`,
         quantidade: produtosOrdenados.length,
         total: produtosOrdenados.reduce((sum, p) => sum + p.quantidade, 0),
-        consumosInternos: consumosInternos?.length || 0,
         vendasInternas: vendasInternas?.length || 0,
-        vendasInternas_filtradas: vendasInternas?.filter(v => !salesJaRegistradas.includes(v.id)).length || 0,
         detalhes: produtosOrdenados.map(p => `${p.nome}: ${p.quantidade}`)
       })
     } catch (error) {

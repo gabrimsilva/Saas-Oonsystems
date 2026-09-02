@@ -20,6 +20,7 @@ interface ModalFinalizarPedidoProps {
     formaPagamento: string
     precisaTroco: boolean
     valorTroco?: number
+    consumoInterno?: boolean
   }) => void
   subtotal: number
   taxaEntrega: number
@@ -39,33 +40,37 @@ export default function ModalFinalizarPedido({
   total,
   processando
 }: ModalFinalizarPedidoProps) {
-  const [formaPagamento, setFormaPagamento] = useState('dinheiro')
+  const [formaPagamento, setFormaPagamento] = useState('pix')
   const [precisaTroco, setPrecisaTroco] = useState(false)
   const [valorTroco, setValorTroco] = useState('')
+  const [consumoInterno, setConsumoInterno] = useState(false)
 
-  // 🔧 FIX: Resetar estado quando o modal fecha (isOpen muda para false)
+  // 🔧 FIX: Resetar estado sempre que o modal abre OU fecha.
+  // Resetar na abertura garante que o padrão (PIX) seja aplicado mesmo que
+  // o componente permaneça montado entre aberturas.
   useEffect(() => {
-    if (!isOpen) {
-      setFormaPagamento('dinheiro')
-      setPrecisaTroco(false)
-      setValorTroco('')
-    }
+    setFormaPagamento('pix')
+    setPrecisaTroco(false)
+    setValorTroco('')
+    setConsumoInterno(false)
   }, [isOpen])
 
   const handleConfirmar = () => {
     // Finalizar venda
     onConfirmar({
-      formaPagamento,
-      precisaTroco,
-      valorTroco: precisaTroco ? parseFloat(valorTroco) || 0 : undefined
+      formaPagamento: consumoInterno ? 'interno' : formaPagamento,
+      precisaTroco: consumoInterno ? false : precisaTroco,
+      valorTroco: (consumoInterno || !precisaTroco) ? undefined : parseFloat(valorTroco) || 0,
+      consumoInterno
     })
   }
 
   // Resetar quando modal fecha
   const handleClose = () => {
-    setFormaPagamento('dinheiro')
+    setFormaPagamento('pix')
     setPrecisaTroco(false)
     setValorTroco('')
+    setConsumoInterno(false)
     onClose()
   }
 
@@ -80,12 +85,44 @@ export default function ModalFinalizarPedido({
             Finalizar Pedido
           </DialogTitle>
           <DialogDescription>
-            Confirme os dados do pagamento
+            {consumoInterno 
+              ? 'Registrar consumo interno - Sem cobrança'
+              : 'Confirme os dados do pagamento'
+            }
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Forma de Pagamento */}
+          {/* Checkbox Consumo Interno */}
+          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="consumoInterno"
+                checked={consumoInterno}
+                onChange={(e) => setConsumoInterno(e.target.checked)}
+                disabled={processando}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Label htmlFor="consumoInterno" className="font-semibold text-orange-800 cursor-pointer">
+                  Consumo Interno
+                </Label>
+                <p className="text-xs text-orange-700 mt-1">
+                  Marcar para registrar como consumo interno (sem cobrança, estoque reduzido normalmente)
+                </p>
+                {consumoInterno && (
+                  <div className="mt-2 p-2 bg-orange-100 rounded border border-orange-300 text-xs text-orange-800">
+                    ⚠️ Consumo interno ativado - Total será R$ 0,00 e estoque será reduzido normalmente
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Forma de Pagamento - Ocultar se consumo interno */}
+          {!consumoInterno && (
+            <>
           <div>
             <Label htmlFor="formaPagamento">
               Forma de Pagamento
@@ -96,10 +133,10 @@ export default function ModalFinalizarPedido({
               onChange={(e) => setFormaPagamento(e.target.value)}
               disabled={processando}
             >
+              <option value="pix">PIX</option>
               <option value="dinheiro">Dinheiro</option>
               <option value="cartaoDebito">Cartão de Débito</option>
               <option value="cartaoCredito">Cartão de Crédito</option>
-              <option value="pix">PIX</option>
             </select>
           </div>
 
@@ -158,22 +195,33 @@ export default function ModalFinalizarPedido({
               )}
             </div>
           )}
+            </>
+          )}
 
           <Separator />
 
           {/* Resumo Simplificado - PDV */}
           <div className="p-4 rounded-lg space-y-2 bg-gray-50">
+            {!consumoInterno && (
+              <>
             <div className="flex justify-between">
               <span>Subtotal:</span>
               <span>R$ {subtotal.toFixed(2).replace('.', ',')}</span>
             </div>
             <Separator />
+              </>
+            )}
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span className="text-green-600">
-                R$ {total.toFixed(2).replace('.', ',')}
+              <span className={consumoInterno ? "text-orange-600" : "text-green-600"}>
+                R$ {consumoInterno ? '0,00' : total.toFixed(2).replace('.', ',')}
               </span>
             </div>
+            {consumoInterno && (
+              <p className="text-xs text-orange-600 mt-1">
+                * Consumo interno - sem valor de cobrança
+              </p>
+            )}
           </div>
         </div>
 

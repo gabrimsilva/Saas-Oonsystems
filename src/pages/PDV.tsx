@@ -23,6 +23,7 @@ import EscolherSaborModal from "@/components/EscolherSaborModal"
 import EscolherComboPersonalizadoModal from "@/components/EscolherComboPersonalizadoModal"
 import BuscaUnificadaPDV from "@/components/pdv/BuscaUnificadaPDV"
 import SelecionarVarianteModal from "@/components/pdv/SelecionarVarianteModal"
+import ModalDescontoItem from "@/components/pdv/ModalDescontoItem"
 import { type ProdutoPDV, type DadosClientePDV } from "@/components/pdv/types"
 import { useCarrinhoPDV } from "@/hooks/useCarrinhoPDV"
 import { useFinalizarVendaPDV } from "@/hooks/useFinalizarVendaPDV"
@@ -55,6 +56,8 @@ export default function PDV() {
     const [modalSaborAberto, setModalSaborAberto] = useState(false)
     const [modalComboPersonalizadoAberto, setModalComboPersonalizadoAberto] = useState(false)
     const [modalVarianteAberto, setModalVarianteAberto] = useState(false)
+    const [modalDescontoAberto, setModalDescontoAberto] = useState(false)
+    const [itemDescontoIndex, setItemDescontoIndex] = useState<number>(0)
     const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoPDV | null>(null)
     const [comboSelecionado, setComboSelecionado] = useState<any>(null)
     
@@ -70,7 +73,9 @@ export default function PDV() {
         adicionarComboSimples,
         adicionarComboPersonalizado,
         limparCarrinho,
-        calcularSubtotal
+        calcularSubtotal,
+        aplicarDescontoItem,
+        alterarQuantidadeItem
     } = useCarrinhoPDV(categorias)
 
     const { processando, finalizarVenda } = useFinalizarVendaPDV()
@@ -348,6 +353,17 @@ export default function PDV() {
         adicionarComboPersonalizado(comboSelecionado, produtosPersonalizados, quantidade, observacoes)
     }
 
+    // Handler para abrir modal de desconto
+    const handleAbrirModalDesconto = (index: number) => {
+        setItemDescontoIndex(index)
+        setModalDescontoAberto(true)
+    }
+
+    // Handler para aplicar desconto no item
+    const handleAplicarDesconto = (itemIndex: number, desconto: number, tipoDesconto: 'percentual' | 'valor') => {
+        aplicarDescontoItem(itemIndex, desconto, tipoDesconto)
+    }
+
     // Handler para buscar produto por código de barras
     const handleBuscarPorCodigoBarras = async (barcode: string) => {
         try {
@@ -574,6 +590,8 @@ export default function PDV() {
                     onAbrirModalCliente={() => {}} // Função vazia (simplificado)
                     onFinalizarPedido={handleFinalizarPedido}
                     simplified={true}
+                    onAbrirModalDesconto={handleAbrirModalDesconto}
+                    onAlterarQuantidade={alterarQuantidadeItem}
                 />
             </div>
 
@@ -626,6 +644,15 @@ export default function PDV() {
                 }}
                 onConfirm={handleAdicionarComboPersonalizado}
                 variant="default"
+            />
+
+            {/* Modal de Desconto do Item */}
+            <ModalDescontoItem
+                isOpen={modalDescontoAberto}
+                onClose={() => setModalDescontoAberto(false)}
+                item={carrinho[itemDescontoIndex]}
+                itemIndex={itemDescontoIndex}
+                onAplicarDesconto={handleAplicarDesconto}
             />
 
             {/* Menu Flutuante Mobile (simplificado - apenas total e finalizar) */}

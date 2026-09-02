@@ -265,6 +265,7 @@ export const produtoService: ProdutoService = {
       const dataLimpa = {
         nome: data.nome,
         descricao: data.descricao,
+        custo: (data as any).custo !== undefined ? (data as any).custo : undefined,
         preco: data.preco,
         preco_promocional: data.preco_promocional ?? null,
         categoria_id: data.categoria_id,

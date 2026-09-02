@@ -219,36 +219,101 @@ class ConsumoInternoService {
         return []
       }
 
-      // Formatar datas para formato DATE
-      const dataInicioStr = dataInicio.toISOString().split('T')[0]
-      const dataFimStr = dataFim.toISOString().split('T')[0]
+      // Formatar datas em horário local (evita deslocamento de timezone)
+      const formatarData = (date: Date) => {
+        const ano = date.getFullYear()
+        const mes = String(date.getMonth() + 1).padStart(2, '0')
+        const dia = String(date.getDate()).padStart(2, '0')
+        return `${ano}-${mes}-${dia}`
+      }
+
+      const inicio = `${formatarData(dataInicio)}T00:00:00Z`
+      // Fim exclusivo: dia seguinte a 00:00 para incluir todo o último dia
+      const fimExclusivo = `${formatarData(new Date(dataFim.getTime() + 24 * 60 * 60 * 1000))}T00:00:00Z`
 
       console.log('📊 [CONSUMO_INTERNO] Consultando consumos por período:', {
         estabelecimentoId,
-        dataInicio: dataInicioStr,
-        dataFim: dataFimStr,
+        inicio,
+        fimExclusivo,
         granularidade
       })
 
-      // Chamar RPC function obter_consumos_por_periodo()
-      const { data, error } = await supabase.rpc('obter_consumos_por_periodo', {
-        p_estabelecimento_id: estabelecimentoId,
-        p_data_inicio: dataInicioStr,
-        p_data_fim: dataFimStr,
-        p_granularidade: granularidade
-      })
+      // Ler direto de sales (fonte de verdade gravada pelo PDV)
+      const { data, error } = await supabase
+        .from('sales')
+        .select('id, created_at, items')
+        .eq('estabelecimento_id', estabelecimentoId)
+        .eq('sale_type', 'INTERNAL_CONSUMPTION')
+        .gte('created_at', inicio)
+        .lt('created_at', fimExclusivo)
+        .order('created_at', { ascending: true })
 
       if (error) {
-        console.error('❌ [CONSUMO_INTERNO] Erro ao chamar RPC:', error)
+        console.error('❌ [CONSUMO_INTERNO] Erro ao consultar sales:', error)
         return []
       }
 
-      // data deve ser um array de ConsumosPorPeriodo
-      const consumos = (data || []) as ConsumosPorPeriodo[]
+      const vendas = data || []
+
+      // Agrupar por período conforme granularidade
+      const gerarChave = (dataVenda: Date): string => {
+        if (granularidade === 'mes') {
+          const mes = String(dataVenda.getMonth() + 1).padStart(2, '0')
+          return `${mes}/${dataVenda.getFullYear()}`
+        }
+
+        if (granularidade === 'semana') {
+          // Início da semana (domingo)
+          const inicioSemana = new Date(dataVenda)
+          inicioSemana.setDate(inicioSemana.getDate() - inicioSemana.getDay())
+          const dia = String(inicioSemana.getDate()).padStart(2, '0')
+          const mes = String(inicioSemana.getMonth() + 1).padStart(2, '0')
+          return `Sem ${dia}/${mes}`
+        }
+
+        const dia = String(dataVenda.getDate()).padStart(2, '0')
+        const mes = String(dataVenda.getMonth() + 1).padStart(2, '0')
+        return `${dia}/${mes}`
+      }
+
+      const agrupado = new Map<string, { unidades: number; transacoes: number; ordem: number }>()
+
+      vendas.forEach((venda: any) => {
+        const dataVenda = new Date(venda.created_at)
+        const chave = gerarChave(dataVenda)
+
+        const itens = Array.isArray(venda.items) ? venda.items : []
+        const unidadesVenda = itens.reduce(
+          (soma: number, item: any) => soma + (item.quantidade || item.quantity || 0),
+          0
+        )
+
+        const atual = agrupado.get(chave)
+        if (atual) {
+          atual.unidades += unidadesVenda
+          atual.transacoes += 1
+        } else {
+          agrupado.set(chave, {
+            unidades: unidadesVenda,
+            transacoes: 1,
+            ordem: dataVenda.getTime()
+          })
+        }
+      })
+
+      const consumos: ConsumosPorPeriodo[] = Array.from(agrupado.entries())
+        .sort((a, b) => a[1].ordem - b[1].ordem)
+        .map(([periodo, dados]) => ({
+          periodo,
+          total_unidades: dados.unidades,
+          total_transacoes: dados.transacoes,
+          media_unidades_transacao: dados.transacoes > 0 ? dados.unidades / dados.transacoes : 0
+        }))
 
       console.log('✅ [CONSUMO_INTERNO] Consumos obtidos:', {
-        quantidade: consumos.length,
-        periodosPrimeiros: consumos.slice(0, 3).map(c => c.periodo)
+        vendasEncontradas: vendas.length,
+        periodos: consumos.length,
+        totalUnidades: consumos.reduce((s, c) => s + c.total_unidades, 0)
       })
 
       return consumos

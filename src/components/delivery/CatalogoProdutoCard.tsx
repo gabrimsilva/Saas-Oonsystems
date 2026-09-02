@@ -43,12 +43,6 @@ function CatalogoProdutoCard({
   produto,
   onAbrirDetalhes
 }: CatalogoProdutoCardProps) {
-  const precoExibicao = produto.precoPromocional && produto.precoPromocional > 0
-    ? produto.precoPromocional
-    : produto.preco
-
-  const temPromocao = produto.precoPromocional && produto.precoPromocional > 0
-
   return (
     <Card 
       className="overflow-hidden hover:shadow-lg transition-all duration-300 border border-purple-100 p-0 rounded-2xl"
@@ -68,13 +62,6 @@ function CatalogoProdutoCard({
         {!produto.estoqueDisponivel && produto.quantidadeEstoque !== 0 && (
           <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
             INDISPONÍVEL
-          </div>
-        )}
-
-        {/* Badge de Promoção */}
-        {temPromocao && (
-          <div className="absolute top-2 right-2 z-10 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-            {Math.round(((produto.preco - precoExibicao) / produto.preco) * 100)}% OFF
           </div>
         )}
         
@@ -109,24 +96,7 @@ function CatalogoProdutoCard({
           </div>
 
           {/* Preço e botão */}
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              {temPromocao ? (
-                <>
-                  <span className="text-base md:text-lg font-bold text-purple-600">
-                    R$ {precoExibicao.toFixed(2).replace('.', ',')}
-                  </span>
-                  <span className="text-xs md:text-sm text-gray-400 line-through">
-                    R$ {produto.preco.toFixed(2).replace('.', ',')}
-                  </span>
-                </>
-              ) : (
-                <span className="text-base md:text-lg font-bold text-purple-600">
-                  R$ {precoExibicao.toFixed(2).replace('.', ',')}
-                </span>
-              )}
-            </div>
-
+          <div className="flex items-center justify-end">
             {/* Botão Ver Detalhes */}
             <Button
               size="sm"

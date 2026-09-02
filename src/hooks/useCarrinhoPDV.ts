@@ -406,6 +406,85 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
     return calcularSubtotal() + taxaEntrega
   }
 
+  /**
+   * Aplica desconto a um item específico do carrinho
+   */
+  const aplicarDescontoItem = (
+    itemIndex: number,
+    desconto: number,
+    tipoDesconto: 'percentual' | 'valor'
+  ) => {
+    const novoCarrinho = [...carrinho]
+    const item = novoCarrinho[itemIndex]
+    
+    if (!item) return
+    
+    // Se não tem preço original salvo, salvar agora
+    if (!item.precoOriginal) {
+      item.precoOriginal = item.precoTotal
+    }
+    
+    // Aplicar desconto
+    item.desconto = desconto
+    item.tipoDesconto = tipoDesconto
+    
+    // Calcular novo preço
+    let valorDesconto = 0
+    if (tipoDesconto === 'percentual') {
+      valorDesconto = (item.precoOriginal * desconto) / 100
+    } else {
+      valorDesconto = desconto
+    }
+    
+    item.precoTotal = Math.max(0, item.precoOriginal - valorDesconto)
+    item.precoUnitario = item.precoTotal / item.quantidade
+    
+    setCarrinho(novoCarrinho)
+    toast.success('Desconto aplicado!')
+  }
+
+  /**
+   * Altera a quantidade de um item específico do carrinho
+   */
+  const alterarQuantidadeItem = (itemIndex: number, novaQuantidade: number) => {
+    if (novaQuantidade <= 0) {
+      toast.error('Quantidade deve ser maior que zero')
+      return
+    }
+    
+    const novoCarrinho = [...carrinho]
+    const item = novoCarrinho[itemIndex]
+    
+    if (!item) return
+    
+    // Atualizar quantidade
+    item.quantidade = novaQuantidade
+    
+    // Recalcular preço total
+    if (item.precoOriginal) {
+      // Se tem desconto, aplicar o desconto no novo preço total
+      const precoOriginalTotal = item.precoUnitario * novaQuantidade
+      let valorDesconto = 0
+      
+      if (item.desconto && item.desconto > 0) {
+        if (item.tipoDesconto === 'percentual') {
+          valorDesconto = (precoOriginalTotal * item.desconto) / 100
+        } else {
+          valorDesconto = item.desconto
+        }
+      }
+      
+      item.precoTotal = precoOriginalTotal - valorDesconto
+      item.precoOriginal = precoOriginalTotal
+    } else {
+      // Sem desconto, apenas multiplicar
+      item.precoTotal = item.precoUnitario * novaQuantidade
+    }
+    
+    setCarrinho(novoCarrinho)
+    toast.success('Quantidade atualizada!')
+  }
+
   return {
     carrinho,
     adicionarAoCarrinho,
@@ -415,6 +494,8 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
     adicionarComboPersonalizado,
     limparCarrinho,
     calcularSubtotal,
-    calcularTotal
+    calcularTotal,
+    aplicarDescontoItem,
+    alterarQuantidadeItem
   }
 }

@@ -152,7 +152,8 @@ export default function SelecionarVarianteModal({
               Escolha qual variante está sendo vendida:
             </p>
 
-            <div className="space-y-2">
+            {/* Container com scroll para muitas variantes */}
+            <div className="max-h-[400px] overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {variantes.map((variante) => (
                 <button
                   key={variante.id}

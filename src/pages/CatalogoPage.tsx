@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import CookieConsent from "@/components/CookieConsent"
 import FiltroCategorias from "@/components/delivery/FiltroCategorias"
@@ -9,7 +8,7 @@ import CatalogoProdutoModal from "@/components/CatalogoProdutoModal"
 import ModalInformacoesEstabelecimento from "@/components/ModalInformacoesEstabelecimento"
 import LojaStatusBadge from "@/components/LojaStatusBadge"
 import { ProdutoCardSkeletonGrid } from "@/components/skeletons/ProdutoCardSkeleton"
-import { produtoService, categoriaService, configuracaoService, supabase, type CategoriaSupabase } from "@/services"
+import { configuracaoService, supabase, type CategoriaSupabase } from "@/services"
 import { Info } from "lucide-react"
 
 export default function CatalogoPage() {
@@ -131,6 +130,13 @@ export default function CatalogoPage() {
       const horarioFuncionamento = configsMap.get('horario_funcionamento')?.valor || ''
 
       console.log('📞 Telefone WhatsApp carregado:', telefone)
+      console.log('🔄 Configuração completa:', { telefone, email, horarioFuncionamento })
+      
+      // Salvar telefone no localStorage para fallback em caso de erro
+      if (telefone && telefone.trim() !== '') {
+        localStorage.setItem('estabelecimento_telefone', telefone)
+        console.log('💾 Telefone salvo no localStorage para fallback')
+      }
 
       setConfiguracao({
         nomeEstabelecimento: nomeEstab,
