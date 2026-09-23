@@ -884,8 +884,8 @@ describe('EstabelecimentoProvider - Authentication State Changes', () => {
     vi.clearAllMocks()
   })
 
-  it('deve recarregar ao fazer sign-in (SIGNED_IN event)', async () => {
-    let authStateCallback: ((event: string) => void) | null = null
+  it('deve recarregar ao fazer sign-in de um usuário diferente (SIGNED_IN event)', async () => {
+    let authStateCallback: ((event: string, session?: any) => void) | null = null
 
     const mockUser = { id: MOCK_ADMIN_GERAL.user_id }
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
@@ -910,13 +910,57 @@ describe('EstabelecimentoProvider - Authentication State Changes', () => {
       expect(result.current.loading).toBe(false)
     })
 
-    // Simular sign-in
+    const chamadasAntes = vi.mocked(usuarioService.buscarPorUserId).mock.calls.length
+
+    // Simular sign-in de um usuário DIFERENTE do já carregado (troca real de conta)
     if (authStateCallback) {
-      authStateCallback('SIGNED_IN')
+      authStateCallback('SIGNED_IN', { user: { id: 'outro-usuario-id' } })
       await waitFor(() => {
-        expect(usuarioService.buscarPorUserId).toHaveBeenCalled()
+        expect(usuarioService.buscarPorUserId).toHaveBeenCalledTimes(chamadasAntes + 1)
       })
     }
+  })
+
+  it('NÃO deve recarregar ao repetir SIGNED_IN para o mesmo usuário (evita perder o estado da página ao trocar de aba)', async () => {
+    // Regressão: o supabase-js redispara SIGNED_IN ao readquirir foco na aba,
+    // mesmo sem um login novo. Se o contexto recarregasse nesse caso, o
+    // `loading` giraria de novo e desmontaria toda a árvore de rotas,
+    // fazendo a página perder filtros/estado (relatado pelo usuário).
+    let authStateCallback: ((event: string, session?: any) => void) | null = null
+
+    const mockUser = { id: MOCK_ADMIN_GERAL.user_id }
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: mockUser as any },
+      error: null,
+    })
+    vi.mocked(supabase.auth.onAuthStateChange).mockImplementation(
+      (callback: any) => {
+        authStateCallback = callback
+        return { data: { subscription: { unsubscribe: vi.fn() } as any } } as any
+      }
+    )
+    vi.mocked(usuarioService.buscarPorUserId).mockResolvedValue(MOCK_ADMIN_GERAL)
+    vi.mocked(estabelecimentoService.buscarAtivos).mockResolvedValue([
+      MOCK_ESTAB_1,
+      MOCK_ESTAB_2,
+    ])
+
+    const { result } = renderHookWithProvider(useEstabelecimento)
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+
+    const chamadasAntes = vi.mocked(usuarioService.buscarPorUserId).mock.calls.length
+
+    // Simular o re-disparo "fantasma" de SIGNED_IN para o MESMO usuário
+    if (authStateCallback) {
+      authStateCallback('SIGNED_IN', { user: { id: mockUser.id } })
+    }
+
+    // Nada deve recarregar, e o loading não deve voltar a ficar true
+    expect(result.current.loading).toBe(false)
+    expect(usuarioService.buscarPorUserId).toHaveBeenCalledTimes(chamadasAntes)
   })
 
   it('deve recarregar ao fazer sign-out (SIGNED_OUT event)', async () => {
