@@ -1,4 +1,4 @@
-# ⚙️ Configuração do Ambiente - KOBE E-Commerce
+# ⚙️ Configuração do Ambiente - LIRI E-Commerce
 
 ## ✅ Credenciais Configuradas
 
@@ -9,7 +9,7 @@ O arquivo `.env` foi criado com as credenciais do projeto Supabase:
 - **Project Reference ID**: `jeqhvbjtyrqvownitfdc`
 - **URL do Projeto**: `https://jeqhvbjtyrqvownitfdc.supabase.co`
 - **Anon Key**: Configurada ✅
-- **App Name**: KOBE E-Commerce
+- **App Name**: LIRI E-Commerce
 - **Version**: 1.0.0
 
 ## 📋 Variáveis de Ambiente Configuradas
@@ -18,7 +18,7 @@ O arquivo `.env` foi criado com as credenciais do projeto Supabase:
 ```env
 VITE_SUPABASE_URL=https://jeqhvbjtyrqvownitfdc.supabase.co
 VITE_SUPABASE_ANON_KEY=[configurada]
-VITE_APP_NAME=KOBE E-Commerce
+VITE_APP_NAME=LIRI E-Commerce
 VITE_APP_VERSION=1.0.0
 ```
 

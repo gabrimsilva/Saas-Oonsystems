@@ -61,12 +61,12 @@ Crie o arquivo `.kiro/settings/mcp.json` com o seguinte conteúdo:
 1. No Supabase Dashboard, clique no seu perfil (canto superior direito)
 2. Vá em **Access Tokens**
 3. Clique em **Generate new token**
-4. Dê um nome (ex: "KOBE MCP")
+4. Dê um nome (ex: "LIRI MCP")
 5. Copie o token gerado
 
 ### 4. Configuração Atual do Projeto
 
-O projeto KOBE E-Commerce já está configurado com:
+O projeto LIRI E-Commerce já está configurado com:
 - **Project Ref**: `jeqhvbjtyrqvownitfdc`
 - **Access Token**: Configurado ✅
 

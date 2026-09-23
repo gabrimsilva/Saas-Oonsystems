@@ -24,7 +24,7 @@ import EscolherComboPersonalizadoModal from "@/components/EscolherComboPersonali
 import BuscaUnificadaPDV from "@/components/pdv/BuscaUnificadaPDV"
 import SelecionarVarianteModal from "@/components/pdv/SelecionarVarianteModal"
 import ModalDescontoItem from "@/components/pdv/ModalDescontoItem"
-import { type ProdutoPDV, type DadosClientePDV } from "@/components/pdv/types"
+import { type ProdutoPDV, type DadosClientePDV, type TipoDescontoItem } from "@/components/pdv/types"
 import { useCarrinhoPDV } from "@/hooks/useCarrinhoPDV"
 import { useFinalizarVendaPDV } from "@/hooks/useFinalizarVendaPDV"
 import toast from "react-hot-toast"
@@ -79,6 +79,19 @@ export default function PDV() {
     } = useCarrinhoPDV(categorias)
 
     const { processando, finalizarVenda } = useFinalizarVendaPDV()
+
+    // 🐛 DEBUG: Log para verificar remontagem do componente
+    useEffect(() => {
+        console.log('🔄 [PDV] Componente montado/atualizado')
+        return () => {
+            console.log('❌ [PDV] Componente desmontado')
+        }
+    }, [])
+
+    // 🐛 DEBUG: Log para verificar mudanças no estado do modal
+    useEffect(() => {
+        console.log('🔔 [PDV] Estado do modal mudou:', modalFinalizarAberto)
+    }, [modalFinalizarAberto])
 
     useEffect(() => {
         carregarDados()
@@ -360,7 +373,7 @@ export default function PDV() {
     }
 
     // Handler para aplicar desconto no item
-    const handleAplicarDesconto = (itemIndex: number, desconto: number, tipoDesconto: 'percentual' | 'valor') => {
+    const handleAplicarDesconto = (itemIndex: number, desconto: number, tipoDesconto: TipoDescontoItem) => {
         aplicarDescontoItem(itemIndex, desconto, tipoDesconto)
     }
 

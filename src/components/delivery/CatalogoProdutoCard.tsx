@@ -16,6 +16,8 @@ export interface ProdutoCatalogo {
   urlImagem: string
   estoqueDisponivel?: boolean
   quantidadeEstoque?: number
+  /** Indica se o produto tem controle de estoque ativado (toggle "Produto precisa de estoque") */
+  requiresStock?: boolean
 }
 
 /**
@@ -51,26 +53,26 @@ function CatalogoProdutoCard({
     >
       {/* Layout horizontal */}
       <div className="flex items-center relative">
-        {/* Badge de Sem Estoque */}
-        {produto.quantidadeEstoque === 0 && (
+        {/* Badge de Sem Estoque — só para produtos com controle de estoque ativado */}
+        {produto.requiresStock && produto.quantidadeEstoque === 0 && (
           <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
             SEM ESTOQUE
           </div>
         )}
 
-        {/* Badge de Indisponível */}
-        {!produto.estoqueDisponivel && produto.quantidadeEstoque !== 0 && (
+        {/* Badge de Indisponível — só para produtos com controle de estoque ativado */}
+        {produto.requiresStock && !produto.estoqueDisponivel && produto.quantidadeEstoque !== 0 && (
           <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
             INDISPONÍVEL
           </div>
         )}
         
         {/* Imagem */}
-        <div className="w-24 h-24 md:w-28 md:h-28 flex-shrink-0 m-3">
+        <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 m-3 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-contain"
             onError={(e) => {
               const target = e.target as HTMLImageElement
               target.src = '/placeholder-food.svg'

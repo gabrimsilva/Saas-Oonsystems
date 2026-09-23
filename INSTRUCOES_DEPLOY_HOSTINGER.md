@@ -95,7 +95,7 @@ Se seu cliente FTP suporta, usar "Sincronização":
 ### Checklist de Validação
 
 - [ ] **URL da aplicação abre** 
-  - Acesse: `https://casadopai.oondelivery.com.br/sistema`
+  - Acesse: `https://casadopai.oonsystems.com.br/sistema`
   - Deve carregar sem erros 404
 
 - [ ] **Console do navegador limpo**

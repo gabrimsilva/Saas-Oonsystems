@@ -143,18 +143,11 @@ export default function CarrinhoPDV({
             <div className="space-y-3">
               {carrinho.map((item, index) => {
                 // Calcular desconto se existir
-                const precoOriginalItem = item.precoOriginal || item.precoTotal
                 const descontoItem = item.desconto || 0
                 const tipoDescontoItem = item.tipoDesconto || 'valor'
-                
-                let valorDescontoItem = 0
-                if (descontoItem > 0) {
-                  valorDescontoItem = tipoDescontoItem === 'percentual' 
-                    ? (precoOriginalItem * descontoItem) / 100
-                    : descontoItem
-                }
-                
-                const precoFinalItem = precoOriginalItem - valorDescontoItem
+                const precoOriginalItem = descontoItem > 0 && item.precoOriginal ? item.precoOriginal : item.precoTotal
+                const precoFinalItem = item.precoTotal
+                const valorDescontoItem = precoOriginalItem - precoFinalItem
 
                 return (
                   <div key={`${item.produto.id}-${index}`} className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
@@ -218,7 +211,7 @@ export default function CarrinhoPDV({
                               R$ {precoOriginalItem.toFixed(2).replace('.', ',')}
                             </span>
                             <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">
-                              -{tipoDescontoItem === 'percentual' ? `${descontoItem}%` : `R$ ${descontoItem.toFixed(2).replace('.', ',')}`}
+                              -{tipoDescontoItem === 'percentual' ? `${descontoItem}%` : `R$ ${valorDescontoItem.toFixed(2).replace('.', ',')}`}
                             </span>
                           </div>
                         )}

@@ -1,9 +1,9 @@
-# 👤 Criar Usuário Administrador - KOBE E-Commerce
+# 👤 Criar Usuário Administrador - LIRI E-Commerce
 
 ## ✅ Estabelecimento Criado!
 
-- **Nome**: KOBE E-Commerce
-- **Slug**: `kobe`
+- **Nome**: LIRI E-Commerce
+- **Slug**: `liri`
 - **ID**: `e1cb89b8-8ccb-49b4-85f6-1badc1d396ae`
 - **Cor Tema**: #4F46E5 (Índigo)
 - **Status**: Ativo ✅
@@ -19,7 +19,7 @@
 
 2. **Adicionar Novo Usuário**
    - Clique em **Add user** > **Create new user**
-   - **Email**: admin@kobe.com (ou seu email preferido)
+   - **Email**: admin@liri.com (ou seu email preferido)
    - **Password**: (escolha uma senha forte)
    - **Auto Confirm User**: ✅ Marque esta opção
    - Clique em **Create user**
@@ -93,8 +93,8 @@ END $$;
 - **Perfil**: Administrador Geral
 
 ### Opção B: Email Teste
-- **Email**: admin@kobe.com
-- **Senha**: KobeAdmin@2026
+- **Email**: admin@liri.com
+- **Senha**: LiriAdmin@2026
 - **Perfil**: Administrador Geral
 
 ## ✅ Verificação
@@ -158,7 +158,7 @@ npm run dev
 ## 📊 Estrutura Criada
 
 ```
-KOBE E-Commerce (Estabelecimento)
+LIRI E-Commerce (Estabelecimento)
 └── Administrador (Usuário Admin Geral)
     ├── Acesso total ao sistema
     ├── Pode gerenciar estabelecimentos

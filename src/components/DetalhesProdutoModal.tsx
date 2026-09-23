@@ -38,7 +38,7 @@ export default function DetalhesProdutoModal({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="w-[525px] h-[450px] max-w-[calc(100%-2rem)] max-h-[90vh] p-0 overflow-hidden max-md:flex max-md:flex-col max-md:justify-between">
+      <AlertDialogContent className="w-[525px] max-w-[calc(100%-2rem)] max-h-[85vh] p-0 overflow-hidden flex flex-col">
         {/* Botão fechar */}
         <button
           onClick={onClose}
@@ -49,11 +49,11 @@ export default function DetalhesProdutoModal({
         </button>
 
         {/* Imagem do produto */}
-        <div className="w-full h-48 bg-gray-100 max-md:h-[40vh] max-md:flex-shrink-0">
+        <div className="w-full h-44 bg-gray-50 max-md:h-[30vh] max-md:flex-shrink-0 flex items-center justify-center">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-2"
             onError={(e) => {
               const target = e.target as HTMLImageElement
               target.src = '/placeholder-food.svg'
@@ -61,8 +61,8 @@ export default function DetalhesProdutoModal({
           />
         </div>
 
-        {/* Conteúdo */}
-        <div className="p-4 max-md:flex-1 max-md:flex max-md:flex-col max-md:justify-between max-md:overflow-y-auto">
+        {/* Conteúdo com scroll */}
+        <div className="flex-1 overflow-y-auto p-4 max-md:flex max-md:flex-col">
           <AlertDialogHeader className="space-y-2 text-left">
             <AlertDialogTitle className="text-lg font-bold text-gray-900">
               {produto.nome}
@@ -101,7 +101,7 @@ export default function DetalhesProdutoModal({
           </div>
 
           {/* Botão adicionar */}
-          <AlertDialogFooter className="sm:justify-center">
+          <AlertDialogFooter className="sm:justify-center mt-4">
             <Button
               onClick={handleAdicionar}
               className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-5 text-base cursor-pointer"

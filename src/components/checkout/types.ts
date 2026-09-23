@@ -129,14 +129,6 @@ export interface Configuracao {
     cartaoCredito: boolean
     /** Aceita PIX */
     pix: boolean
-    /** Aceita PIX na entrega */
-    pixEntrega: boolean
-    /** Aceita cartão vale refeição */
-    cartaoVR: boolean
-    /** Aceita cartão vale alimentação */
-    cartaoVA: boolean
-    /** Aceita Ticket Promo */
-    ticketPromo: boolean
   }
   /** WhatsApp para contato */
   whatsapp?: string

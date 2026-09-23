@@ -146,15 +146,20 @@ export default function Metricas() {
       const fim = endOfDay(dataFim).toISOString()
 
       // Buscar vendas do período com filtros
+      // IMPORTANTE: vendas "A Prazo" (payment_method = A_PRAZO) NÃO entram aqui.
+      // Elas só contam nas métricas quando suas parcelas são marcadas como pagas
+      // (ver bloco "parcelasPagasData" abaixo, que reconhece a receita na data
+      // em que a parcela foi paga, não na data de criação da venda).
       let query = supabase
         .from("sales")
         .select("*")
         .gte("created_at", inicio)
         .lte("created_at", fim)
+        .neq("payment_method", "A_PRAZO")
         .order("created_at", { ascending: true })
 
       // Aplicar filtro de forma de pagamento se selecionado
-      if (filtroFormaPagamento !== "TODAS") {
+      if (filtroFormaPagamento !== "TODAS" && filtroFormaPagamento !== "A_PRAZO") {
         query = query.eq("payment_method", filtroFormaPagamento)
       }
 
@@ -198,11 +203,80 @@ export default function Metricas() {
         pedidosAbertoData = pedidosData || []
       }
 
-      // Vendas registradas em 'sales' (PDV + Delivery)
-      const faturamentoSales = vendasData.reduce((sum, v) => sum + (parseFloat(v.total_amount) || 0), 0)
-      const quantidadeSales = vendasData.length
+      // ============================================================
+      // VENDAS "A PRAZO": só contam nas métricas quando a PARCELA é
+      // marcada como paga. Buscamos as parcelas pagas cuja data de
+      // pagamento (pago_em) cai dentro do período filtrado — a receita é
+      // reconhecida no dia em que o pagamento ocorreu, não no dia em que
+      // a venda foi criada.
+      // ============================================================
+      let parcelasValidas: { sale_id: string; valor: number; pago_em: string }[] = []
+      const vendaAPrazoMap = new Map<string, any>()
+      // proporção (0 a 1) do valor total da venda que foi paga dentro do período,
+      // usada para ratear itens/custo proporcionalmente ao valor reconhecido
+      const proporcaoPagaPorVenda = new Map<string, number>()
+
+      if (filtroFormaPagamento === "TODAS" || filtroFormaPagamento === "A_PRAZO") {
+        let parcelasQuery = supabase
+          .from('sale_installments')
+          .select('*')
+          .eq('pago', true)
+          .gte('pago_em', inicio)
+          .lte('pago_em', fim)
+        if (estabId) parcelasQuery = parcelasQuery.eq('estabelecimento_id', estabId)
+        const { data: parcelasData } = await parcelasQuery
+        const parcelasPagas = parcelasData || []
+
+        if (parcelasPagas.length > 0) {
+          const saleIdsAPrazo = [...new Set(parcelasPagas.map((p: any) => p.sale_id))]
+          let vendasAPrazoQuery = supabase
+            .from('sales')
+            .select('*')
+            .in('id', saleIdsAPrazo)
+          if (filtroTipoVenda !== "TODOS" && filtroTipoVenda !== "COMANDA") {
+            vendasAPrazoQuery = vendasAPrazoQuery.eq('sale_type', filtroTipoVenda)
+          }
+          if (estabId) vendasAPrazoQuery = vendasAPrazoQuery.eq('estabelecimento_id', estabId)
+          const { data: vendasAPrazoData } = await vendasAPrazoQuery
+          ;(vendasAPrazoData || []).forEach((v: any) => vendaAPrazoMap.set(v.id, v))
+
+          // Descarta parcelas cuja venda não passou pelos filtros de tipo/estabelecimento
+          parcelasValidas = parcelasPagas.filter((p: any) => vendaAPrazoMap.has(p.sale_id))
+
+          parcelasValidas.forEach((parcela: any) => {
+            const venda = vendaAPrazoMap.get(parcela.sale_id)
+            const totalVenda = parseFloat(venda.total_amount) || 0
+            const valorParcela = parseFloat(parcela.valor) || 0
+            const fracao = totalVenda > 0 ? valorParcela / totalVenda : 0
+            proporcaoPagaPorVenda.set(
+              parcela.sale_id,
+              (proporcaoPagaPorVenda.get(parcela.sale_id) || 0) + fracao
+            )
+          })
+        }
+      }
+
+      const faturamentoAPrazoPago = parcelasValidas.reduce((sum, p: any) => sum + (parseFloat(p.valor) || 0), 0)
+      const faturamentoAPrazoPagoPDV = parcelasValidas
+        .filter((p: any) => vendaAPrazoMap.get(p.sale_id)?.sale_type === 'PDV')
+        .reduce((sum, p: any) => sum + (parseFloat(p.valor) || 0), 0)
+      const faturamentoAPrazoPagoDelivery = parcelasValidas
+        .filter((p: any) => vendaAPrazoMap.get(p.sale_id)?.sale_type === 'DELIVERY')
+        .reduce((sum, p: any) => sum + (parseFloat(p.valor) || 0), 0)
+      // Cada venda a prazo conta como 1 venda no período em que recebeu pagamento
+      // (mesmo que tenha mais de uma parcela paga dentro do mesmo período)
+      const quantidadeVendasAPrazoPagas = new Set(parcelasValidas.map((p: any) => p.sale_id)).size
+
+      // Vendas registradas em 'sales' (PDV + Delivery) + parcelas de vendas A Prazo pagas no período
+      const faturamentoSales = vendasData.reduce((sum, v) => sum + (parseFloat(v.total_amount) || 0), 0) + faturamentoAPrazoPago
+      const quantidadeSales = vendasData.length + quantidadeVendasAPrazoPagas
       const unidadesSales = vendasData.reduce((sum, venda) => {
         const itens = Array.isArray(venda.items) ? venda.items : []
+        return sum + itens.reduce((itemSum: number, item: any) => itemSum + (item.quantidade || 0), 0)
+      }, 0) + Array.from(proporcaoPagaPorVenda.keys()).reduce((sum, saleId) => {
+        // Para vendas A Prazo: contabilizar produtos INTEIROS se houve QUALQUER pagamento
+        const venda = vendaAPrazoMap.get(saleId)
+        const itens = Array.isArray(venda?.items) ? venda.items : []
         return sum + itens.reduce((itemSum: number, item: any) => itemSum + (item.quantidade || 0), 0)
       }, 0)
 
@@ -210,11 +284,11 @@ export default function Metricas() {
       const vendasPDV = vendasData.filter(v => v.sale_type === 'PDV')
       const vendasDelivery = vendasData.filter(v => v.sale_type === 'DELIVERY')
 
-      const faturamentoPDV = vendasPDV.reduce((sum, v) => sum + (parseFloat(v.total_amount) || 0), 0)
-      const quantidadeVendasPDV = vendasPDV.length
+      const faturamentoPDV = vendasPDV.reduce((sum, v) => sum + (parseFloat(v.total_amount) || 0), 0) + faturamentoAPrazoPagoPDV
+      const quantidadeVendasPDV = vendasPDV.length + parcelasValidas.filter((p: any) => vendaAPrazoMap.get(p.sale_id)?.sale_type === 'PDV').length
 
-      const faturamentoDelivery = vendasDelivery.reduce((sum, v) => sum + (parseFloat(v.total_amount) || 0), 0)
-      const quantidadeVendasDelivery = vendasDelivery.length
+      const faturamentoDelivery = vendasDelivery.reduce((sum, v) => sum + (parseFloat(v.total_amount) || 0), 0) + faturamentoAPrazoPagoDelivery
+      const quantidadeVendasDelivery = vendasDelivery.length + parcelasValidas.filter((p: any) => vendaAPrazoMap.get(p.sale_id)?.sale_type === 'DELIVERY').length
       const ticketMedioDelivery = quantidadeVendasDelivery > 0 ? faturamentoDelivery / quantidadeVendasDelivery : 0
 
       // Métricas de comandas (finalizadas vão para historico_comandas, não para sales)
@@ -269,6 +343,30 @@ export default function Metricas() {
           })
         })
       })
+
+      // Itens das vendas "A Prazo" entram proporcionalmente ao VALOR pago
+      // mas QUANTIDADE é considerada INTEIRA (produtos não são fracionados)
+      // (ex.: se 1 de 3 parcelas foi paga, R$ 10 de receita + 3 unidades vendidas)
+      proporcaoPagaPorVenda.forEach((fracao, saleId) => {
+        const venda = vendaAPrazoMap.get(saleId)
+        if (!venda || venda.sale_type === 'INTERNAL_CONSUMPTION') return
+        const fracaoCapada = Math.min(fracao, 1)
+        const itens = Array.isArray(venda.items) ? venda.items : []
+        itens.forEach((item: any) => {
+          const nome = item.produto?.nome || "Produto sem nome"
+          // ✅ QUANTIDADE: usar valor INTEIRO (produtos não são fracionados)
+          const quantidade = item.quantidade || 1
+          const precoUnitario = item.produto?.preco || item.precoUnitario || 0
+          // ✅ VALOR: usar proporção da receita reconhecida
+          const precoTotal = (item.precoTotal || ((item.quantidade || 1) * precoUnitario)) * fracaoCapada
+
+          const atual = produtosMap.get(nome) || { quantidade: 0, total: 0 }
+          produtosMap.set(nome, {
+            quantidade: atual.quantidade + quantidade,
+            total: atual.total + precoTotal
+          })
+        })
+      })
       
       const produtosMaisVendidos = Array.from(produtosMap.entries())
         .map(([nome, dados]) => ({ nome, ...dados }))
@@ -282,6 +380,16 @@ export default function Metricas() {
         const atual = vendasPorDiaMap.get(data) || { total: 0, quantidade: 0 }
         vendasPorDiaMap.set(data, {
           total: atual.total + (parseFloat(venda.total_amount) || 0),
+          quantidade: atual.quantidade + 1
+        })
+      })
+
+      // Parcelas de vendas "A Prazo" pagas contam no dia em que foram pagas
+      parcelasValidas.forEach((parcela: any) => {
+        const data = format(new Date(parcela.pago_em), "dd/MM", { locale: ptBR })
+        const atual = vendasPorDiaMap.get(data) || { total: 0, quantidade: 0 }
+        vendasPorDiaMap.set(data, {
+          total: atual.total + (parseFloat(parcela.valor) || 0),
           quantidade: atual.quantidade + 1
         })
       })
@@ -307,6 +415,28 @@ export default function Metricas() {
           const precoUnitario = item.produto?.preco || item.precoUnitario || 0
           const precoTotal = item.precoTotal || (quantidade * precoUnitario)
           
+          const atual = categoriasMap.get(categoria) || { total: 0, quantidade: 0 }
+          categoriasMap.set(categoria, {
+            total: atual.total + precoTotal,
+            quantidade: atual.quantidade + quantidade
+          })
+        })
+      })
+
+      // Vendas A Prazo: quantidade INTEIRA, valor PROPORCIONAL
+      proporcaoPagaPorVenda.forEach((fracao, saleId) => {
+        const venda = vendaAPrazoMap.get(saleId)
+        if (!venda) return
+        const fracaoCapada = Math.min(fracao, 1)
+        const itens = Array.isArray(venda.items) ? venda.items : []
+        itens.forEach((item: any) => {
+          const categoria = item.produto?.categoria || "Sem categoria"
+          // ✅ QUANTIDADE: usar valor INTEIRO (produtos não são fracionados)
+          const quantidade = item.quantidade || 1
+          const precoUnitario = item.produto?.preco || item.precoUnitario || 0
+          // ✅ VALOR: usar proporção da receita reconhecida
+          const precoTotal = (item.precoTotal || ((item.quantidade || 1) * precoUnitario)) * fracaoCapada
+
           const atual = categoriasMap.get(categoria) || { total: 0, quantidade: 0 }
           categoriasMap.set(categoria, {
             total: atual.total + precoTotal,
@@ -350,6 +480,15 @@ export default function Metricas() {
         })
       })
 
+      // "A Prazo": soma apenas o valor das parcelas efetivamente pagas dentro do período
+      if (parcelasValidas.length > 0) {
+        const atual = formasPagamentoMap.get('A Prazo') || { total: 0, quantidade: 0 }
+        formasPagamentoMap.set('A Prazo', {
+          total: atual.total + faturamentoAPrazoPago,
+          quantidade: atual.quantidade + quantidadeVendasAPrazoPagas
+        })
+      }
+
       // NOVO: Adicionar dados de pedidos em aberto (delivery)
       pedidosAbertoData.forEach((pedido: any) => {
         const forma = traduzirFormaPagamento(pedido.forma_pagamento || "Não informado")
@@ -371,6 +510,15 @@ export default function Metricas() {
       const produtoIdsVendas = new Set<string>()
       vendasData.forEach(venda => {
         if (venda.sale_type === 'INTERNAL_CONSUMPTION') return
+        const itens = Array.isArray(venda.items) ? venda.items : []
+        itens.forEach((item: any) => {
+          if (item.produto?.id) produtoIdsVendas.add(item.produto.id)
+        })
+      })
+      // Incluir produtos das vendas "A Prazo" com parcelas pagas no período
+      proporcaoPagaPorVenda.forEach((_fracao, saleId) => {
+        const venda = vendaAPrazoMap.get(saleId)
+        if (!venda || venda.sale_type === 'INTERNAL_CONSUMPTION') return
         const itens = Array.isArray(venda.items) ? venda.items : []
         itens.forEach((item: any) => {
           if (item.produto?.id) produtoIdsVendas.add(item.produto.id)
@@ -402,6 +550,24 @@ export default function Metricas() {
           const quantidade = item.quantidade || 1
           const produtoId = item.produto?.id
           // Prioriza custo salvo no JSON; fallback para custo atual da tabela produtos
+          const custoNoJson = item.produto?.custo
+          const custo = (custoNoJson !== undefined && custoNoJson !== null)
+            ? parseFloat(custoNoJson) || 0
+            : (produtoId ? custosMapProdutos.get(produtoId) || 0 : 0)
+          custoTotalVendas += custo * quantidade
+        })
+      })
+
+      // Custo proporcional das vendas "A Prazo" com parcelas pagas no período
+      // ⚠️ CUSTO: mantém proporcional à receita reconhecida (se recebeu 1/3, custo é 1/3)
+      proporcaoPagaPorVenda.forEach((fracao, saleId) => {
+        const venda = vendaAPrazoMap.get(saleId)
+        if (!venda || venda.sale_type === 'INTERNAL_CONSUMPTION') return
+        const fracaoCapada = Math.min(fracao, 1)
+        const itens = Array.isArray(venda.items) ? venda.items : []
+        itens.forEach((item: any) => {
+          const quantidade = (item.quantidade || 1) * fracaoCapada
+          const produtoId = item.produto?.id
           const custoNoJson = item.produto?.custo
           const custo = (custoNoJson !== undefined && custoNoJson !== null)
             ? parseFloat(custoNoJson) || 0
@@ -623,6 +789,7 @@ export default function Metricas() {
                   <SelectItem value="DEBIT">Débito</SelectItem>
                   <SelectItem value="CREDIT">Crédito</SelectItem>
                   <SelectItem value="PIX">PIX</SelectItem>
+                  <SelectItem value="A_PRAZO">A Prazo (pago)</SelectItem>
                 </SelectContent>
               </Select>
 

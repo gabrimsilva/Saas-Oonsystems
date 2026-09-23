@@ -10,19 +10,13 @@ interface FormasPagamento {
   cartaoDebito: boolean
   cartaoCredito: boolean
   pix: boolean
-  pixEntrega: boolean
-  cartaoVR: boolean
-  cartaoVA: boolean
-  ticketPromo: boolean
 }
 
 interface FormasPagamentoConfigProps {
   formasPagamento: FormasPagamento
-  ticketsPromocionais: string
   mercadoPagoAccessToken?: string
   mercadoPagoWebhookSecret?: string
   onFormasPagamentoChange: (forma: keyof FormasPagamento, value: boolean) => void
-  onTicketsPromocionaisChange: (value: string) => void
   onMercadoPagoAccessTokenChange?: (value: string) => void
   onMercadoPagoWebhookSecretChange?: (value: string) => void
 }
@@ -35,11 +29,9 @@ interface FormasPagamentoConfigProps {
  */
 export function FormasPagamentoConfig({
   formasPagamento,
-  ticketsPromocionais,
   mercadoPagoAccessToken = '',
   mercadoPagoWebhookSecret = '',
   onFormasPagamentoChange,
-  onTicketsPromocionaisChange,
   onMercadoPagoAccessTokenChange,
   onMercadoPagoWebhookSecretChange
 }: FormasPagamentoConfigProps) {
@@ -249,64 +241,6 @@ export function FormasPagamentoConfig({
           </div>
         )}
         
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">PIX na Entrega</p>
-            <p className="text-sm text-gray-500">Aceitar PIX no momento da entrega</p>
-          </div>
-          <Switch 
-            checked={formasPagamento.pixEntrega}
-            onChange={(checked: boolean) => onFormasPagamentoChange('pixEntrega', checked)}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Cartão VR (Vale Refeição)</p>
-            <p className="text-sm text-gray-500">Aceitar cartões de vale refeição</p>
-          </div>
-          <Switch 
-            checked={formasPagamento.cartaoVR}
-            onChange={(checked: boolean) => onFormasPagamentoChange('cartaoVR', checked)}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Cartão VA (Vale Alimentação)</p>
-            <p className="text-sm text-gray-500">Aceitar cartões de vale alimentação</p>
-          </div>
-          <Switch 
-            checked={formasPagamento.cartaoVA}
-            onChange={(checked: boolean) => onFormasPagamentoChange('cartaoVA', checked)}
-          />
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Ticket Promocional</p>
-            <p className="text-sm text-gray-500">Aceitar tickets promocionais de troca</p>
-          </div>
-          <Switch 
-            checked={formasPagamento.ticketPromo}
-            onChange={(checked: boolean) => onFormasPagamentoChange('ticketPromo', checked)}
-          />
-        </div>
-        
-        {formasPagamento.ticketPromo && (
-          <div className="grid gap-2 ml-4 p-3 bg-gray-50 rounded-lg">
-            <label htmlFor="tickets-promocionais" className="text-sm font-medium">Quantidade de Tickets Disponíveis</label>
-            <Input
-              id="tickets-promocionais"
-              name="tickets-promocionais"
-              placeholder="10" 
-              value={ticketsPromocionais}
-              onChange={(e) => onTicketsPromocionaisChange(e.target.value)}
-              type="number"
-              min="0"
-            />
-          </div>
-        )}
       </CardContent>
     </Card>
   )

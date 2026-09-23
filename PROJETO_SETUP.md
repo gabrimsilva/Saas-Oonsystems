@@ -1,8 +1,8 @@
-# 🚀 Setup do Projeto KOBE E-Commerce
+# 🚀 Setup do Projeto LIRI E-Commerce
 
 ## 📝 Resumo do Projeto
 
-O **KOBE E-Commerce** foi criado a partir do repositório `casa-do-pai`, mantendo toda a estrutura e funcionalidades já desenvolvidas, mas com uma nova identidade e foco em e-commerce.
+O **LIRI E-Commerce** foi criado a partir do repositório `casa-do-pai`, mantendo toda a estrutura e funcionalidades já desenvolvidas, mas com uma nova identidade e foco em e-commerce.
 
 ## ✅ Alterações Realizadas
 
@@ -12,9 +12,9 @@ O **KOBE E-Commerce** foi criado a partir do repositório `casa-do-pai`, mantend
 - ✅ Novo repositório Git criado do zero
 
 ### 2. Atualização de Identidade
-- ✅ `package.json`: Nome alterado de `casa-do-pai` para `kobe-ecommerce`
-- ✅ `README.md`: Criado novo README específico para KOBE E-Commerce
-- ✅ `index.html`: Atualizado título e meta tags para KOBE E-Commerce
+- ✅ `package.json`: Nome alterado de `casa-do-pai` para `liri-ecommerce`
+- ✅ `README.md`: Criado novo README específico para LIRI E-Commerce
+- ✅ `index.html`: Atualizado título e meta tags para LIRI E-Commerce
 
 ### 3. Commits Iniciais
 - ✅ Commit inicial com todo o código base
@@ -83,7 +83,7 @@ Toda a documentação original foi mantida na pasta `docs/`:
 
 ## 🎯 Diferenças em Relação ao Projeto Original
 
-O KOBE E-Commerce herda todas as funcionalidades do projeto original, mas com:
+O LIRI E-Commerce herda todas as funcionalidades do projeto original, mas com:
 - ✨ Nova identidade visual
 - 🎨 Foco em e-commerce genérico (não apenas delivery de alimentos)
 - 🔄 Possibilidade de expansão para múltiplos tipos de produtos

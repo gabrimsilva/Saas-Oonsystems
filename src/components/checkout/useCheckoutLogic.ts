@@ -55,11 +55,7 @@ export const useCheckoutLogic = (onNavigate: (page: 'delivery' | 'checkout') => 
           dinheiro: true,
           cartaoDebito: true,
           cartaoCredito: true,
-          pix: true,
-          pixEntrega: false,
-          cartaoVR: false,
-          cartaoVA: false,
-          ticketPromo: false
+          pix: true
         }
 
         if (formasPagamento?.valor) {
@@ -72,11 +68,7 @@ export const useCheckoutLogic = (onNavigate: (page: 'delivery' | 'checkout') => 
                 dinheiro: pagamentoData.includes('dinheiro'),
                 cartaoDebito: pagamentoData.includes('cartao_debito'),
                 cartaoCredito: pagamentoData.includes('cartao_credito'),
-                pix: pagamentoData.includes('pix'),
-                pixEntrega: pagamentoData.includes('pix_entrega'),
-                cartaoVR: pagamentoData.includes('cartao_vr'),
-                cartaoVA: pagamentoData.includes('cartao_va'),
-                ticketPromo: pagamentoData.includes('ticket_promo')
+                pix: pagamentoData.includes('pix')
               }
             } else {
               // Se for objeto (formato antigo)
@@ -107,11 +99,7 @@ export const useCheckoutLogic = (onNavigate: (page: 'delivery' | 'checkout') => 
             dinheiro: true,
             cartaoDebito: true,
             cartaoCredito: true,
-            pix: true,
-            pixEntrega: false,
-            cartaoVR: false,
-            cartaoVA: false,
-            ticketPromo: false
+            pix: true
           },
           nomeEstabelecimento: 'Sua Empresa',
           endereco: 'Rua Exemplo, 123 - Centro',

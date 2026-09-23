@@ -52,13 +52,23 @@ export interface ItemCarrinhoPDV {
   variantId?: string
   /** Label da variante selecionada (para exibição) */
   variantLabel?: string
-  /** Desconto aplicado ao item */
+  /** Desconto aplicado ao item (% , R$ sobre o total ou novo preço unitário, conforme tipoDesconto) */
   desconto?: number
-  /** Tipo de desconto ('percentual' ou 'valor') */
-  tipoDesconto?: 'percentual' | 'valor'
-  /** Preço original antes do desconto */
+  /** Tipo de desconto ('percentual', 'valor' ou 'preco_fixo') */
+  tipoDesconto?: TipoDescontoItem
+  /** Preço total original antes do desconto (preço unitário original × quantidade) */
   precoOriginal?: number
+  /** Preço unitário original antes do desconto */
+  precoUnitarioOriginal?: number
 }
+
+/**
+ * Tipo de desconto aplicado a um item do carrinho
+ * - percentual: % sobre o total do item
+ * - valor: R$ fixo descontado do total do item
+ * - preco_fixo: novo preço unitário (total = preço × quantidade)
+ */
+export type TipoDescontoItem = 'percentual' | 'valor' | 'preco_fixo'
 
 /**
  * Dados do cliente no PDV

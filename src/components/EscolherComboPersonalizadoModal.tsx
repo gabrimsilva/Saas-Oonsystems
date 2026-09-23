@@ -514,7 +514,7 @@ export default function EscolherComboPersonalizadoModal({
                     <img
                       src={produtoAtualObj.imagem_path || '/placeholder-food.svg'}
                       alt={produtoAtualObj.nome}
-                      className="w-20 h-20 md:w-28 md:h-28 object-cover rounded-lg flex-shrink-0"
+                      className="w-20 h-20 md:w-28 md:h-28 object-contain rounded-lg flex-shrink-0 bg-gray-50 p-2"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder-food.svg';

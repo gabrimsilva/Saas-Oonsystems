@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { type ItemCarrinhoPDV, type ProdutoPDV } from '@/components/pdv/types'
+import { type ItemCarrinhoPDV, type ProdutoPDV, type TipoDescontoItem } from '@/components/pdv/types'
 import { type CategoriaSupabase, type ComboSupabase } from "@/services"
 import toast from 'react-hot-toast'
 
@@ -7,7 +7,11 @@ import toast from 'react-hot-toast'
  * Hook customizado para gerenciar o carrinho do PDV
  * 
  * Gerencia a adição, remoção e cálculo de preços de itens no carrinho,
- * incluindo produtos com personalizações (sabores, bordas, tamanhos)
+ * incluindo produtos com personalizações (sabores, bordas, tamanhos).
+ * 
+ * ✨ PERSISTÊNCIA: O carrinho é salvo automaticamente no localStorage
+ * e restaurado quando o componente monta, garantindo que o carrinho
+ * não seja perdido ao trocar de aba, atualizar a página, etc.
  * 
  * @example
  * ```tsx
@@ -21,7 +25,70 @@ import toast from 'react-hot-toast'
  * ```
  */
 export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
-  const [carrinho, setCarrinho] = useState<ItemCarrinhoPDV[]>([])
+  // 🔄 CARRINHO PERSISTENTE
+  // Carrega do localStorage na primeira renderização
+  const [carrinho, setCarrinho] = useState<ItemCarrinhoPDV[]>(() => {
+    try {
+      const carrinhoSalvo = localStorage.getItem('liri_carrinho_pdv')
+      if (carrinhoSalvo) {
+        return JSON.parse(carrinhoSalvo)
+      }
+    } catch (error) {
+      console.error('Erro ao carregar carrinho do localStorage:', error)
+    }
+    return []
+  })
+
+  // ✅ Salva automaticamente no localStorage sempre que o carrinho mudar
+  const atualizarCarrinho = (novoCarrinho: ItemCarrinhoPDV[]) => {
+    setCarrinho(novoCarrinho)
+    try {
+      localStorage.setItem('liri_carrinho_pdv', JSON.stringify(novoCarrinho))
+    } catch (error) {
+      console.error('Erro ao salvar carrinho no localStorage:', error)
+    }
+  }
+
+  /**
+   * Preço unitário do item antes de qualquer desconto
+   * (itens antigos sem precoUnitarioOriginal derivam de precoOriginal)
+   */
+  const obterPrecoUnitarioOriginal = (item: ItemCarrinhoPDV) => {
+    if (item.precoUnitarioOriginal) return item.precoUnitarioOriginal
+    if (item.desconto && item.precoOriginal) return item.precoOriginal / item.quantidade
+    return item.precoUnitario
+  }
+
+  /**
+   * Recalcula os preços do item para uma quantidade, mantendo o desconto aplicado
+   */
+  const recalcularItem = (item: ItemCarrinhoPDV, quantidade: number): ItemCarrinhoPDV => {
+    if (!item.desconto || item.desconto <= 0) {
+      return { ...item, quantidade, precoTotal: item.precoUnitario * quantidade }
+    }
+
+    const precoUnitarioOriginal = obterPrecoUnitarioOriginal(item)
+    const precoOriginal = precoUnitarioOriginal * quantidade
+
+    let precoTotal: number
+    if (item.tipoDesconto === 'percentual') {
+      precoTotal = precoOriginal - (precoOriginal * item.desconto) / 100
+    } else if (item.tipoDesconto === 'preco_fixo') {
+      precoTotal = item.desconto * quantidade
+    } else {
+      precoTotal = precoOriginal - item.desconto
+    }
+    precoTotal = Math.max(0, precoTotal)
+
+    return {
+      ...item,
+      quantidade,
+      precoUnitarioOriginal,
+      precoOriginal,
+      precoTotal,
+      precoUnitario: precoTotal / quantidade
+    }
+  }
 
   /**
    * Adiciona um produto ao carrinho ou incrementa quantidade de item existente
@@ -52,12 +119,8 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
     if (index !== undefined) {
       const item = carrinho[index]
       const novoCarrinho = [...carrinho]
-      novoCarrinho[index] = {
-        ...item,
-        quantidade: item.quantidade + 1,
-        precoTotal: (item.quantidade + 1) * item.precoUnitario
-      }
-      setCarrinho(novoCarrinho)
+      novoCarrinho[index] = recalcularItem(item, item.quantidade + 1)
+      atualizarCarrinho(novoCarrinho)
       return false
     }
 
@@ -96,17 +159,13 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
     const precoUnitario = produto.precoPromocional || produto.preco
 
     if (itemExistente) {
-      setCarrinho(
+      atualizarCarrinho(
         carrinho.map(item =>
           item.produto.id === produto.id &&
           !item.saboresSelecionados &&
           !item.tamanhoSelecionado &&
           !item.bordaSelecionada
-            ? {
-                ...item,
-                quantidade: item.quantidade + 1,
-                precoTotal: (item.quantidade + 1) * precoUnitario
-              }
+            ? recalcularItem(item, item.quantidade + 1)
             : item
         )
       )
@@ -117,7 +176,7 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
         precoUnitario,
         precoTotal: precoUnitario
       }
-      setCarrinho([...carrinho, novoItem])
+      atualizarCarrinho([...carrinho, novoItem])
     }
 
     return false
@@ -133,14 +192,10 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
 
       if (item.quantidade > 1) {
         const novoCarrinho = [...carrinho]
-        novoCarrinho[index] = {
-          ...item,
-          quantidade: item.quantidade - 1,
-          precoTotal: (item.quantidade - 1) * item.precoUnitario
-        }
-        setCarrinho(novoCarrinho)
+        novoCarrinho[index] = recalcularItem(item, item.quantidade - 1)
+        atualizarCarrinho(novoCarrinho)
       } else {
-        setCarrinho(carrinho.filter((_, i) => i !== index))
+        atualizarCarrinho(carrinho.filter((_, i) => i !== index))
       }
     } else {
       // Lógica original para produtos simples (sem personalizações)
@@ -153,22 +208,18 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
       )
 
       if (itemExistente && itemExistente.quantidade > 1) {
-        setCarrinho(
+        atualizarCarrinho(
           carrinho.map(item =>
             item.produto.id === produtoId &&
             !item.saboresSelecionados &&
             !item.tamanhoSelecionado &&
             !item.bordaSelecionada
-              ? {
-                  ...item,
-                  quantidade: item.quantidade - 1,
-                  precoTotal: (item.quantidade - 1) * item.precoUnitario
-                }
+              ? recalcularItem(item, item.quantidade - 1)
               : item
           )
         )
       } else {
-        setCarrinho(
+        atualizarCarrinho(
           carrinho.filter(
             item =>
               !(
@@ -251,7 +302,7 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
     }
 
     console.log('✅ [useCarrinhoPDV] Item criado:', novoItem)
-    setCarrinho([...carrinho, novoItem])
+    atualizarCarrinho([...carrinho, novoItem])
     toast.success('Produto adicionado ao carrinho!')
   }
 
@@ -290,18 +341,14 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
     const precoUnitario = combo.preco_combo
 
     if (itemExistente) {
-      setCarrinho(
+      atualizarCarrinho(
         carrinho.map(item =>
           item.produto.id === combo.id &&
           !item.saboresSelecionados &&
           !item.tamanhoSelecionado &&
           !item.bordaSelecionada &&
           item.observacoes === observacoes
-            ? {
-                ...item,
-                quantidade: item.quantidade + 1,
-                precoTotal: (item.quantidade + 1) * precoUnitario
-              }
+            ? recalcularItem(item, item.quantidade + 1)
             : item
         )
       )
@@ -313,7 +360,7 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
         precoUnitario,
         precoTotal: precoUnitario
       }
-      setCarrinho([...carrinho, novoItem])
+      atualizarCarrinho([...carrinho, novoItem])
     }
     toast.success('Combo adicionado ao carrinho!')
   }
@@ -381,7 +428,7 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
       precoTotal: precoUnitarioFinal * quantidade
     }
 
-    setCarrinho([...carrinho, novoItem])
+    atualizarCarrinho([...carrinho, novoItem])
     toast.success('Combo personalizado adicionado ao carrinho!')
   }
 
@@ -389,7 +436,7 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
    * Limpa todos os itens do carrinho
    */
   const limparCarrinho = () => {
-    setCarrinho([])
+    atualizarCarrinho([])
   }
 
   /**
@@ -412,34 +459,23 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
   const aplicarDescontoItem = (
     itemIndex: number,
     desconto: number,
-    tipoDesconto: 'percentual' | 'valor'
+    tipoDesconto: TipoDescontoItem
   ) => {
-    const novoCarrinho = [...carrinho]
-    const item = novoCarrinho[itemIndex]
-    
+    const item = carrinho[itemIndex]
     if (!item) return
-    
-    // Se não tem preço original salvo, salvar agora
-    if (!item.precoOriginal) {
-      item.precoOriginal = item.precoTotal
-    }
-    
-    // Aplicar desconto
-    item.desconto = desconto
-    item.tipoDesconto = tipoDesconto
-    
-    // Calcular novo preço
-    let valorDesconto = 0
-    if (tipoDesconto === 'percentual') {
-      valorDesconto = (item.precoOriginal * desconto) / 100
-    } else {
-      valorDesconto = desconto
-    }
-    
-    item.precoTotal = Math.max(0, item.precoOriginal - valorDesconto)
-    item.precoUnitario = item.precoTotal / item.quantidade
-    
-    setCarrinho(novoCarrinho)
+
+    const novoCarrinho = [...carrinho]
+    novoCarrinho[itemIndex] = recalcularItem(
+      {
+        ...item,
+        precoUnitarioOriginal: obterPrecoUnitarioOriginal(item),
+        desconto,
+        tipoDesconto
+      },
+      item.quantidade
+    )
+
+    atualizarCarrinho(novoCarrinho)
     toast.success('Desconto aplicado!')
   }
 
@@ -451,37 +487,14 @@ export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
       toast.error('Quantidade deve ser maior que zero')
       return
     }
-    
-    const novoCarrinho = [...carrinho]
-    const item = novoCarrinho[itemIndex]
-    
+
+    const item = carrinho[itemIndex]
     if (!item) return
-    
-    // Atualizar quantidade
-    item.quantidade = novaQuantidade
-    
-    // Recalcular preço total
-    if (item.precoOriginal) {
-      // Se tem desconto, aplicar o desconto no novo preço total
-      const precoOriginalTotal = item.precoUnitario * novaQuantidade
-      let valorDesconto = 0
-      
-      if (item.desconto && item.desconto > 0) {
-        if (item.tipoDesconto === 'percentual') {
-          valorDesconto = (precoOriginalTotal * item.desconto) / 100
-        } else {
-          valorDesconto = item.desconto
-        }
-      }
-      
-      item.precoTotal = precoOriginalTotal - valorDesconto
-      item.precoOriginal = precoOriginalTotal
-    } else {
-      // Sem desconto, apenas multiplicar
-      item.precoTotal = item.precoUnitario * novaQuantidade
-    }
-    
-    setCarrinho(novoCarrinho)
+
+    const novoCarrinho = [...carrinho]
+    novoCarrinho[itemIndex] = recalcularItem(item, novaQuantidade)
+
+    atualizarCarrinho(novoCarrinho)
     toast.success('Quantidade atualizada!')
   }
 

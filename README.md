@@ -1,4 +1,4 @@
-# 🛒 KOBE E-Commerce
+# 🛒 LIRI E-Commerce
 
 Sistema completo de e-commerce e gestão para estabelecimentos comerciais, desenvolvido com React + TypeScript + Vite e Supabase.
 
@@ -154,7 +154,7 @@ VITE_MERCADO_PAGO_PUBLIC_KEY=sua_public_key_mercado_pago
 
 ## 📄 Licença
 
-© 2026 KOBE E-Commerce - Todos os direitos reservados.
+© 2026 LIRI E-Commerce - Todos os direitos reservados.
 
 ---
 

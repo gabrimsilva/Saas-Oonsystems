@@ -1,4 +1,4 @@
-# 🚀 Guia de Criação do Banco de Dados - KOBE E-Commerce
+# 🚀 Guia de Criação do Banco de Dados - LIRI E-Commerce
 
 ## ✅ O Que Já Foi Feito (via MCP)
 
@@ -173,6 +173,6 @@ Você deve ver estas tabelas:
 
 ---
 
-**Projeto**: KOBE E-Commerce  
+**Projeto**: LIRI E-Commerce  
 **Database**: jeqhvbjtyrqvownitfdc  
 **Data**: 13/08/2026

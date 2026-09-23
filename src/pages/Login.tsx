@@ -122,31 +122,21 @@ export default function Login({ onLogin }: LoginProps) {
 
       {/* Conteúdo Principal */}
       <div className="login-content">
-        {/* Lado Esquerdo - 60% */}
+        {/* Lado Esquerdo - 50% */}
         <div className="login-left">
-          {/* Background com imagens */}
+          {/* Background com textura sutil */}
           <div className="login-left-bg">
-            {/* Foto do Pastor - Background */}
-            <div className="pastor-bg-container">
-              <img 
-                src="/img/pastor.jpg" 
-                alt="Pastor" 
-                className="pastor-image"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
+            <div className="pastor-bg-container" />
           </div>
 
           {/* Conteúdo Esquerdo Overlay */}
           <div className="login-left-content">
-            {/* Logo KOBE */}
-            <div className="kobe-logo-container">
+            {/* Logo LIRI */}
+            <div className="liri-logo-container">
               <img 
-                src="/img/kobe-logo.png" 
-                alt="KOBE E-Commerce" 
-                className="kobe-logo"
+                src="/img/liri-logo.png" 
+                alt="LIRI Personalizados" 
+                className="liri-logo"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none'
                 }}
@@ -155,8 +145,8 @@ export default function Login({ onLogin }: LoginProps) {
 
             {/* Título */}
             <div className="title-section">
-              <h1 className="title-line-2">KOBE</h1>
-              <p className="subtitle">E-Commerce</p>
+              <h1 className="title-line-2">LÍRI</h1>
+              <p className="subtitle">Personalizados</p>
             </div>
 
             {/* Descrição */}
@@ -176,15 +166,15 @@ export default function Login({ onLogin }: LoginProps) {
               <p className="verse-text">
                 Gestão inteligente de estoque, vendas e métricas em um só lugar.
               </p>
-              <p className="verse-reference">Térmicas Atacado</p>
+              <p className="verse-reference">LIRI Personalizados</p>
             </div>
           </div>
 
           {/* Logo Grande Marca D'água - Background */}
           <div className="santa-ceia-container">
             <img 
-              src="/img/kobe-logo.png" 
-              alt="KOBE Background" 
+              src="/img/liri-logo.png" 
+              alt="" 
               className="santa-ceia-image"
               onError={(e) => {
                 e.currentTarget.style.display = 'none'

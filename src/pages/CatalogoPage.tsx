@@ -16,7 +16,7 @@ export default function CatalogoPage() {
   const [categorias, setCategorias] = useState<CategoriaSupabase[]>([])
   const [categoriaAtiva, setCategoriaAtiva] = useState('todos')
   const [configuracao, setConfiguracao] = useState({
-    nomeEstabelecimento: 'KOBE E-Commerce',
+    nomeEstabelecimento: 'LIRI E-Commerce',
     logoUrl: '',
     bannerUrl: '',
     telefone: '',
@@ -99,6 +99,7 @@ export default function CatalogoPage() {
       const produtosCatalogo: ProdutoCatalogo[] = (produtosData || [])
         .filter(p => p.ativo)
         .map(p => {
+          const requiresStock = !!p.requires_stock
           const saldoEstoque = estoqueMap.get(p.id) ?? 0
           return {
             id: p.id,
@@ -108,8 +109,10 @@ export default function CatalogoPage() {
             precoPromocional: p.preco_promocional,
             categoria: p.categoria_nome || 'Outros',
             urlImagem: p.imagem_path || '/placeholder-food.svg',
-            estoqueDisponivel: saldoEstoque > 0,
-            quantidadeEstoque: saldoEstoque
+            // Produtos sem controle de estoque são sempre considerados disponíveis
+            estoqueDisponivel: requiresStock ? saldoEstoque > 0 : true,
+            quantidadeEstoque: saldoEstoque,
+            requiresStock
           }
         })
 
@@ -122,7 +125,7 @@ export default function CatalogoPage() {
       setCategorias(categoriasData || [])
 
       // Configurações
-      const nomeEstab = configsMap.get('nome_estabelecimento')?.valor || 'KOBE E-Commerce'
+      const nomeEstab = configsMap.get('nome_estabelecimento')?.valor || 'LIRI E-Commerce'
       const logoUrl = configsMap.get('logo_url')?.valor || ''
       const bannerUrl = configsMap.get('banner_url')?.valor || ''
       const telefone = configsMap.get('telefone')?.valor || ''

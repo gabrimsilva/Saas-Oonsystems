@@ -18,13 +18,8 @@ export default function ConfiguracoesPagamentoPage() {
     dinheiro: true,
     cartaoDebito: true,
     cartaoCredito: true,
-    pix: true,
-    pixEntrega: false,
-    cartaoVR: false,
-    cartaoVA: false,
-    ticketPromo: false
+    pix: true
   })
-  const [ticketsPromocionais, setTicketsPromocionais] = useState('10')
   const [mercadoPagoAccessToken, setMercadoPagoAccessToken] = useState('')
   const [mercadoPagoWebhookSecret, setMercadoPagoWebhookSecret] = useState('')
   const [loading, setLoading] = useState(true)
@@ -47,17 +42,11 @@ export default function ConfiguracoesPagamentoPage() {
               dinheiro: metodos.includes('dinheiro'),
               cartaoDebito: metodos.includes('cartao_debito'),
               cartaoCredito: metodos.includes('cartao_credito'),
-              pix: metodos.includes('pix'),
-              pixEntrega: metodos.includes('pix_entrega'),
-              cartaoVR: metodos.includes('cartao_vr'),
-              cartaoVA: metodos.includes('cartao_va'),
-              ticketPromo: metodos.includes('ticket_promo')
+              pix: metodos.includes('pix')
             })
           } catch (e) {
             console.error('Erro ao parsear métodos de pagamento:', e)
           }
-        } else if (cfg.chave === 'tickets_promocionais') {
-          setTicketsPromocionais(cfg.valor)
         } else if (cfg.chave === 'mercado_pago_access_token') {
           setMercadoPagoAccessToken(cfg.valor)
         } else if (cfg.chave === 'mercado_pago_webhook_secret') {
@@ -79,16 +68,11 @@ export default function ConfiguracoesPagamentoPage() {
         ...(formasPagamento.dinheiro ? ['dinheiro'] : []),
         ...(formasPagamento.cartaoDebito ? ['cartao_debito'] : []),
         ...(formasPagamento.cartaoCredito ? ['cartao_credito'] : []),
-        ...(formasPagamento.pix ? ['pix'] : []),
-        ...(formasPagamento.pixEntrega ? ['pix_entrega'] : []),
-        ...(formasPagamento.cartaoVR ? ['cartao_vr'] : []),
-        ...(formasPagamento.cartaoVA ? ['cartao_va'] : []),
-        ...(formasPagamento.ticketPromo ? ['ticket_promo'] : [])
+        ...(formasPagamento.pix ? ['pix'] : [])
       ]
 
       const promises = [
-        configuracaoService.salvar('metodos_pagamento', JSON.stringify(metodosPagamento), 'Métodos de pagamento aceitos', 'json', 'pagamento'),
-        configuracaoService.salvar('tickets_promocionais', ticketsPromocionais, 'Quantidade de tickets promocionais disponíveis', 'numero', 'pagamento')
+        configuracaoService.salvar('metodos_pagamento', JSON.stringify(metodosPagamento), 'Métodos de pagamento aceitos', 'json', 'pagamento')
       ]
 
       // Salvar Access Token do Mercado Pago se PIX estiver ativado
@@ -138,11 +122,9 @@ export default function ConfiguracoesPagamentoPage() {
 
       <FormasPagamentoConfig
         formasPagamento={formasPagamento}
-        ticketsPromocionais={ticketsPromocionais}
         mercadoPagoAccessToken={mercadoPagoAccessToken}
         mercadoPagoWebhookSecret={mercadoPagoWebhookSecret}
         onFormasPagamentoChange={handleFormasPagamentoChange}
-        onTicketsPromocionaisChange={setTicketsPromocionais}
         onMercadoPagoAccessTokenChange={setMercadoPagoAccessToken}
         onMercadoPagoWebhookSecretChange={setMercadoPagoWebhookSecret}
       />

@@ -34,15 +34,15 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
       {/* Layout Desktop */}
       <div className="hidden md:flex p-4 gap-4 items-center">
         {/* Imagem do produto */}
-        <div className="relative w-20 h-20 flex-shrink-0">
+        <div className="relative w-20 h-20 flex-shrink-0 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
           {produto.urlImagem ? (
             <img 
               src={produto.urlImagem} 
               alt={produto.nome}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-contain"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
+            <div className="w-full h-full flex items-center justify-center">
               <Package className="h-8 w-8 text-gray-400" />
             </div>
           )}
@@ -130,15 +130,15 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
       {/* Layout Mobile */}
       <div className="md:hidden">
         {/* Imagem do produto */}
-        <div className="relative h-32 bg-gray-100">
+        <div className="relative h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
           {produto.urlImagem ? (
             <img 
               src={produto.urlImagem} 
               alt={produto.nome}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+            <div className="w-full h-full flex items-center justify-center">
               <Package className="h-8 w-8 text-gray-400" />
             </div>
           )}

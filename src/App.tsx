@@ -61,7 +61,6 @@ const AvaliarEstabelecimento = lazy(() => import("@/pages/AvaliarEstabelecimento
 const PagamentoPix = lazy(() => import("@/pages/PagamentoPix"))
 const Analytics = lazy(() => import("@/pages/Analytics"))
 const Metricas = lazy(() => import("@/pages/Metricas"))
-const LoginPremium = lazy(() => import("@/pages/LoginPremium"))
 const TermosUso = lazy(() => import("@/pages/TermosUso"))
 const PoliticasPrivacidade = lazy(() => import("@/pages/PoliticasPrivacidade"))
 const Estabelecimentos = lazy(() => import("@/pages/Estabelecimentos"))
@@ -83,6 +82,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const currentUserIdRef = useRef<string | null>(null)
+
+  // 🐛 DEBUG: Log para verificar remontagem do ProtectedRoute
+  useEffect(() => {
+    console.log('🔐 [PROTECTED] ProtectedRoute montado/atualizado')
+    return () => {
+      console.log('❌ [PROTECTED] ProtectedRoute desmontado')
+    }
+  }, [])
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -168,6 +175,31 @@ function AdminSystem() {
     erro: erroEstab,
   } = useEstabelecimento()
 
+  // 🐛 DEBUG: Log para verificar remontagem do AdminSystem
+  useEffect(() => {
+    console.log('🏢 [ADMIN] AdminSystem montado/atualizado')
+    return () => {
+      console.log('❌ [ADMIN] AdminSystem desmontado')
+    }
+  }, [])
+
+  // 🔄 PERSISTÊNCIA DA ÚLTIMA ROTA ACESSADA
+  // Salva a rota atual no localStorage sempre que o usuário navega
+  useEffect(() => {
+    if (location.pathname.startsWith('/sistema/') && location.pathname !== '/sistema/') {
+      localStorage.setItem('liri_last_admin_route', location.pathname)
+    }
+  }, [location.pathname])
+
+  // Restaura a última rota quando o componente monta (usuário volta ao sistema)
+  useEffect(() => {
+    const lastRoute = localStorage.getItem('liri_last_admin_route')
+    // Se está na rota raiz /sistema/ e existe uma última rota salva, redirecionar
+    if (location.pathname === '/sistema/' && lastRoute && lastRoute !== '/sistema/') {
+      navigate(lastRoute, { replace: true })
+    }
+  }, []) // Executa apenas uma vez no mount
+
   // Determinar a página atual baseada na URL (sem parâmetros)
   const currentPage = location.pathname.replace('/sistema/', '').split('/')[0] || 'dashboard'
 
@@ -249,7 +281,7 @@ function AdminSystem() {
           </div>
         </div>
       ) : (
-        <Suspense key={estabelecimentoAtual.id} fallback={<LoadingSpinner />}>
+        <Suspense fallback={<LoadingSpinner />}>
           <Routes>
           <Route path="/" element={<Navigate to="/sistema/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -519,13 +551,6 @@ function App() {
           <Routes>
             {/* Página principal - Catálogo */}
             <Route path="/" element={<CustomerCatalogoPage />} />
-
-            {/* Página de login premium */}
-            <Route path="/admin/login-premium" element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <LoginPremium />
-              </Suspense>
-            } />
 
             {/* Página de checkout */}
             <Route path="/checkout" element={<CustomerCheckoutPage />} />

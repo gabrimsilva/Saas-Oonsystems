@@ -80,7 +80,7 @@ export default function CatalogoProdutoModal({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="w-[525px] h-[500px] max-w-[calc(100%-2rem)] max-h-[90vh] p-0 overflow-hidden max-md:flex max-md:flex-col max-md:justify-between">
+      <AlertDialogContent className="w-[525px] max-w-[calc(100%-2rem)] max-h-[85vh] p-0 overflow-hidden flex flex-col">
         {/* Botão fechar */}
         <button
           onClick={onClose}
@@ -91,11 +91,11 @@ export default function CatalogoProdutoModal({
         </button>
 
         {/* Imagem do produto */}
-        <div className="w-full h-56 bg-gray-100 max-md:h-[40vh] max-md:flex-shrink-0">
+        <div className="w-full h-48 bg-gray-50 max-md:h-[35vh] max-md:flex-shrink-0 flex items-center justify-center">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-2"
             onError={(e) => {
               const target = e.target as HTMLImageElement
               target.src = '/placeholder-food.svg'
@@ -103,8 +103,8 @@ export default function CatalogoProdutoModal({
           />
         </div>
 
-        {/* Conteúdo */}
-        <div className="p-5 max-md:flex-1 max-md:flex max-md:flex-col max-md:justify-between max-md:overflow-y-auto">
+        {/* Conteúdo com scroll */}
+        <div className="flex-1 overflow-y-auto p-5 max-md:flex max-md:flex-col">
           <AlertDialogHeader className="space-y-2 text-left">
             <AlertDialogTitle className="text-xl font-bold text-gray-900">
               {produto.nome}
@@ -137,7 +137,7 @@ export default function CatalogoProdutoModal({
           </div>
 
           {/* Botão WhatsApp */}
-          <AlertDialogFooter className="sm:justify-center">
+          <AlertDialogFooter className="sm:justify-center mt-4">
             <Button
               onClick={handleWhatsApp}
               className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-5 text-base cursor-pointer shadow-lg flex items-center justify-center gap-2"

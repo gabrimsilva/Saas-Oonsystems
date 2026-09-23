@@ -388,45 +388,45 @@ export default function Dashboard() {
 
       {/* Cards principais com dados reais */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-fuchsia-600 to-pink-600 text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+        <Card className="border border-neutral-200 shadow-sm bg-white/60 backdrop-blur-sm text-neutral-900 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-neutral-900/5 rounded-full -mr-10 -mt-10"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 relative z-10 py-1 px-3">
-            <CardTitle className="text-xs md:text-sm font-medium text-pink-100">
+            <CardTitle className="text-xs md:text-sm font-medium text-neutral-500">
               Produtos Vendidos
             </CardTitle>
-            <ClipboardList className="h-4 w-4 md:h-5 md:w-5 text-pink-100" />
+            <ClipboardList className="h-4 w-4 md:h-5 md:w-5 text-neutral-500" />
           </CardHeader>
           <CardContent className="relative z-10 py-1 px-3 pt-0">
             <div className="text-lg md:text-xl font-bold">{stats.unidadesVendidasPDV}</div>
-            <p className="text-xs md:text-sm text-pink-100">
+            <p className="text-xs md:text-sm text-neutral-500">
               {getPeriodoTexto()}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+        <Card className="border border-neutral-200 shadow-sm bg-white/60 backdrop-blur-sm text-neutral-900 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-neutral-900/5 rounded-full -mr-10 -mt-10"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 relative z-10 py-1 px-3">
-            <CardTitle className="text-xs md:text-sm font-medium text-amber-50">
+            <CardTitle className="text-xs md:text-sm font-medium text-neutral-500">
               Produtos Cadastrados
             </CardTitle>
-            <Package className="h-4 w-4 md:h-5 md:w-5 text-amber-50" />
+            <Package className="h-4 w-4 md:h-5 md:w-5 text-neutral-500" />
           </CardHeader>
           <CardContent className="relative z-10 py-1 px-3 pt-0">
             <div className="text-lg md:text-xl font-bold">{stats.produtosCadastrados}</div>
-            <p className="text-xs md:text-sm text-amber-50">
+            <p className="text-xs md:text-sm text-neutral-500">
               Produtos ativos
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-teal-600 to-teal-700 text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+        <Card className="border border-neutral-200 shadow-sm bg-white/60 backdrop-blur-sm text-neutral-900 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-neutral-900/5 rounded-full -mr-10 -mt-10"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 relative z-10 py-1 px-3">
-            <CardTitle className="text-xs md:text-sm font-medium text-teal-100">
+            <CardTitle className="text-xs md:text-sm font-medium text-neutral-500">
               Avaliação Média
             </CardTitle>
-            <Star className="h-4 w-4 md:h-5 md:w-5 text-teal-100" />
+            <Star className="h-4 w-4 md:h-5 md:w-5 text-neutral-500" />
           </CardHeader>
           <CardContent className="relative z-10 py-1 px-3 pt-0">
             <div className="flex items-center gap-2 mb-1">
@@ -436,14 +436,14 @@ export default function Dashboard() {
                   <Star
                     key={estrela}
                     className={`h-3 w-3 md:h-4 md:w-4 ${estrela <= Math.round(stats.avaliacaoMedia)
-                      ? 'text-yellow-300 fill-current'
-                      : 'text-teal-200'
+                      ? 'text-amber-400 fill-current'
+                      : 'text-neutral-300'
                       }`}
                   />
                 ))}
               </div>
             </div>
-            <p className="text-xs md:text-sm text-teal-100">
+            <p className="text-xs md:text-sm text-neutral-500">
               {stats.avaliacaoMedia > 0
                 ? `${stats.totalAvaliacoes} ${stats.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'}`
                 : 'Sem avaliações ainda'
@@ -458,7 +458,7 @@ export default function Dashboard() {
         <Card className="border-0 shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-xl text-gray-900 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-purple-600" />
+              <TrendingUp className="h-5 w-5 text-neutral-700" />
               Produtos Mais Vendidos
             </CardTitle>
             <CardDescription className="text-gray-600">

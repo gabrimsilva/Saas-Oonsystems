@@ -8,7 +8,9 @@ export {
   formatarCEP,
   formatarCPF,
   formatarMoeda,
-  removerFormatacao
+  removerFormatacao,
+  aplicarMascaraMoeda,
+  numeroParaTextoMoeda
 } from './formatacao'
 
 // Funções de validação

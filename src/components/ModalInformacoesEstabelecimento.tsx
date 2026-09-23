@@ -74,13 +74,13 @@ export default function ModalInformacoesEstabelecimento({
           <X className="h-3.5 w-3.5" />
         </button>
 
-        {/* Header com gradiente */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
+        {/* Header neutro */}
+        <div className="bg-neutral-100 border-b border-neutral-200 p-6 text-neutral-900">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-bold text-white">
+            <AlertDialogTitle className="text-2xl font-bold text-neutral-900">
               {nomeEstabelecimento}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-purple-100 text-sm">
+            <AlertDialogDescription className="text-neutral-500 text-sm">
               Informações de contato e atendimento
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -90,8 +90,8 @@ export default function ModalInformacoesEstabelecimento({
         <div className="p-6 space-y-4">
           {/* Horário de Funcionamento */}
           <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <div className="bg-purple-100 p-2 rounded-full">
-              <Clock className="h-5 w-5 text-purple-600" />
+            <div className="bg-neutral-200 p-2 rounded-full">
+              <Clock className="h-5 w-5 text-neutral-700" />
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-1">Horário de Funcionamento</h3>
@@ -144,7 +144,7 @@ export default function ModalInformacoesEstabelecimento({
         <AlertDialogFooter className="p-6 pt-0">
           <Button
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white cursor-pointer"
+            className="w-full bg-neutral-800 hover:bg-neutral-900 text-white cursor-pointer"
           >
             Fechar
           </Button>

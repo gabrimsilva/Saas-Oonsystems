@@ -99,11 +99,11 @@ function ProdutoCard({
         )}
         
         {/* Imagem */}
-        <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 m-3">
+        <div className="w-20 h-20 md:w-28 md:h-28 flex-shrink-0 m-3 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
-            className={`w-full h-full object-cover rounded-lg ${!produto.estoqueDisponivel ? 'grayscale' : ''}`}
+            className={`w-full h-full object-contain ${!produto.estoqueDisponivel ? 'grayscale' : ''}`}
             onError={(e) => {
               const target = e.target as HTMLImageElement
               target.src = '/placeholder-food.svg'

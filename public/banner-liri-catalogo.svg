@@ -36,11 +36,11 @@
     <circle cx="300" cy="200" r="100" fill="white" opacity="0.95" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
   </g>
   
-  <!-- Logo Text KOBE -->
-  <text x="300" y="220" font-family="Arial Black, sans-serif" font-size="52" font-weight="900" text-anchor="middle" fill="url(#textGradient)" letter-spacing="3">KOBE</text>
+  <!-- Logo Text LIRI -->
+  <text x="300" y="220" font-family="Arial Black, sans-serif" font-size="52" font-weight="900" text-anchor="middle" fill="url(#textGradient)" letter-spacing="3">LIRI</text>
   
   <!-- Title -->
-  <text x="500" y="140" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="white" letter-spacing="2">KOBE E-Commerce</text>
+  <text x="500" y="140" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="white" letter-spacing="2">LIRI E-Commerce</text>
   
   <!-- Subtitle -->
   <text x="500" y="185" font-family="Arial, sans-serif" font-size="28" font-weight="300" fill="white" opacity="0.95">Térmicas Atacado</text>

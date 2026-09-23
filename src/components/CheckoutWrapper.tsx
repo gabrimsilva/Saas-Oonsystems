@@ -43,26 +43,8 @@ const CheckoutWrapper = ({ onNavigate }: CheckoutWrapperProps) => {
     // Escutar evento customizado de mudança de configuração
     window.addEventListener('configChanged', handleConfigChange)
 
-    // Listener para quando a página ganha foco (usuário volta da aba de admin)
-    const handleFocus = () => {
-      verificarConfiguracoes(true)
-    }
-
-    window.addEventListener('focus', handleFocus)
-
-    // Verificar mudanças quando a página fica visível novamente
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        verificarConfiguracoes(true)
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
     return () => {
       window.removeEventListener('configChanged', handleConfigChange)
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [])
 

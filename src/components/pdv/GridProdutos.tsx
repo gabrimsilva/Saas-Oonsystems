@@ -43,11 +43,11 @@ export default function GridProdutos({ produtos, onAdicionarAoCarrinho }: GridPr
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
       {produtos.map((produto) => (
         <Card key={produto.id} className="overflow-hidden hover:shadow-md transition-shadow py-0">
-          <div className="aspect-square bg-gray-100 relative h-24 md:h-32">
+          <div className="aspect-square bg-gray-50 relative h-24 md:h-32 flex items-center justify-center overflow-hidden">
             <img
               src={produto.urlImagem}
               alt={produto.nome}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/placeholder-food.svg';

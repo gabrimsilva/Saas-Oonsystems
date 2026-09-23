@@ -12,6 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { CreditCard } from "lucide-react"
+import { format, addDays } from "date-fns"
+import { ptBR } from "date-fns/locale"
 
 interface ModalFinalizarPedidoProps {
   isOpen: boolean
@@ -21,6 +23,9 @@ interface ModalFinalizarPedidoProps {
     precisaTroco: boolean
     valorTroco?: number
     consumoInterno?: boolean
+    prazoDias?: number
+    numeroParcelas?: number
+    nomeCliente?: string
   }) => void
   subtotal: number
   taxaEntrega: number
@@ -31,6 +36,9 @@ interface ModalFinalizarPedidoProps {
   simplified?: boolean // Nova prop para modo simplificado
   carrinhoVazio?: boolean // Prop para indicar se carrinho está vazio
 }
+
+/** Opções de número de parcelas disponíveis para venda "A Prazo" (1x a 12x) */
+const OPCOES_PARCELAS = Array.from({ length: 12 }, (_, i) => i + 1)
 
 export default function ModalFinalizarPedido({
   isOpen,
@@ -44,6 +52,22 @@ export default function ModalFinalizarPedido({
   const [precisaTroco, setPrecisaTroco] = useState(false)
   const [valorTroco, setValorTroco] = useState('')
   const [consumoInterno, setConsumoInterno] = useState(false)
+  const [prazoDias, setPrazoDias] = useState('7')
+  const [numeroParcelas, setNumeroParcelas] = useState('3')
+  const [nomeCliente, setNomeCliente] = useState('')
+
+  // 🐛 DEBUG: Log para verificar remontagem do modal
+  useEffect(() => {
+    console.log('🔄 [MODAL] Modal montado/atualizado, isOpen:', isOpen)
+    return () => {
+      console.log('❌ [MODAL] Modal desmontado')
+    }
+  }, [])
+
+  // 🐛 DEBUG: Log para verificar mudanças no isOpen
+  useEffect(() => {
+    console.log('🔔 [MODAL] isOpen mudou para:', isOpen)
+  }, [isOpen])
 
   // 🔧 FIX: Resetar estado sempre que o modal abre OU fecha.
   // Resetar na abertura garante que o padrão (PIX) seja aplicado mesmo que
@@ -53,6 +77,9 @@ export default function ModalFinalizarPedido({
     setPrecisaTroco(false)
     setValorTroco('')
     setConsumoInterno(false)
+    setPrazoDias('7')
+    setNumeroParcelas('3')
+    setNomeCliente('')
   }, [isOpen])
 
   const handleConfirmar = () => {
@@ -61,7 +88,10 @@ export default function ModalFinalizarPedido({
       formaPagamento: consumoInterno ? 'interno' : formaPagamento,
       precisaTroco: consumoInterno ? false : precisaTroco,
       valorTroco: (consumoInterno || !precisaTroco) ? undefined : parseFloat(valorTroco) || 0,
-      consumoInterno
+      consumoInterno,
+      prazoDias: (!consumoInterno && formaPagamento === 'aPrazo') ? (parseInt(prazoDias) || 7) : undefined,
+      numeroParcelas: (!consumoInterno && formaPagamento === 'aPrazo') ? (parseInt(numeroParcelas) || 3) : undefined,
+      nomeCliente: (!consumoInterno && nomeCliente.trim()) ? nomeCliente.trim() : undefined
     })
   }
 
@@ -71,6 +101,9 @@ export default function ModalFinalizarPedido({
     setPrecisaTroco(false)
     setValorTroco('')
     setConsumoInterno(false)
+    setPrazoDias('7')
+    setNumeroParcelas('3')
+    setNomeCliente('')
     onClose()
   }
 
@@ -137,8 +170,111 @@ export default function ModalFinalizarPedido({
               <option value="dinheiro">Dinheiro</option>
               <option value="cartaoDebito">Cartão de Débito</option>
               <option value="cartaoCredito">Cartão de Crédito</option>
+              <option value="aPrazo">A Prazo</option>
             </select>
           </div>
+
+          {/* Nome do Cliente - Disponível para todas as formas de pagamento */}
+          <div>
+            <Label htmlFor="nomeCliente">Nome do Cliente (opcional)</Label>
+            <Input
+              id="nomeCliente"
+              type="text"
+              value={nomeCliente}
+              onChange={(e) => setNomeCliente(e.target.value)}
+              placeholder="Digite o nome do cliente"
+              disabled={processando}
+              maxLength={100}
+            />
+            <p className="text-xs text-gray-600 mt-1">
+              Facilita identificar a venda no histórico
+            </p>
+          </div>
+
+          {formaPagamento === 'aPrazo' && (
+            <div className="space-y-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="prazoDias">Prazo (dias)</Label>
+                  <Input
+                    id="prazoDias"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={prazoDias}
+                    onChange={(e) => setPrazoDias(e.target.value)}
+                    placeholder="7"
+                    disabled={processando}
+                  />
+                  <p className="text-xs text-amber-700 mt-1">
+                    Dias até o vencimento da 1ª parcela
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="numeroParcelas">Parcelas</Label>
+                  <select
+                    id="numeroParcelas"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
+                    value={numeroParcelas}
+                    onChange={(e) => setNumeroParcelas(e.target.value)}
+                    disabled={processando}
+                  >
+                    {OPCOES_PARCELAS.map((n) => (
+                      <option key={n} value={n}>{n}x</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Em quantas vezes será dividido
+                  </p>
+                </div>
+              </div>
+
+              {/* Preview das parcelas */}
+              {total > 0 && (
+                <div className="p-3 bg-white rounded border border-amber-300 space-y-2">
+                  {(() => {
+                    const prazo = parseInt(prazoDias) || 7
+                    const qtdParcelas = parseInt(numeroParcelas) || 3
+                    const valorParcela = total / qtdParcelas
+                    const hoje = new Date()
+
+                    if (qtdParcelas === 1) {
+                      const dataVencimento = addDays(hoje, prazo)
+                      return (
+                        <div className="text-xs text-amber-800">
+                          <span className="font-semibold">Pagamento único</span> de{' '}
+                          <span className="font-semibold">R$ {valorParcela.toFixed(2).replace('.', ',')}</span>
+                          {' '}em{' '}
+                          <span className="font-semibold">{format(dataVencimento, "dd/MM/yyyy", { locale: ptBR })}</span>
+                        </div>
+                      )
+                    }
+
+                    return (
+                      <>
+                        <div className="text-xs text-amber-800 font-semibold mb-1">
+                          {qtdParcelas}x de R$ {valorParcela.toFixed(2).replace('.', ',')}
+                        </div>
+                        <div className="space-y-1">
+                          {Array.from({ length: qtdParcelas }, (_, i) => {
+                            // Cada parcela vence a cada "prazo" dias (ex: 7 dias, 14 dias, 21 dias)
+                            const dataVencimento = addDays(hoje, prazo * (i + 1))
+                            return (
+                              <div key={i} className="text-xs text-amber-700 flex items-center gap-2">
+                                <span className="font-medium">{i + 1}ª parcela:</span>
+                                <span>{format(dataVencimento, "dd/MM/yyyy", { locale: ptBR })}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </>
+                    )
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
 
           {formaPagamento === 'dinheiro' && (
             <div className="space-y-3">

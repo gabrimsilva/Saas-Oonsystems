@@ -106,3 +106,49 @@ export function removerFormatacao(value: string): string {
   if (!value) return ''
   return value.replace(/\D/g, '')
 }
+
+/**
+ * Aplica máscara de moeda brasileira em tempo real, no estilo "calculadora"
+ * (dígitos entram da direita para a esquerda, formando centavos).
+ *
+ * Recebe o valor bruto digitado no input (que pode já conter a formatação
+ * anterior, ex: "R$ 12,30") e retorna o texto formatado para exibição e o
+ * número correspondente em reais.
+ *
+ * @param inputValue - Valor atual do campo (com ou sem formatação)
+ * @returns Objeto com o texto formatado ("R$ X.XXX,XX") e o número em reais
+ * @example
+ * aplicarMascaraMoeda('1') // { texto: 'R$ 0,01', numero: 0.01 }
+ * aplicarMascaraMoeda('1230') // { texto: 'R$ 12,30', numero: 12.3 }
+ */
+export function aplicarMascaraMoeda(inputValue: string): { texto: string; numero: number } {
+  const digitos = removerFormatacao(inputValue)
+
+  if (!digitos) {
+    return { texto: '', numero: 0 }
+  }
+
+  const numero = parseInt(digitos, 10) / 100
+  const texto = numero.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+
+  return { texto, numero }
+}
+
+/**
+ * Formata um número em reais para o texto de exibição da máscara de moeda,
+ * usado para inicializar o campo a partir de um valor já existente (ex: ao
+ * editar um produto que já tem preço salvo).
+ *
+ * @param value - Número em reais (ou undefined/null)
+ * @returns String formatada ("R$ X.XXX,XX") ou string vazia se valor for 0/ausente
+ */
+export function numeroParaTextoMoeda(value: number | null | undefined): string {
+  if (!value || isNaN(value)) return ''
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  })
+}

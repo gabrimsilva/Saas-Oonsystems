@@ -1,7 +1,7 @@
-# 📊 Log de Migração do Banco de Dados - KOBE E-Commerce
+# 📊 Log de Migração do Banco de Dados - LIRI E-Commerce
 
 ## 🎯 Objetivo
-Criar a estrutura completa do banco de dados Supabase para o KOBE E-Commerce
+Criar a estrutura completa do banco de dados Supabase para o LIRI E-Commerce
 
 ## ✅ Progresso
 

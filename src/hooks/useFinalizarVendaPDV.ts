@@ -9,7 +9,7 @@ import { sanitizeFreeText } from '@/utils/sanitizacao'
  * Dados de pagamento da venda
  */
 interface DadosPagamento {
-  /** Forma de pagamento escolhida (dinheiro, cartaoDebito, pix, etc) */
+  /** Forma de pagamento escolhida (dinheiro, cartaoDebito, pix, aPrazo, etc) */
   formaPagamento: string
   /** Se o cliente precisa de troco */
   precisaTroco: boolean
@@ -17,6 +17,12 @@ interface DadosPagamento {
   valorTroco?: number
   /** Se é consumo interno (sem cobrança) */
   consumoInterno?: boolean
+  /** Dias até o vencimento da 1ª parcela (apenas para formaPagamento = 'aPrazo') */
+  prazoDias?: number
+  /** Número de parcelas de 1 a 12 (apenas para formaPagamento = 'aPrazo') */
+  numeroParcelas?: number
+  /** Nome do cliente (opcional, disponível para todas as formas de pagamento) */
+  nomeCliente?: string
 }
 
 /**
@@ -119,6 +125,8 @@ export function useFinalizarVendaPDV() {
         precoTotal: item.precoTotal
       }))
 
+      const ehVendaAPrazo = !consumoInterno && dadosPagamento.formaPagamento === 'aPrazo'
+
       // Preparar dados da venda
       const dadosVenda: any = {
         total_amount: total, // Será 0 se consumo interno
@@ -130,7 +138,10 @@ export function useFinalizarVendaPDV() {
         items: itensVenda,
         notes: consumoInterno 
           ? `Consumo interno - ${new Date().toLocaleString()}`
-          : `Venda realizada via PDV - ${new Date().toLocaleString()}`
+          : `Venda realizada via PDV - ${new Date().toLocaleString()}`,
+        payment_term_days: ehVendaAPrazo ? dadosPagamento.prazoDias : undefined,
+        installments_count: ehVendaAPrazo ? dadosPagamento.numeroParcelas : undefined,
+        customer_name: !consumoInterno && dadosPagamento.nomeCliente ? dadosPagamento.nomeCliente : undefined
       }
 
       // VALIDAR ESTOQUE ANTES DE FINALIZAR VENDA.
@@ -147,6 +158,23 @@ export function useFinalizarVendaPDV() {
 
       // Salvar venda (só se estoque validado)
       const vendaSalva = await vendaService.salvar(dadosVenda)
+
+      // Se for venda "A Prazo", gerar as parcelas vinculadas a esta venda
+      if (ehVendaAPrazo) {
+        try {
+          await vendaService.criarParcelas(
+            vendaSalva.id,
+            total,
+            dadosPagamento.prazoDias || 30,
+            dadosPagamento.numeroParcelas || 1
+          )
+        } catch (error) {
+          // Erro crítico: a venda foi criada como A_PRAZO mas sem parcelas
+          // geradas, o que quebraria a aba "Faturados". Propagar o erro.
+          console.error('ERRO CRÍTICO ao gerar parcelas da venda a prazo:', error)
+          throw new Error(`Venda criada, mas falha ao gerar parcelas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`)
+        }
+      }
 
       // Dar baixa no estoque para cada produto
       for (const item of carrinho) {

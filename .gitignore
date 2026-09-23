@@ -46,3 +46,6 @@ _diag_hg*.ps1
 CREDENCIAIS_ADMIN.md
 *CREDENCIAIS*.md
 *credenciais*.md
+
+# Claude Code MCP (contém access token do Supabase — NÃO commitar)
+.mcp.json

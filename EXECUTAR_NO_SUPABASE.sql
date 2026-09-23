@@ -1,5 +1,5 @@
 -- ============================================================================
--- SCRIPT COMPLETO PARA CRIAÇÃO DO BANCO DE DADOS - KOBE E-COMMERCE
+-- SCRIPT COMPLETO PARA CRIAÇÃO DO BANCO DE DADOS - LIRI E-COMMERCE
 -- ============================================================================
 -- INSTRUÇÕES:
 -- 1. Abra o Supabase SQL Editor

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react"
+import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ActionButton } from "@/components/ui/action-button"
 import { Input } from "@/components/ui/input"
+import { InputMoeda } from "@/components/ui/input-moeda"
 import { Label } from "@/components/ui/label"
 import ImageUpload from "@/components/ImageUpload"
 import { categoriaService, type CategoriaSupabase, type ProdutoSupabase } from "@/services"
@@ -25,9 +27,9 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [nome, setNome] = useState("")
   const [descricao, setDescricao] = useState("")
-  const [custo, setCusto] = useState("")
-  const [preco, setPreco] = useState("")
-  const [precoPromocional, setPrecoPromocional] = useState("")
+  const [custo, setCusto] = useState(0)
+  const [preco, setPreco] = useState(0)
+  const [precoPromocional, setPrecoPromocional] = useState(0)
   const [categoria, setCategoria] = useState<string>("")
   const [urlImagem, setUrlImagem] = useState("")
   const [requiresStock, setRequiresStock] = useState(true)
@@ -59,9 +61,9 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
     if (produtoParaEditar) {
       setNome(produtoParaEditar.nome)
       setDescricao(produtoParaEditar.descricao)
-      setCusto((produtoParaEditar as any).custo?.toString() || "0")
-      setPreco(produtoParaEditar.preco.toString())
-      setPrecoPromocional(produtoParaEditar.precoPromocional?.toString() || "")
+      setCusto((produtoParaEditar as any).custo || 0)
+      setPreco(produtoParaEditar.preco || 0)
+      setPrecoPromocional(produtoParaEditar.precoPromocional || 0)
       setCategoria(produtoParaEditar.categoria)
       setUrlImagem(produtoParaEditar.urlImagem)
       setRequiresStock((produtoParaEditar as any).requires_stock ?? true)
@@ -69,9 +71,9 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
     } else {
       setNome("")
       setDescricao("")
-      setCusto("0")
-      setPreco("")
-      setPrecoPromocional("")
+      setCusto(0)
+      setPreco(0)
+      setPrecoPromocional(0)
       setCategoria('pizza')
       setUrlImagem("")
       setRequiresStock(true)
@@ -101,10 +103,10 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
     const produtoData = {
       nome: nome.trim(),
       descricao: descricao.trim(),
-      custo: custo && parseFloat(custo) >= 0 ? parseFloat(custo) : 0,
-      preco: parseFloat(preco),
-      preco_promocional: precoPromocional && parseFloat(precoPromocional) > 0 ? parseFloat(precoPromocional) : null,
-      precoPromocional: precoPromocional && parseFloat(precoPromocional) > 0 ? parseFloat(precoPromocional) : null,
+      custo: custo >= 0 ? custo : 0,
+      preco,
+      preco_promocional: precoPromocional > 0 ? precoPromocional : null,
+      precoPromocional: precoPromocional > 0 ? precoPromocional : null,
       categoria_id: categoriaSelecionada?.id || null,
       categoria_nome: categoria,
       categoria,
@@ -141,45 +143,42 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
 
       <div className="space-y-2">
         <Label htmlFor="custo">Custo (R$)</Label>
-        <Input
+        <InputMoeda
           id="custo"
-          type="number"
-          placeholder="0,00"
-          step="0.01"
-          min="0"
           value={custo}
-          onChange={(e) => setCusto(e.target.value)}
+          onChange={setCusto}
+          aria-invalid={custo > 0 && preco > 0 && custo > preco}
         />
         <p className="text-xs text-muted-foreground">
           Custo unitário do produto (usado para calcular o lucro nas métricas)
         </p>
+        {custo > 0 && preco > 0 && custo > preco && (
+          <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            O custo é maior que o preço de venda. Este produto dará prejuízo.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="preco">Preço (R$)</Label>
-          <Input
+          <InputMoeda
             id="preco"
-            type="number"
-            placeholder="0,00"
-            step="0.01"
-            min="0"
             value={preco}
-            onChange={(e) => setPreco(e.target.value)}
+            onChange={setPreco}
             required
+            aria-invalid={custo > 0 && preco > 0 && custo > preco}
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="precoPromocional">Preço Promocional (R$)</Label>
-          <Input
+          <InputMoeda
             id="precoPromocional"
-            type="number"
-            placeholder="0,00 (opcional)"
-            step="0.01"
-            min="0"
+            placeholder="R$ 0,00 (opcional)"
             value={precoPromocional}
-            onChange={(e) => setPrecoPromocional(e.target.value)}
+            onChange={setPrecoPromocional}
           />
         </div>
       </div>
@@ -235,7 +234,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             ⚠️ Cadastre categorias antes de criar produtos
           </p>
         )}
-        {!!(precoPromocional && parseFloat(precoPromocional) > 0) && (
+        {precoPromocional > 0 && (
           <p className="text-sm text-green-600 font-medium">
             ✨ Este produto também aparecerá na seção de promoções
           </p>

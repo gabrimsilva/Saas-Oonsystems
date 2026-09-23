@@ -1,8 +1,8 @@
-# 📋 Sistema de Menu - KOBE E-Commerce
+# 📋 Sistema de Menu - LIRI E-Commerce
 
 ## 🎯 Estrutura do Menu
 
-O menu administrativo do KOBE E-Commerce foi simplificado e otimizado para focar nas funcionalidades essenciais do e-commerce.
+O menu administrativo do LIRI E-Commerce foi simplificado e otimizado para focar nas funcionalidades essenciais do e-commerce.
 
 ## 📑 Menus Disponíveis
 

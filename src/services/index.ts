@@ -83,7 +83,7 @@ export type { StockItem, StockVariant, StockMovement, StockStatus } from './stoc
 // Services de vendas
 import { vendaService } from './vendaService'
 export { vendaService }
-export type { Sale, NovaVenda } from './vendaService'
+export type { Sale, NovaVenda, SaleInstallment } from './vendaService'
 
 // Services de consumo interno
 import { consumoInternoService } from './consumoInternoService'

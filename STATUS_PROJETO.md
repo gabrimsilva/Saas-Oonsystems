@@ -1,11 +1,11 @@
-# 📊 Status do Projeto KOBE E-Commerce
+# 📊 Status do Projeto LIRI E-Commerce
 
 ## ✅ Concluído
 
 ### 1. Configuração Inicial
 - [x] Clone do repositório base
-- [x] Renomeação para KOBE E-Commerce
-- [x] Repositório Git configurado (https://github.com/gabrimsilva/kobbr)
+- [x] Renomeação para LIRI E-Commerce
+- [x] Repositório Git configurado (https://github.com/gabrimsilva/liri)
 - [x] Primeiro push realizado com sucesso
 
 ### 2. Estrutura de Menu
@@ -28,12 +28,12 @@
 - [x] Tabela `usuarios_estabelecimento` criada  
 - [x] Tabela `profile` criada
 - [x] Tabela `configuracoes` criada com dados iniciais
-- [x] Estabelecimento KOBE E-Commerce criado
+- [x] Estabelecimento LIRI E-Commerce criado
 
 ### 5. Dados Criados
-- [x] **Estabelecimento**: KOBE E-Commerce
+- [x] **Estabelecimento**: LIRI E-Commerce
   - ID: `e1cb89b8-8ccb-49b4-85f6-1badc1d396ae`
-  - Slug: `kobe`
+  - Slug: `liri`
   - Cor: `#4F46E5` (Índigo)
 - [x] **Configurações iniciais**: 9 configurações básicas
 
@@ -95,7 +95,7 @@ Siga o guia: **`GUIA_CRIACAO_BANCO.md`**
 
 ### Passo 3: Testar Localmente (5 min)
 ```bash
-cd "KOBE E-Commerce"
+cd "LIRI E-Commerce"
 npm install
 npm run dev
 ```
@@ -114,7 +114,7 @@ Acesse: http://localhost:5173
 
 ## 🔗 Links Úteis
 
-- **GitHub**: https://github.com/gabrimsilva/kobbr
+- **GitHub**: https://github.com/gabrimsilva/liri
 - **Supabase Dashboard**: https://supabase.com/dashboard/project/jeqhvbjtyrqvownitfdc
 - **SQL Editor**: https://supabase.com/dashboard/project/jeqhvbjtyrqvownitfdc/editor
 - **Authentication**: https://supabase.com/dashboard/project/jeqhvbjtyrqvownitfdc/auth/users
@@ -129,7 +129,7 @@ Acesse: http://localhost:5173
 
 ## 🎨 Identidade Visual
 
-- **Nome**: KOBE E-Commerce
+- **Nome**: LIRI E-Commerce
 - **Cor Primária**: #4F46E5 (Índigo)
 - **Fonte**: Poppins
 - **Tema**: Moderno e profissional
@@ -145,7 +145,7 @@ Acesse: http://localhost:5173
 - **Email**: (definir no passo 1)
 - **Senha**: (definir no passo 1)
 - **Perfil**: administrador_geral
-- **Estabelecimento**: KOBE E-Commerce
+- **Estabelecimento**: LIRI E-Commerce
 
 ---
 

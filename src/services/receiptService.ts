@@ -19,6 +19,30 @@ class ReceiptService {
       configuracaoService.buscarPorChave('telefone')
     ])
 
+    // Calcular desconto total somando descontos dos itens
+    const descontoTotal = sale.items.reduce((acc, item) => {
+      const desconto = item.desconto || 0
+      const tipoDesconto = item.tipoDesconto || 'valor'
+      
+      if (desconto > 0) {
+        if (tipoDesconto === 'percentual') {
+          // Calcular desconto percentual
+          const precoOriginal = item.precoUnitario * item.quantidade
+          return acc + (precoOriginal * desconto) / 100
+        } else {
+          // Desconto em valor direto
+          return acc + desconto
+        }
+      }
+      return acc
+    }, 0)
+
+    // Calcular subtotal SEM desconto (preço original)
+    const subtotalOriginal = sale.items.reduce((acc, item) => {
+      const precoOriginal = item.precoOriginal || item.precoUnitario
+      return acc + (precoOriginal * item.quantidade)
+    }, 0)
+
     // Preparar dados do cupom
     const receiptData: ReceiptData = {
       tipo: 'SALE',
@@ -29,8 +53,9 @@ class ReceiptService {
       enderecoLoja: enderecoLoja?.valor,
       telefoneLoja: telefoneLoja?.valor,
       itens: this.mapSaleItems(sale.items),
-      subtotal: sale.total_amount,
-      total: sale.total_amount,
+      subtotal: subtotalOriginal, // Subtotal ANTES do desconto
+      desconto: descontoTotal > 0 ? descontoTotal : undefined, // Desconto total
+      total: sale.total_amount, // Total DEPOIS do desconto
       formaPagamento: this.formatPaymentMethod(sale.payment_method),
       precisaTroco: sale.needs_change,
       valorTroco: sale.change_amount,
@@ -327,7 +352,7 @@ class ReceiptService {
     <div class="items">
       ${data.itens.map(item => `
         <div class="item">
-          <div class="item-name">${item.nome}</div>
+          <div class="item-name">${item.nome}${item.desconto || ''}</div>
           <div class="item-details">
             <span>${item.quantidade}x R$ ${this.formatCurrency(item.precoUnitario)}</span>
             <span>R$ ${this.formatCurrency(item.precoTotal)}</span>
@@ -398,13 +423,29 @@ class ReceiptService {
   private mapSaleItems(items: any[]): any[] {
     if (!Array.isArray(items)) return []
     
-    return items.map(item => ({
-      nome: item.produto?.nome || 'Produto',
-      quantidade: item.quantidade || 1,
-      precoUnitario: item.precoUnitario || 0,
-      precoTotal: item.precoTotal || 0,
-      observacoes: item.observacoes
-    }))
+    return items.map(item => {
+      const precoOriginal = item.precoOriginal || item.precoUnitario
+      const desconto = item.desconto || 0
+      const tipoDesconto = item.tipoDesconto || 'valor'
+      
+      let descontoInfo = ''
+      if (desconto > 0) {
+        if (tipoDesconto === 'percentual') {
+          descontoInfo = ` (Desc: ${desconto}%)`
+        } else {
+          descontoInfo = ` (Desc: R$ ${this.formatCurrency(desconto)})`
+        }
+      }
+      
+      return {
+        nome: item.produto?.nome || 'Produto',
+        quantidade: item.quantidade || 1,
+        precoUnitario: precoOriginal,
+        precoTotal: item.precoTotal || 0,
+        observacoes: item.observacoes,
+        desconto: descontoInfo
+      }
+    })
   }
 
   /**

@@ -8,6 +8,7 @@ export interface ReceiptItem {
   precoUnitario: number
   precoTotal: number
   observacoes?: string
+  desconto?: string // Texto de desconto formatado (ex: "Desc: 10%" ou "Desc: R$ 2,00")
 }
 
 export interface ReceiptData {

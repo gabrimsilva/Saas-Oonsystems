@@ -110,7 +110,7 @@ Quando ativava/desativava estoque de um produto múltiplas vezes, apareciam dupl
 2. Backup: dist → dist_backup_2026_08_04
 3. Upload: c:\...\dist\ → /public_html/dist/
 4. Aguardar 154 arquivos
-5. Verificar: https://casadopai.oondelivery.com.br/sistema
+5. Verificar: https://casadopai.oonsystems.com.br/sistema
 6. Hard Refresh: Ctrl+Shift+R
 ```
 

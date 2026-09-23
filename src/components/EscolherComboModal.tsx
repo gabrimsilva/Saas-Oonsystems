@@ -169,7 +169,7 @@ export default function EscolherComboModal({ isOpen, combo, onClose, onConfirmar
                           <img
                             src={produto.imagem_path || '/placeholder-food.svg'}
                             alt={produto.nome}
-                            className="w-12 h-12 object-cover rounded"
+                            className="w-12 h-12 object-contain rounded bg-gray-50 p-1"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = '/placeholder-food.svg';
