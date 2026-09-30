@@ -18,7 +18,8 @@ import {
   CreditCard,
   Palette,
   UserCog,
-  TrendingUp
+  TrendingUp,
+  ClipboardList
 } from "lucide-react"
 import MobileAdminHeader from "../MobileAdminHeader"
 import { useConfig } from "@/contexts/ConfigContext"
@@ -50,6 +51,18 @@ const menuItems = [
         title: "Histórico de Vendas",
         icon: Receipt,
         id: "historico-vendas"
+      }
+    ]
+  },
+  {
+    title: "Comandas",
+    icon: ClipboardList,
+    id: "comandas",
+    submenu: [
+      {
+        title: "Histórico de Comandas",
+        icon: History,
+        id: "historico-comandas"
       }
     ]
   },
@@ -158,6 +171,7 @@ export default function AppLayout({ children, onLogout, onToggleView, currentPag
       
       // Verificar permissão para cada item
       if (item.id === 'pdv') return permissoes.podeAcessarPDV
+      if (item.id === 'comandas') return permissoes.podeAcessarComandas
       if (item.id === 'estoque-produtos') return permissoes.podeAcessarEstoque
       if (item.id === 'produtos') return permissoes.podeAcessarProdutos
       if (item.id === 'configuracoes') return permissoes.podeAcessarConfiguracoes
@@ -171,6 +185,9 @@ export default function AppLayout({ children, onLogout, onToggleView, currentPag
         const filteredSubmenu = item.submenu.filter(subitem => {
           if (item.id === 'pdv' && subitem.id === 'historico-vendas') {
             return permissoes.podeAcessarPDV // Mesma permissão do PDV
+          }
+          if (item.id === 'comandas' && subitem.id === 'historico-comandas') {
+            return permissoes.podeAcessarHistoricoComandas
           }
           if (item.id === 'estoque-produtos' && subitem.id === 'historico-movimentacoes') {
             return permissoes.podeAcessarEstoque // Mesma permissão do Estoque
@@ -191,6 +208,8 @@ export default function AppLayout({ children, onLogout, onToggleView, currentPag
     })
   }, [
     permissoes.podeAcessarPDV,
+    permissoes.podeAcessarComandas,
+    permissoes.podeAcessarHistoricoComandas,
     permissoes.podeAcessarProdutos,
     permissoes.podeAcessarEstoque,
     permissoes.podeAcessarConfiguracoes,

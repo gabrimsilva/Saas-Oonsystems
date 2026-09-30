@@ -27,7 +27,8 @@ import {
   CreditCard,
   Palette,
   UserCog,
-  TrendingUp
+  TrendingUp,
+  ClipboardList
 } from "lucide-react"
 import { configuracaoService } from "@/services"
 import { usePermissoes } from "@/hooks/usePermissoes"
@@ -55,6 +56,14 @@ const menuItems: MenuItem[] = [
     icon: Store,
     submenu: [
       { name: "Histórico de Vendas", id: "historico-vendas", icon: History }
+    ]
+  },
+  { 
+    name: "Comandas", 
+    id: "comandas", 
+    icon: ClipboardList,
+    submenu: [
+      { name: "Histórico", id: "historico-comandas", icon: History }
     ]
   },
   { 
@@ -109,6 +118,8 @@ export default function MobileAdminHeader({ onLogout, onToggleView, currentPage 
         return true
       case 'pdv':
         return permissoes.podeAcessarPDV
+      case 'comandas':
+        return permissoes.podeAcessarComandas
       case 'estoque-produtos':
         return permissoes.podeAcessarEstoque
       case 'produtos':
