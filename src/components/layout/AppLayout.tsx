@@ -28,6 +28,7 @@ import { useEstabelecimento } from "@/contexts/EstabelecimentoContext"
 import { configuracaoService } from "@/services"
 import SeletorEstabelecimento from "@/components/estabelecimento/SeletorEstabelecimento"
 import IndicadorEstabelecimento from "@/components/estabelecimento/IndicadorEstabelecimento"
+import AvisoTeste from "@/components/AvisoTeste"
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -459,6 +460,7 @@ export default function AppLayout({ children, onLogout, onToggleView, currentPag
         </div>
 
         <div className="flex-1 overflow-y-auto pt-16 md:pt-0">
+          <AvisoTeste />
           {children}
         </div>
       </main>

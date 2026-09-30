@@ -6,7 +6,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Briefcase, Plus, Loader2, LogOut, PauseCircle, PlayCircle, CheckCircle2, CalendarPlus } from 'lucide-react'
+import { Briefcase, Plus, Loader2, LogOut, PauseCircle, PlayCircle, CheckCircle2, CalendarPlus, Blocks } from 'lucide-react'
 import { authService } from '@/services'
 import {
   plataformaService,
@@ -16,6 +16,7 @@ import {
   type NovoCliente,
   type StatusCliente,
 } from '@/services/plataformaService'
+import { moduloService, type Modulo, type CodigoModulo } from '@/services/moduloService'
 
 const ROTULO_STATUS: Record<StatusCliente, { texto: string; classe: string }> = {
   trial: { texto: 'Teste', classe: 'bg-blue-100 text-blue-700' },
@@ -48,6 +49,9 @@ export default function Plataforma() {
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState<NovoCliente | null>(null)
   const [salvando, setSalvando] = useState(false)
+  const [catalogoModulos, setCatalogoModulos] = useState<Modulo[]>([])
+  const [modulosDe, setModulosDe] = useState<{ cliente: ClientePlataforma; ligados: string[] } | null>(null)
+  const [alternandoModulo, setAlternandoModulo] = useState<string | null>(null)
 
   const carregar = useCallback(async () => {
     setLoading(true)
@@ -109,6 +113,36 @@ export default function Plataforma() {
   const ativar = (c: ClientePlataforma) => {
     if (!window.confirm(`Ativar o cliente "${nomeCliente(c)}" (assinatura paga)?`)) return
     executar(() => plataformaService.definirStatus(c.id, 'ativo'), 'Cliente ativado')
+  }
+
+  const abrirModulos = async (c: ClientePlataforma) => {
+    try {
+      const [catalogo, ligados] = await Promise.all([
+        catalogoModulos.length ? Promise.resolve(catalogoModulos) : moduloService.listarCatalogo(),
+        moduloService.modulosDoCliente(c.id),
+      ])
+      setCatalogoModulos(catalogo)
+      setModulosDe({ cliente: c, ligados })
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao carregar módulos')
+    }
+  }
+
+  const alternarModulo = async (codigo: CodigoModulo) => {
+    if (!modulosDe) return
+    const ligar = !modulosDe.ligados.includes(codigo)
+    setAlternandoModulo(codigo)
+    try {
+      await moduloService.definirModulo(modulosDe.cliente.id, codigo, ligar)
+      setModulosDe({
+        ...modulosDe,
+        ligados: ligar ? [...modulosDe.ligados, codigo] : modulosDe.ligados.filter((m) => m !== codigo),
+      })
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao alterar módulo')
+    } finally {
+      setAlternandoModulo(null)
+    }
   }
 
   const estenderTeste = (c: ClientePlataforma) =>
@@ -207,6 +241,9 @@ export default function Plataforma() {
                     <td className="px-4 py-3">
                       {c.status !== 'cancelado' && (
                         <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => abrirModulos(c)} className="p-2 rounded hover:bg-gray-100" title="Módulos">
+                            <Blocks className="h-4 w-4 text-gray-700" />
+                          </button>
                           {c.status !== 'ativo' && (
                             <button onClick={() => ativar(c)} className="p-2 rounded hover:bg-gray-100" title="Ativar (assinatura paga)">
                               <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -239,6 +276,45 @@ export default function Plataforma() {
           </div>
         )}
       </div>
+
+      {modulosDe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
+            <h2 className="text-lg font-bold">Módulos</h2>
+            <p className="text-sm text-gray-500 mb-4">{nomeCliente(modulosDe.cliente)}</p>
+            <div className="space-y-2">
+              {catalogoModulos.map((m) => {
+                const ligado = modulosDe.ligados.includes(m.codigo)
+                return (
+                  <label key={m.codigo} className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-1"
+                      checked={ligado}
+                      disabled={alternandoModulo !== null}
+                      onChange={() => alternarModulo(m.codigo)}
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-sm flex items-center gap-2">
+                        {m.nome}
+                        {alternandoModulo === m.codigo && <Loader2 className="h-3 w-3 animate-spin text-gray-400" />}
+                      </div>
+                      {m.descricao && <div className="text-xs text-gray-500">{m.descricao}</div>}
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
+            <p className="text-xs text-gray-500 mt-4">
+              Produtos, categorias, configurações, usuários e o catálogo público ficam sempre disponíveis.
+              A mudança vale no próximo acesso do cliente.
+            </p>
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setModulosDe(null)} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Fechar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {form && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

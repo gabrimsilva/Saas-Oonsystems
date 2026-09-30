@@ -10,9 +10,10 @@
  * @module hooks/usePermissoes
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { PerfilUsuario } from '@/types/estabelecimento'
+import { aplicarModulos, moduloService } from '@/services/moduloService'
 
 export type Funcao = 'atendente' | 'garcom' | 'entregador' | null
 
@@ -136,7 +137,10 @@ const getPermissoesPorPerfil = (perfil: PerfilUsuario): Permissoes => {
  * Hook para obter e gerenciar permissões do usuário logado
  */
 export function usePermissoes() {
-  const [permissoes, setPermissoes] = useState<Permissoes>(getPermissoesPorFuncao(null))
+  // Permissões do perfil/função; os módulos do cliente são aplicados por cima (abaixo)
+  const [permissoesBase, setPermissoes] = useState<Permissoes>(getPermissoesPorFuncao(null))
+  // Módulos ligados do cliente (null = ainda não carregados / sem restrição)
+  const [modulos, setModulos] = useState<string[] | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -163,12 +167,16 @@ export function usePermissoes() {
 
         if (!user) {
           setPermissoes(getPermissoesPorFuncao(null))
+          setModulos(null)
           currentUserIdRef.current = null
           return
         }
 
         // Salvar ID do usuário atual
         currentUserIdRef.current = user.id
+
+        // Módulos ligados do cliente (menu e rotas de módulos desligados somem)
+        setModulos(await moduloService.meusModulos())
 
         // Multi-estabelecimento: carregar perfil e vínculo (com fallback) — Req 6.4
         try {
@@ -295,6 +303,12 @@ export function usePermissoes() {
       subscription.unsubscribe()
     }
   }, [])
+
+  // Permissões efetivas = perfil/função ∩ módulos ligados do cliente
+  const permissoes = useMemo(
+    () => aplicarModulos(permissoesBase, modulos),
+    [permissoesBase, modulos]
+  )
 
   /**
    * Verifica se o usuário pode acessar uma página específica
