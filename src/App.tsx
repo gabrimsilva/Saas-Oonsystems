@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, Suspense, lazy } from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation, useNavigate } from "react-router-dom"
 import AppLayout from "@/components/layout/AppLayout"
 import { authService } from "@/services"
+import { plataformaService } from "@/services/plataformaService"
 import { ConfigProvider } from "@/contexts/ConfigContext"
 import { ErrorProvider } from "@/contexts/ErrorContext"
 import { EstabelecimentoProvider, useEstabelecimento } from "@/contexts/EstabelecimentoContext"
@@ -66,6 +67,7 @@ const PoliticasPrivacidade = lazy(() => import("@/pages/PoliticasPrivacidade"))
 const Estabelecimentos = lazy(() => import("@/pages/Estabelecimentos"))
 const Usuarios = lazy(() => import("@/pages/Usuarios"))
 const Auditoria = lazy(() => import("@/pages/Auditoria"))
+const Plataforma = lazy(() => import("@/pages/Plataforma"))
 
 // Componente de loading
 const LoadingSpinner = () => (
@@ -361,8 +363,9 @@ function AdminSystem() {
 // Componente de Login
 function LoginPage() {
   const handleLogin = async (_credentials: { login: string; senha: string }) => {
-    // Após login bem-sucedido, redireciona para o sistema
-    window.location.href = '/sistema'
+    // Após login bem-sucedido: administração da plataforma ou sistema do cliente
+    const adminPlataforma = await plataformaService.ehAdminPlataforma()
+    window.location.href = adminPlataforma ? '/plataforma' : '/sistema'
   }
 
   return (
@@ -594,6 +597,16 @@ function App() {
             } />
 
             {/* Sistema administrativo protegido */}
+            <Route
+              path="/plataforma"
+              element={
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <Plataforma />
+                  </Suspense>
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/sistema/*"
               element={

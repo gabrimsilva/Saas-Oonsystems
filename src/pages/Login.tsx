@@ -1,84 +1,85 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Eye, EyeOff, ArrowRight } from 'lucide-react'
-import { authService, estabelecimentoService, supabase } from "@/services"
-import type { Estabelecimento } from "@/types/estabelecimento"
+import { authService, supabase } from "@/services"
+import { plataformaService } from "@/services/plataformaService"
 import './LoginPremium.css'
 
 interface LoginProps {
   onLogin: (credentials: { login: string; senha: string }) => void
 }
 
+/**
+ * Login do SaaS: pede apenas email e senha. O estabelecimento vem do vínculo
+ * do usuário (nenhum dado de clientes é exibido antes da autenticação).
+ */
 export default function Login({ onLogin }: LoginProps) {
-  const [estabelecimentoId, setEstabelecimentoId] = useState('')
-  const [estabelecimentos, setEstabelecimentos] = useState<Estabelecimento[]>([])
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [lembrarMe, setLembrarMe] = useState(false)
   const [carregando, setCarregando] = useState(false)
   const [error, setError] = useState('')
-  const [carregandoEstabs, setCarregandoEstabs] = useState(true)
 
-  // Carregar estabelecimentos ativos
-  useEffect(() => {
-    const carregar = async () => {
-      try {
-        const lista = await estabelecimentoService.buscarAtivos()
-        setEstabelecimentos(lista)
-        if (lista.length === 1) {
-          setEstabelecimentoId(lista[0].id)
-        }
-      } catch (err) {
-        console.error('Erro ao carregar estabelecimentos:', err)
-      } finally {
-        setCarregandoEstabs(false)
-      }
-    }
-    carregar()
-  }, [])
+  const recusar = async (mensagem: string) => {
+    setError(mensagem)
+    await authService.logout()
+  }
 
   const handleEntrar = async (e: React.FormEvent) => {
     e.preventDefault()
     setCarregando(true)
     setError('')
 
-    if (!estabelecimentoId) {
-      setError('Selecione um estabelecimento')
-      setCarregando(false)
-      return
-    }
-
     try {
       // 1. Autenticar
       await authService.login(email.trim(), senha.trim())
 
-      // 2. Buscar o vínculo/perfil do usuário
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        setError('Não foi possível validar a sessão. Tente novamente.')
-        await authService.logout()
+        await recusar('Não foi possível validar a sessão. Tente novamente.')
         return
       }
 
-      // 3. Buscar vínculo com estabelecimento
+      // 2. Administração da plataforma não depende de estabelecimento
+      if (await plataformaService.ehAdminPlataforma()) {
+        onLogin({ login: email.trim(), senha: senha.trim() })
+        return
+      }
+
+      // 3. Vínculo do usuário com o cliente/estabelecimento
       const { data: vinculo } = await supabase
         .from('usuarios_estabelecimento')
-        .select('perfil, estabelecimento_id, ativo')
+        .select('perfil, estabelecimento_id, ultimo_estabelecimento_id, ativo, tenants(status)')
         .eq('user_id', user.id)
         .maybeSingle()
 
       if (!vinculo || !vinculo.ativo) {
-        setError('Seu usuário não possui acesso ativo a nenhum estabelecimento.')
-        await authService.logout()
+        await recusar('Seu usuário não possui acesso ativo a nenhum estabelecimento.')
+        return
+      }
+      // tenants só é visível com o cliente em teste/ativo (RLS)
+      if (!vinculo.tenants) {
+        await recusar('O acesso deste cliente está suspenso. Entre em contato com a OonSystems.')
         return
       }
 
-      // 4. Validar estabelecimento escolhido
-      const ehAdminGeral = vinculo.perfil === 'administrador_geral'
-      if (!ehAdminGeral && vinculo.estabelecimento_id !== estabelecimentoId) {
-        const nomeEscolhido = estabelecimentos.find(e => e.id === estabelecimentoId)?.nome || 'selecionado'
-        setError(`Seu usuário não está configurado para acessar "${nomeEscolhido}".`)
-        await authService.logout()
+      // 4. Estabelecimento de entrada: o do vínculo, ou (admin geral) o último usado
+      let estabelecimentoId: string | null = vinculo.estabelecimento_id
+      if (vinculo.perfil === 'administrador_geral') {
+        estabelecimentoId = vinculo.ultimo_estabelecimento_id
+        if (!estabelecimentoId) {
+          const { data: primeiro } = await supabase
+            .from('estabelecimentos')
+            .select('id')
+            .eq('ativo', true)
+            .order('criado_em', { ascending: true })
+            .limit(1)
+            .maybeSingle()
+          estabelecimentoId = primeiro?.id ?? null
+        }
+      }
+      if (!estabelecimentoId) {
+        await recusar('Nenhum estabelecimento ativo encontrado para o seu usuário.')
         return
       }
 
@@ -131,22 +132,10 @@ export default function Login({ onLogin }: LoginProps) {
 
           {/* Conteúdo Esquerdo Overlay */}
           <div className="login-left-content">
-            {/* Logo LIRI */}
-            <div className="liri-logo-container">
-              <img 
-                src="/img/liri-logo.png" 
-                alt="LIRI Personalizados" 
-                className="liri-logo"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
-
             {/* Título */}
             <div className="title-section">
-              <h1 className="title-line-2">LÍRI</h1>
-              <p className="subtitle">Personalizados</p>
+              <h1 className="title-line-2">OonSystems</h1>
+              <p className="subtitle">Gestão para o seu negócio</p>
             </div>
 
             {/* Descrição */}
@@ -166,21 +155,10 @@ export default function Login({ onLogin }: LoginProps) {
               <p className="verse-text">
                 Gestão inteligente de estoque, vendas e métricas em um só lugar.
               </p>
-              <p className="verse-reference">LIRI Personalizados</p>
+              <p className="verse-reference">OonSystems</p>
             </div>
           </div>
 
-          {/* Logo Grande Marca D'água - Background */}
-          <div className="santa-ceia-container">
-            <img 
-              src="/img/liri-logo.png" 
-              alt="" 
-              className="santa-ceia-image"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none'
-              }}
-            />
-          </div>
         </div>
 
         {/* Lado Direito - 40% */}
@@ -201,33 +179,6 @@ export default function Login({ onLogin }: LoginProps) {
                   <p>{error}</p>
                 </div>
               )}
-
-              {/* Estabelecimento */}
-              <div className="form-group">
-                <label htmlFor="estab" className="form-label">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                  </svg>
-                  Estabelecimento
-                </label>
-                <select
-                  id="estab"
-                  value={estabelecimentoId}
-                  onChange={(e) => setEstabelecimentoId(e.target.value)}
-                  className="form-input form-select"
-                  disabled={carregandoEstabs}
-                >
-                  <option value="">
-                    {carregandoEstabs ? 'Carregando...' : 'Selecione um estabelecimento'}
-                  </option>
-                  {estabelecimentos.map(est => (
-                    <option key={est.id} value={est.id}>
-                      {est.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               {/* Email */}
               <div className="form-group">
@@ -302,7 +253,7 @@ export default function Login({ onLogin }: LoginProps) {
               <button
                 type="submit"
                 className={`form-button ${carregando ? 'loading' : ''}`}
-                disabled={carregando || !estabelecimentoId}
+                disabled={carregando}
               >
                 {carregando ? (
                   <>
