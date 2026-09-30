@@ -68,6 +68,7 @@ const Estabelecimentos = lazy(() => import("@/pages/Estabelecimentos"))
 const Usuarios = lazy(() => import("@/pages/Usuarios"))
 const Auditoria = lazy(() => import("@/pages/Auditoria"))
 const Plataforma = lazy(() => import("@/pages/Plataforma"))
+const Cadastro = lazy(() => import("@/pages/Cadastro"))
 
 // Componente de loading
 const LoadingSpinner = () => (
@@ -578,6 +579,11 @@ function App() {
 
             {/* Página de login */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/cadastro" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <Cadastro />
+              </Suspense>
+            } />
 
             {/* Página de usuário bloqueado */}
             <Route path="/usuario-bloqueado" element={

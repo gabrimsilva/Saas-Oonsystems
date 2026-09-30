@@ -21,6 +21,8 @@ export interface ClientePlataforma {
   slug: string
   email: string | null
   status: StatusCliente
+  origem: 'plataforma' | 'site'
+  trial_ate: string | null
   criado_em: string
   qtd_estabelecimentos: number
   qtd_usuarios: number
@@ -38,6 +40,11 @@ export interface NovoCliente {
   status?: 'trial' | 'ativo'
 }
 
+/** Teste vencido: status trial com prazo já passado (o cliente perdeu o acesso). */
+export function testeExpirado(c: Pick<ClientePlataforma, 'status' | 'trial_ate'>): boolean {
+  return c.status === 'trial' && !!c.trial_ate && new Date(c.trial_ate).getTime() <= Date.now()
+}
+
 /** Formata CPF (000.000.000-00) ou CNPJ, inclusive alfanumérico (XX.XXX.XXX/XXXX-00). */
 export function formatarDocumento(documento: string): string {
   if (documento.length === 11) {
@@ -47,6 +54,26 @@ export function formatarDocumento(documento: string): string {
     return documento.replace(/^(.{2})(.{3})(.{3})(.{4})(.{2})$/, '$1.$2.$3/$4-$5')
   }
   return documento
+}
+
+export interface AutoCadastro {
+  documento: string
+  razao_social: string
+  nome_fantasia?: string
+  admin_nome: string
+  admin_email: string
+  admin_senha: string
+  /** Campo-isca contra robôs: deve ficar vazio */
+  site?: string
+}
+
+/** Autocadastro pelo site: cria o cliente em teste com a primeira loja. */
+export async function cadastrarClientePeloSite(dados: AutoCadastro): Promise<void> {
+  const { error } = await supabase.functions.invoke('cadastro-cliente', { body: dados })
+  if (error) {
+    console.error('Erro no autocadastro:', error)
+    throw new Error(await mensagemErroEdgeFunction(error, 'Não foi possível concluir o cadastro. Tente novamente.'))
+  }
 }
 
 export const plataformaService = {
@@ -76,6 +103,20 @@ export const plataformaService = {
     if (error) {
       console.error('Erro ao cadastrar cliente:', error)
       throw new Error(await mensagemErroEdgeFunction(error, 'Falha ao cadastrar o cliente'))
+    }
+  },
+
+  /** Estende o teste em `dias` a partir de hoje (ou do prazo atual, se ainda não venceu). */
+  async estenderTeste(cliente: Pick<ClientePlataforma, 'id' | 'trial_ate'>, dias: number): Promise<void> {
+    const base = Math.max(Date.now(), cliente.trial_ate ? new Date(cliente.trial_ate).getTime() : 0)
+    const novoPrazo = new Date(base + dias * 24 * 60 * 60 * 1000).toISOString()
+    const { error } = await supabase
+      .from('tenants')
+      .update({ status: 'trial', trial_ate: novoPrazo })
+      .eq('id', cliente.id)
+    if (error) {
+      console.error('Erro ao estender teste:', error)
+      throw new Error(`Falha ao estender o teste: ${error.message}`)
     }
   },
 

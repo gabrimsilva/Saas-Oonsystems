@@ -6,11 +6,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Briefcase, Plus, Loader2, LogOut, PauseCircle, PlayCircle } from 'lucide-react'
+import { Briefcase, Plus, Loader2, LogOut, PauseCircle, PlayCircle, CheckCircle2, CalendarPlus } from 'lucide-react'
 import { authService } from '@/services'
 import {
   plataformaService,
   formatarDocumento,
+  testeExpirado,
   type ClientePlataforma,
   type NovoCliente,
   type StatusCliente,
@@ -21,6 +22,13 @@ const ROTULO_STATUS: Record<StatusCliente, { texto: string; classe: string }> = 
   ativo: { texto: 'Ativo', classe: 'bg-green-100 text-green-700' },
   suspenso: { texto: 'Suspenso', classe: 'bg-amber-100 text-amber-700' },
   cancelado: { texto: 'Cancelado', classe: 'bg-gray-100 text-gray-500' },
+}
+
+const EXPIRADO = { texto: 'Teste expirado', classe: 'bg-red-100 text-red-700' }
+
+const ROTULO_ORIGEM: Record<ClientePlataforma['origem'], string> = {
+  plataforma: 'Plataforma',
+  site: 'Site',
 }
 
 const FORM_VAZIO: NovoCliente = {
@@ -86,17 +94,33 @@ export default function Plataforma() {
     }
   }
 
-  const alternarSuspensao = async (c: ClientePlataforma) => {
-    const novoStatus: StatusCliente = c.status === 'suspenso' ? 'ativo' : 'suspenso'
-    const acao = novoStatus === 'suspenso' ? 'Suspender' : 'Reativar'
-    if (!window.confirm(`${acao} o cliente "${c.nome_fantasia || c.razao_social}"?`)) return
+  const nomeCliente = (c: ClientePlataforma) => c.nome_fantasia || c.razao_social
+
+  const executar = async (acao: () => Promise<void>, sucesso: string) => {
     try {
-      await plataformaService.definirStatus(c.id, novoStatus)
-      toast.success(novoStatus === 'suspenso' ? 'Cliente suspenso' : 'Cliente reativado')
+      await acao()
+      toast.success(sucesso)
       await carregar()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Erro ao alterar status')
+      toast.error(e instanceof Error ? e.message : 'Erro ao atualizar o cliente')
     }
+  }
+
+  const ativar = (c: ClientePlataforma) => {
+    if (!window.confirm(`Ativar o cliente "${nomeCliente(c)}" (assinatura paga)?`)) return
+    executar(() => plataformaService.definirStatus(c.id, 'ativo'), 'Cliente ativado')
+  }
+
+  const estenderTeste = (c: ClientePlataforma) =>
+    executar(() => plataformaService.estenderTeste(c, 7), 'Teste estendido em 7 dias')
+
+  const alternarSuspensao = (c: ClientePlataforma) => {
+    const suspender = c.status !== 'suspenso'
+    if (!window.confirm(`${suspender ? 'Suspender' : 'Reativar'} o cliente "${nomeCliente(c)}"?`)) return
+    executar(
+      () => plataformaService.definirStatus(c.id, suspender ? 'suspenso' : 'ativo'),
+      suspender ? 'Cliente suspenso' : 'Cliente reativado',
+    )
   }
 
   const campo = (rotulo: string, chave: keyof NovoCliente, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
@@ -149,6 +173,8 @@ export default function Plataforma() {
                   <th className="text-right px-4 py-3">Estab.</th>
                   <th className="text-right px-4 py-3">Usuários</th>
                   <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-left px-4 py-3">Teste até</th>
+                  <th className="text-left px-4 py-3">Origem</th>
                   <th className="text-left px-4 py-3">Desde</th>
                   <th className="text-right px-4 py-3">Ações</th>
                 </tr>
@@ -168,28 +194,45 @@ export default function Plataforma() {
                     <td className="px-4 py-3 text-right">{c.qtd_estabelecimentos}</td>
                     <td className="px-4 py-3 text-right">{c.qtd_usuarios}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${ROTULO_STATUS[c.status].classe}`}>
-                        {ROTULO_STATUS[c.status].texto}
-                      </span>
+                      {(() => {
+                        const rotulo = testeExpirado(c) ? EXPIRADO : ROTULO_STATUS[c.status]
+                        return <span className={`px-2 py-0.5 rounded-full text-xs ${rotulo.classe}`}>{rotulo.texto}</span>
+                      })()}
                     </td>
+                    <td className="px-4 py-3 text-gray-500">
+                      {c.status === 'trial' && c.trial_ate ? new Date(c.trial_ate).toLocaleDateString('pt-BR') : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">{ROTULO_ORIGEM[c.origem]}</td>
                     <td className="px-4 py-3 text-gray-500">{new Date(c.criado_em).toLocaleDateString('pt-BR')}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-4 py-3">
                       {c.status !== 'cancelado' && (
-                        <button
-                          onClick={() => alternarSuspensao(c)}
-                          className="p-2 rounded hover:bg-gray-100"
-                          title={c.status === 'suspenso' ? 'Reativar' : 'Suspender'}
-                        >
-                          {c.status === 'suspenso'
-                            ? <PlayCircle className="h-4 w-4 text-green-600" />
-                            : <PauseCircle className="h-4 w-4 text-amber-600" />}
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          {c.status !== 'ativo' && (
+                            <button onClick={() => ativar(c)} className="p-2 rounded hover:bg-gray-100" title="Ativar (assinatura paga)">
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            </button>
+                          )}
+                          {c.status === 'trial' && (
+                            <button onClick={() => estenderTeste(c)} className="p-2 rounded hover:bg-gray-100" title="Estender teste em 7 dias">
+                              <CalendarPlus className="h-4 w-4 text-blue-600" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => alternarSuspensao(c)}
+                            className="p-2 rounded hover:bg-gray-100"
+                            title={c.status === 'suspenso' ? 'Reativar' : 'Suspender'}
+                          >
+                            {c.status === 'suspenso'
+                              ? <PlayCircle className="h-4 w-4 text-green-600" />
+                              : <PauseCircle className="h-4 w-4 text-amber-600" />}
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
                 ))}
                 {lista.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">Nenhum cliente cadastrado</td></tr>
+                  <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-400">Nenhum cliente cadastrado</td></tr>
                 )}
               </tbody>
             </table>

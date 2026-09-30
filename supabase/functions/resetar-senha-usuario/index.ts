@@ -66,12 +66,15 @@ serve(async (req) => {
     // Buscar perfil do usuário autenticado
     const { data: perfilUsuario, error: perfilError } = await supabaseAdmin
       .from('usuarios_estabelecimento')
-      .select('perfil, estabelecimento_id, tenant_id, tenants(status)')
+      .select('perfil, estabelecimento_id, tenant_id')
       .eq('user_id', user.id)
       .eq('ativo', true)
       .single()
 
-    const tenantAtivo = ['trial', 'ativo'].includes((perfilUsuario?.tenants as { status?: string } | null)?.status ?? '')
+    // Mesma regra da RLS: ativo, ou em teste dentro do prazo
+    const { data: tenantAtivo } = perfilUsuario
+      ? await supabaseAdmin.rpc('fn_tenant_liberado', { p_tenant_id: perfilUsuario.tenant_id })
+      : { data: false }
 
     if (perfilError || !perfilUsuario || !tenantAtivo) {
       return new Response(

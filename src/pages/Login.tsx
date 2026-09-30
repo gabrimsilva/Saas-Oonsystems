@@ -59,7 +59,7 @@ export default function Login({ onLogin }: LoginProps) {
       }
       // tenants só é visível com o cliente em teste/ativo (RLS)
       if (!vinculo.tenants) {
-        await recusar('O acesso deste cliente está suspenso. Entre em contato com a OonSystems.')
+        await recusar('O período de teste terminou ou o acesso está suspenso. Entre em contato com a OonSystems.')
         return
       }
 
@@ -271,6 +271,9 @@ export default function Login({ onLogin }: LoginProps) {
 
             {/* Footer */}
             <div className="login-card-footer">
+              <p className="footer-text">
+                Não tem conta? <a href="/cadastro">Teste grátis por 14 dias</a>
+              </p>
               <p className="footer-text">
                 Criado por <a href="https://oonsystems.tech" target="_blank" rel="noopener noreferrer">OonSystems</a>
               </p>

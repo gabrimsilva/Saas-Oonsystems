@@ -55,14 +55,15 @@ Deno.serve(async (req) => {
 
   const { data: vinculoChamador } = await supabaseAdmin
     .from('usuarios_estabelecimento')
-    .select('perfil, estabelecimento_id, tenant_id, tenants(status)')
+    .select('perfil, estabelecimento_id, tenant_id')
     .eq('user_id', chamador.id)
     .eq('ativo', true)
     .maybeSingle()
 
-  const tenantAtivo = ['trial', 'ativo'].includes(
-    (vinculoChamador?.tenants as { status?: string } | null)?.status ?? '',
-  )
+  // Mesma regra da RLS: ativo, ou em teste dentro do prazo
+  const { data: tenantAtivo } = vinculoChamador
+    ? await supabaseAdmin.rpc('fn_tenant_liberado', { p_tenant_id: vinculoChamador.tenant_id })
+    : { data: false }
   if (
     !vinculoChamador || !tenantAtivo ||
     !['administrador_geral', 'administrador_estabelecimento'].includes(vinculoChamador.perfil)
