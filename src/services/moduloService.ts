@@ -17,7 +17,6 @@ export type CodigoModulo =
   | 'comandas'
   | 'pedidos_online'
   | 'estoque'
-  | 'sabores_adicionais'
   | 'metricas'
 
 export interface Modulo {
@@ -33,17 +32,26 @@ const PERMISSOES_DO_MODULO: Record<CodigoModulo, Array<keyof Permissoes>> = {
   comandas: ['podeAcessarComandas', 'podeAcessarHistoricoComandas'],
   pedidos_online: ['podeAcessarPedidos', 'podeAcessarHistorico', 'podeAcessarAguardandoPagamento'],
   estoque: ['podeAcessarEstoque'],
-  sabores_adicionais: ['podeAcessarSabores', 'podeAcessarAdicionais'],
   metricas: ['podeAcessarMetricas', 'podeAcessarAnalytics'],
 }
 
 /**
- * Corta das permissões tudo o que pertence a módulos desligados.
+ * Recursos herdados que não são mais usados no sistema: ficam desligados para
+ * todos os clientes e perfis (no banco, as gravações também são bloqueadas).
+ */
+const RECURSOS_DESATIVADOS: Array<keyof Permissoes> = ['podeAcessarSabores', 'podeAcessarAdicionais']
+
+/**
+ * Corta das permissões tudo o que pertence a módulos desligados e os
+ * recursos desativados no sistema.
  * `ligados` null = módulos desconhecidos (não restringe).
  */
 export function aplicarModulos(permissoes: Permissoes, ligados: string[] | null): Permissoes {
-  if (!ligados) return permissoes
   const resultado = { ...permissoes }
+  for (const chave of RECURSOS_DESATIVADOS) {
+    ;(resultado as Record<string, unknown>)[chave] = false
+  }
+  if (!ligados) return resultado
   for (const [modulo, chaves] of Object.entries(PERMISSOES_DO_MODULO)) {
     if (!ligados.includes(modulo)) {
       for (const chave of chaves) {

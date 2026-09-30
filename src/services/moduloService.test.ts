@@ -25,15 +25,24 @@ const TUDO: Permissoes = {
   podeAcessarAnalytics: true,
 }
 
-const TODOS_MODULOS = ['pdv', 'comandas', 'pedidos_online', 'estoque', 'sabores_adicionais', 'metricas']
+const TODOS_MODULOS = ['pdv', 'comandas', 'pedidos_online', 'estoque', 'metricas']
+
+/** Permissões esperadas com todos os módulos: tudo, menos os recursos desativados */
+const TUDO_MENOS_DESATIVADOS: Permissoes = { ...TUDO, podeAcessarSabores: false, podeAcessarAdicionais: false }
 
 describe('aplicarModulos', () => {
-  it('com todos os módulos ligados mantém as permissões', () => {
-    expect(aplicarModulos(TUDO, TODOS_MODULOS)).toEqual(TUDO)
+  it('com todos os módulos ligados mantém as permissões (menos recursos desativados)', () => {
+    expect(aplicarModulos(TUDO, TODOS_MODULOS)).toEqual(TUDO_MENOS_DESATIVADOS)
   })
 
-  it('módulos desconhecidos (null) não restringem', () => {
-    expect(aplicarModulos(TUDO, null)).toEqual(TUDO)
+  it('módulos desconhecidos (null) não restringem módulos', () => {
+    expect(aplicarModulos(TUDO, null)).toEqual(TUDO_MENOS_DESATIVADOS)
+  })
+
+  it('sabores, bordas e adicionais ficam sempre desligados', () => {
+    const r = aplicarModulos(TUDO, [...TODOS_MODULOS, 'sabores_adicionais'])
+    expect(r.podeAcessarSabores).toBe(false)
+    expect(r.podeAcessarAdicionais).toBe(false)
   })
 
   it('desligar Comandas corta comandas e histórico de comandas', () => {
