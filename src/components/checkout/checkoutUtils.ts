@@ -2,6 +2,7 @@ import { pedidoService, historicoPedidoService, clienteService } from "@/service
 import { getEstabelecimentoAtivo } from "@/services/tenant"
 import toast from 'react-hot-toast'
 import type { DadosCliente, ItemCarrinho, Configuracao } from "./types"
+import { chaveCarrinhoPublico } from '@/services/tenant'
 
 export const validarEtapa1 = (dadosCliente: DadosCliente): { valido: boolean; mensagem?: string } => {
   // Este projeto opera apenas com RETIRADA no local — validação simples.
@@ -157,7 +158,7 @@ export const finalizarPedido = async (
     // e a mercadoria realmente sai.
 
     // Limpar carrinho
-    localStorage.removeItem('casa-do-pai-carrinho')
+    localStorage.removeItem(chaveCarrinhoPublico())
 
     // Envio de WhatsApp desabilitado para este projeto
 

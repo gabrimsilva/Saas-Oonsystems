@@ -12,6 +12,7 @@ import {
 import { useError, ErrorType, ErrorSeverity } from '@/contexts/ErrorContext'
 import { withRetry, RETRY_PRESETS } from '@/utils/retry'
 import { googleAnalytics } from '@/services/googleAnalyticsService'
+import { chaveCarrinhoPublico } from '@/services/tenant'
 
 /**
  * Dados do cliente para finalização do pedido
@@ -309,7 +310,7 @@ export function useFinalizarPedido() {
       // Envio de WhatsApp desabilitado para este projeto
 
       // Limpar carrinho
-      localStorage.removeItem('casa-do-pai-carrinho')
+      localStorage.removeItem(chaveCarrinhoPublico())
 
       // Rastrear compra finalizada no Google Analytics
       const items = carrinho.map(item => {

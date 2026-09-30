@@ -3,6 +3,7 @@ import { clienteService } from "@/services"
 import { buscarConfiguracaoSegura } from "@/lib/configService"
 import type { ItemCarrinho, DadosCliente, Configuracao } from "./types"
 import type { Adicional } from "@/types/carrinho"
+import { chaveCarrinhoPublico } from '@/services/tenant'
 
 export const useCheckoutLogic = (onNavigate: (page: 'delivery' | 'checkout') => void) => {
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
@@ -35,7 +36,7 @@ export const useCheckoutLogic = (onNavigate: (page: 'delivery' | 'checkout') => 
     const carregarDados = async () => {
       try {
         // Carregar carrinho do localStorage
-        const carrinhoSalvo = localStorage.getItem('casa-do-pai-carrinho')
+        const carrinhoSalvo = localStorage.getItem(chaveCarrinhoPublico())
         if (carrinhoSalvo) {
           setCarrinho(JSON.parse(carrinhoSalvo))
         }

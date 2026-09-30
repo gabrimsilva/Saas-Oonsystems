@@ -27,6 +27,23 @@ export function setEstabelecimentoAtivo(id: string | null): void {
   estabelecimentoAtualId = id
 }
 
+/**
+ * Chave de localStorage separada por estabelecimento.
+ *
+ * No SaaS o mesmo navegador pode abrir lojas de clientes diferentes (e o
+ * mesmo caixa pode trocar de estabelecimento): dados guardados no navegador
+ * (carrinhos, telefone da loja) nunca podem ser compartilhados entre eles.
+ */
+export function chaveLocalDoEstabelecimento(base: string, estabelecimentoId: string | null = estabelecimentoAtualId): string {
+  return `${base}:${estabelecimentoId ?? 'sem-estabelecimento'}`
+}
+
+/** Chave do carrinho do catálogo público (por loja). */
+export const chaveCarrinhoPublico = (): string => chaveLocalDoEstabelecimento('carrinho')
+
+/** Chave do telefone/WhatsApp da loja usado no catálogo (por loja). */
+export const chaveTelefoneLoja = (): string => chaveLocalDoEstabelecimento('estabelecimento_telefone')
+
 /** Retorna o id do estabelecimento ativo (ou null). */
 export function getEstabelecimentoAtivo(): string | null {
   return estabelecimentoAtualId

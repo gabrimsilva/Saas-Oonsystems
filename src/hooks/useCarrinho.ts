@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { calcularSubtotal, calcularPrecoItem } from '@/utils/calculos'
 import { googleAnalytics } from '@/services/googleAnalyticsService'
+import { chaveCarrinhoPublico } from '@/services/tenant'
 
 /**
  * Interface para representar um sabor
@@ -102,7 +103,7 @@ export interface UseCarrinhoReturn {
  * Hook para gerenciar o carrinho de compras
  * Inclui persistência em localStorage e cálculos de preço
  * 
- * @param chaveStorage - Chave para salvar no localStorage (padrão: 'casa-do-pai-carrinho')
+ * @param chaveStorage - Chave para salvar no localStorage (padrão: carrinho do catálogo da loja atual)
  * @returns Objeto com estado e funções do carrinho
  * 
  * @example
@@ -126,7 +127,7 @@ export interface UseCarrinhoReturn {
  *   bordaSelecionada: borda
  * })
  */
-export function useCarrinho(chaveStorage: string = 'casa-do-pai-carrinho'): UseCarrinhoReturn {
+export function useCarrinho(chaveStorage: string = chaveCarrinhoPublico()): UseCarrinhoReturn {
   const [carrinho, setCarrinho] = useState<ItemCarrinho[]>([])
 
   /**

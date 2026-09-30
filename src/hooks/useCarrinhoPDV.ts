@@ -1,7 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { type ItemCarrinhoPDV, type ProdutoPDV, type TipoDescontoItem } from '@/components/pdv/types'
 import { type CategoriaSupabase, type ComboSupabase } from "@/services"
 import toast from 'react-hot-toast'
+import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
+import { chaveLocalDoEstabelecimento } from '@/services/tenant'
+
+/** Lê o carrinho salvo do PDV de um estabelecimento. */
+function lerCarrinhoSalvo(chave: string): ItemCarrinhoPDV[] {
+  try {
+    const carrinhoSalvo = localStorage.getItem(chave)
+    if (carrinhoSalvo) {
+      return JSON.parse(carrinhoSalvo)
+    }
+  } catch (error) {
+    console.error('Erro ao carregar carrinho do localStorage:', error)
+  }
+  return []
+}
 
 /**
  * Hook customizado para gerenciar o carrinho do PDV
@@ -11,7 +26,9 @@ import toast from 'react-hot-toast'
  * 
  * ✨ PERSISTÊNCIA: O carrinho é salvo automaticamente no localStorage
  * e restaurado quando o componente monta, garantindo que o carrinho
- * não seja perdido ao trocar de aba, atualizar a página, etc.
+ * não seja perdido ao trocar de aba, atualizar a página, etc. Cada
+ * estabelecimento tem o seu carrinho (trocar de estabelecimento troca o
+ * carrinho).
  * 
  * @example
  * ```tsx
@@ -25,25 +42,21 @@ import toast from 'react-hot-toast'
  * ```
  */
 export function useCarrinhoPDV(categorias: CategoriaSupabase[]) {
-  // 🔄 CARRINHO PERSISTENTE
-  // Carrega do localStorage na primeira renderização
-  const [carrinho, setCarrinho] = useState<ItemCarrinhoPDV[]>(() => {
-    try {
-      const carrinhoSalvo = localStorage.getItem('liri_carrinho_pdv')
-      if (carrinhoSalvo) {
-        return JSON.parse(carrinhoSalvo)
-      }
-    } catch (error) {
-      console.error('Erro ao carregar carrinho do localStorage:', error)
-    }
-    return []
-  })
+  // 🔄 CARRINHO PERSISTENTE, separado por estabelecimento
+  const { estabelecimentoAtual } = useEstabelecimento()
+  const chaveCarrinho = chaveLocalDoEstabelecimento('carrinho_pdv', estabelecimentoAtual?.id ?? null)
+  const [carrinho, setCarrinho] = useState<ItemCarrinhoPDV[]>(() => lerCarrinhoSalvo(chaveCarrinho))
+
+  // Trocou de estabelecimento: carrega o carrinho dele
+  useEffect(() => {
+    setCarrinho(lerCarrinhoSalvo(chaveCarrinho))
+  }, [chaveCarrinho])
 
   // ✅ Salva automaticamente no localStorage sempre que o carrinho mudar
   const atualizarCarrinho = (novoCarrinho: ItemCarrinhoPDV[]) => {
     setCarrinho(novoCarrinho)
     try {
-      localStorage.setItem('liri_carrinho_pdv', JSON.stringify(novoCarrinho))
+      localStorage.setItem(chaveCarrinho, JSON.stringify(novoCarrinho))
     } catch (error) {
       console.error('Erro ao salvar carrinho no localStorage:', error)
     }

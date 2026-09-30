@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { X, MessageCircle } from "lucide-react"
 import type { ProdutoCatalogo } from "@/components/delivery/CatalogoProdutoCard"
+import { chaveTelefoneLoja } from '@/services/tenant'
 
 interface CatalogoProdutoModalProps {
   isOpen: boolean
@@ -39,7 +40,7 @@ export default function CatalogoProdutoModal({
       console.error('   Valor recebido:', JSON.stringify(whatsapp))
       
       // Tentar buscar de localStorage como fallback
-      const fallbackTelefone = localStorage.getItem('estabelecimento_telefone')
+      const fallbackTelefone = localStorage.getItem(chaveTelefoneLoja())
       console.log('   Tentando fallback do localStorage:', fallbackTelefone)
       
       if (fallbackTelefone && fallbackTelefone.trim() !== '') {
@@ -73,7 +74,7 @@ export default function CatalogoProdutoModal({
     console.log('  - Mensagem:', mensagem)
     
     // Salvar no localStorage para fallback
-    localStorage.setItem('estabelecimento_telefone', whatsapp)
+    localStorage.setItem(chaveTelefoneLoja(), whatsapp)
     
     window.open(url, '_blank')
   }

@@ -18,6 +18,7 @@ import { configuracaoService, clienteService } from "@/services"
 import { openWhatsApp, createWhatsAppUrl } from "@/lib/whatsapp"
 import Header from "@/components/Header"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
+import { chaveCarrinhoPublico } from '@/services/tenant'
 
 interface Produto {
   id: string
@@ -101,7 +102,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
     const carregarDados = async () => {
       try {
         // Carregar carrinho do localStorage
-        const carrinhoSalvo = localStorage.getItem('casa-do-pai-carrinho')
+        const carrinhoSalvo = localStorage.getItem(chaveCarrinhoPublico())
         if (carrinhoSalvo) {
           setCarrinho(JSON.parse(carrinhoSalvo))
         }
@@ -401,7 +402,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
       enviarParaWhatsApp()
 
       // Limpar carrinho
-      localStorage.removeItem('casa-do-pai-carrinho')
+      localStorage.removeItem(chaveCarrinhoPublico())
 
       // Mostrar mensagem de sucesso e redirecionar
       setAlertDialog({

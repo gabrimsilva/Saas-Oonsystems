@@ -10,6 +10,7 @@ import LojaStatusBadge from "@/components/LojaStatusBadge"
 import { ProdutoCardSkeletonGrid } from "@/components/skeletons/ProdutoCardSkeleton"
 import { configuracaoService, supabase, type CategoriaSupabase } from "@/services"
 import { Info } from "lucide-react"
+import { chaveTelefoneLoja } from '@/services/tenant'
 
 export default function CatalogoPage() {
   const [produtos, setProdutos] = useState<ProdutoCatalogo[]>([])
@@ -137,7 +138,7 @@ export default function CatalogoPage() {
       
       // Salvar telefone no localStorage para fallback em caso de erro
       if (telefone && telefone.trim() !== '') {
-        localStorage.setItem('estabelecimento_telefone', telefone)
+        localStorage.setItem(chaveTelefoneLoja(), telefone)
         console.log('💾 Telefone salvo no localStorage para fallback')
       }
 

@@ -17,6 +17,7 @@ import { useLojaStatus } from "@/hooks/useLojaStatus"
 import { googleAnalytics } from "@/services/googleAnalyticsService"
 import type { Sabor, Borda, Tamanho, Adicional } from '@/types/carrinho'
 import { renderizarDetalhesCombo } from "@/utils/comboFormatacao"
+import { chaveCarrinhoPublico } from '@/services/tenant'
 
 interface Produto {
   id: string
@@ -177,7 +178,7 @@ export default function CarrinhoSheet({
     }
 
     // Salvar carrinho no localStorage antes de navegar
-    localStorage.setItem('casa-do-pai-carrinho', JSON.stringify(carrinho))
+    localStorage.setItem(chaveCarrinhoPublico(), JSON.stringify(carrinho))
     // Fechar o carrinho
     setCarrinhoAberto(false)
     // Navegar para checkout
