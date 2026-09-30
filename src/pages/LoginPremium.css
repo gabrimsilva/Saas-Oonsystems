@@ -723,3 +723,17 @@ body {
     font-size: 0.9rem;
   }
 }
+
+/* ============================================
+   PAINEL DIREITO ROLÁVEL (tela de cadastro)
+   O formulário de cadastro é mais alto que a tela; o painel rola e o
+   cartão continua centralizado quando cabe.
+   ============================================ */
+.login-right.login-right-rolavel {
+  overflow-y: auto;
+  align-items: flex-start;
+}
+
+.login-right.login-right-rolavel .login-card {
+  margin: auto 0;
+}

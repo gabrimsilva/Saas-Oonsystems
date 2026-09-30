@@ -103,7 +103,7 @@ export default function Cadastro() {
           </div>
         </div>
 
-        <div className="login-right">
+        <div className="login-right login-right-rolavel">
           <div className="login-card">
             <div className="login-header">
               <h2>Crie sua conta</h2>
