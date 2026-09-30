@@ -12,16 +12,32 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Roda com o JWT de quem chamou (não com service_role): as políticas RLS
+    // limitam a limpeza aos estabelecimentos do próprio usuário.
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization') ?? '' }
+        },
         auth: {
           autoRefreshToken: false,
           persistSession: false
         }
       }
     )
+
+    const { data: { user } } = await supabaseClient.auth.getUser()
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: 'Não autenticado' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401
+        }
+      )
+    }
 
     // Buscar pedidos PIX aguardando pagamento há mais de 10 minutos
     const dezMinutosAtras = new Date(Date.now() - 10 * 60 * 1000).toISOString()
@@ -137,7 +153,7 @@ Deno.serve(async (req) => {
         resultados.push({
           pedido_id: pedido.codigo_pedido,
           sucesso: false,
-          erro: error.message
+          erro: (error as Error).message
         })
       }
     }
@@ -158,7 +174,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Erro geral:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500 

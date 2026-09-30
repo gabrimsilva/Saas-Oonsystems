@@ -1,10 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { lerConfig } from '../_shared/configEstabelecimento.ts'
+import { assinaturaValida } from '../_shared/assinaturaMercadoPago.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
+
+const jsonResponse = (payload: unknown, status: number) =>
+  new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
+
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -15,122 +24,59 @@ serve(async (req) => {
   try {
     console.log('Webhook recebido do Mercado Pago')
 
-    // Buscar configuracoes do Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Validar assinatura secreta (se configurada)
-    const xSignature = req.headers.get('x-signature')
-    const xRequestId = req.headers.get('x-request-id')
-    
+    // O estabelecimento vem da notification_url montada pelo create-pix-payment
+    const url = new URL(req.url)
+    const estabelecimentoId = url.searchParams.get('estabelecimento_id')
+    if (!estabelecimentoId) {
+      return jsonResponse({ error: 'estabelecimento_id ausente na URL de notificação' }, 400)
+    }
+
     let body: any
-    let bodyText = await req.text()
-    
-    // Tentar parsear o body
     try {
-      body = JSON.parse(bodyText)
+      body = JSON.parse(await req.text())
     } catch (e) {
       console.error('Erro ao parsear body:', e)
-      return new Response(
-        JSON.stringify({ error: 'Body invalido' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-    
-    // Validar assinatura apenas se estiver configurada E se os headers estiverem presentes
-    if (xSignature && xRequestId) {
-      console.log('Headers de assinatura encontrados, validando...')
-      
-      const { data: secretData } = await supabase
-        .from('configuracoes')
-        .select('valor')
-        .eq('chave', 'mercado_pago_webhook_secret')
-        .single()
-
-      if (secretData?.valor) {
-        const secret = secretData.valor
-        
-        // Mercado Pago usa HMAC SHA256
-        const encoder = new TextEncoder()
-        const keyData = encoder.encode(secret)
-        const messageData = encoder.encode(`${xRequestId}${bodyText}`)
-        
-        const cryptoKey = await crypto.subtle.importKey(
-          'raw',
-          keyData,
-          { name: 'HMAC', hash: 'SHA-256' },
-          false,
-          ['sign']
-        )
-        
-        const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData)
-        const hashArray = Array.from(new Uint8Array(signature))
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-        
-        // Extrair assinatura do header (formato: ts=timestamp,v1=hash)
-        const signatureParts = xSignature.split(',')
-        const v1Signature = signatureParts.find(part => part.startsWith('v1='))?.split('=')[1]
-        
-        if (v1Signature !== hashHex) {
-          console.warn('Assinatura invalida! Continuando mesmo assim (modo permissivo)')
-          // NÃO retornar erro, apenas logar o aviso
-          // Isso permite que testes do Mercado Pago funcionem
-        } else {
-          console.log('Assinatura valida!')
-        }
-      } else {
-        console.log('Assinatura secreta nao configurada, pulando validacao')
-      }
-    } else {
-      console.log('Headers de assinatura nao encontrados, pulando validacao')
+      return jsonResponse({ error: 'Body invalido' }, 400)
     }
 
-    console.log('Dados do webhook:', JSON.stringify(body, null, 2))
-
-    // Mercado Pago envia notificacoes no formato:
-    // { action: "payment.updated", data: { id: "123456789" }, type: "payment" }
-    const { action, data, type } = body
+    const { data, type } = body
 
     // Validar se e notificacao de pagamento
     if (type !== 'payment' || !data?.id) {
       console.log('Notificacao ignorada - nao e de pagamento')
-      return new Response(
-        JSON.stringify({ message: 'Notificacao ignorada' }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return jsonResponse({ message: 'Notificacao ignorada' }, 200)
+    }
+
+    // Assinatura: obrigatória quando o estabelecimento configurou o segredo
+    const webhookSecret = await lerConfig(supabase, estabelecimentoId, 'mercado_pago_webhook_secret')
+    if (webhookSecret) {
+      const xSignature = req.headers.get('x-signature')
+      const dataId = url.searchParams.get('data.id') ?? String(data.id)
+      const valida = xSignature !== null &&
+        await assinaturaValida(webhookSecret, xSignature, req.headers.get('x-request-id'), dataId)
+      if (!valida) {
+        console.warn('Assinatura do webhook invalida - notificacao rejeitada')
+        return jsonResponse({ error: 'Assinatura invalida' }, 401)
+      }
+    } else {
+      // Sem segredo configurado, a proteção é consultar o pagamento no
+      // Mercado Pago com o token do próprio estabelecimento (abaixo).
+      console.log('Assinatura secreta nao configurada, validando apenas pela consulta ao Mercado Pago')
     }
 
     const payment_id = data.id
     console.log(`Processando pagamento ID: ${payment_id}`)
 
-    // Buscar Access Token do Mercado Pago no banco
-    const { data: configData, error: configError } = await supabase
-      .from('configuracoes')
-      .select('valor')
-      .eq('chave', 'mercado_pago_access_token')
-      .single()
-
-    if (configError || !configData?.valor) {
-      console.error('Access Token nao configurado:', configError)
-      return new Response(
-        JSON.stringify({ error: 'Access Token nao configurado' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+    const mercadoPagoAccessToken = await lerConfig(supabase, estabelecimentoId, 'mercado_pago_access_token')
+    if (!mercadoPagoAccessToken) {
+      return jsonResponse({ error: 'Access Token nao configurado' }, 500)
     }
 
-    const mercadoPagoAccessToken = configData.valor
-
-    // Buscar dados do pagamento no Mercado Pago
+    // Buscar dados do pagamento no Mercado Pago (fonte da verdade)
     console.log('Consultando pagamento no Mercado Pago...')
     const response = await fetch(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
       method: 'GET',
@@ -142,13 +88,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorData = await response.json()
       console.error('Erro ao consultar pagamento:', errorData)
-      return new Response(
-        JSON.stringify({ error: 'Erro ao consultar pagamento' }),
-        { 
-          status: response.status, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return jsonResponse({ error: 'Erro ao consultar pagamento' }, response.status)
     }
 
     const paymentData = await response.json()
@@ -159,24 +99,19 @@ serve(async (req) => {
     })
 
     const status = paymentData.status
-    const external_reference = paymentData.external_reference // Codigo do pedido
+    const external_reference = paymentData.external_reference // UUID do pedido
 
-    // Buscar pedido no banco usando external_reference
+    // O pedido precisa ser do mesmo estabelecimento dono das credenciais
     const { data: pedido, error: pedidoError } = await supabase
       .from('pedidos')
       .select('*')
-      .eq('codigo_pedido', external_reference)
-      .single()
+      .eq('id', external_reference)
+      .eq('estabelecimento_id', estabelecimentoId)
+      .maybeSingle()
 
     if (pedidoError || !pedido) {
       console.error('Pedido nao encontrado:', external_reference)
-      return new Response(
-        JSON.stringify({ error: 'Pedido nao encontrado' }),
-        { 
-          status: 404, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
+      return jsonResponse({ error: 'Pedido nao encontrado' }, 404)
     }
 
     console.log(`Pedido encontrado: ${pedido.codigo_pedido}`)
@@ -186,31 +121,39 @@ serve(async (req) => {
     let observacao = ''
 
     switch (status) {
-      case 'approved':
+      case 'approved': {
+        // Pagamento aprovado só confirma o pedido se cobrir o total
+        const valorPago = Number(paymentData.transaction_amount)
+        if (!(valorPago >= Number(pedido.total) - 0.01)) {
+          console.warn(`Valor pago (${valorPago}) menor que o total do pedido (${pedido.total})`)
+          observacao = `Pagamento aprovado com valor divergente: pago R$ ${valorPago}, pedido R$ ${pedido.total}`
+          break
+        }
         novoStatus = 'Pedido criado'
         observacao = 'Pagamento PIX aprovado pelo Mercado Pago via webhook'
         console.log('Pagamento aprovado!')
         break
-      
+      }
+
       case 'pending':
         novoStatus = 'Aguardando pagamento'
         observacao = 'Aguardando confirmacao do pagamento PIX'
         console.log('Pagamento pendente')
         break
-      
+
       case 'rejected':
       case 'cancelled':
         novoStatus = 'Cancelado'
         observacao = `Pagamento ${status === 'rejected' ? 'rejeitado' : 'cancelado'} pelo Mercado Pago`
         console.log('Pagamento rejeitado/cancelado')
         break
-      
+
       case 'refunded':
         novoStatus = 'Cancelado'
         observacao = 'Pagamento estornado pelo Mercado Pago'
         console.log('Pagamento estornado')
         break
-      
+
       default:
         observacao = `Status do pagamento: ${status}`
         console.log(`Status: ${status}`)
@@ -224,14 +167,14 @@ serve(async (req) => {
     }
 
     // Se o pagamento foi aprovado, salvar a data de aprovação
-    if (status === 'approved' && paymentData.date_approved) {
+    if (novoStatus === 'Pedido criado' && paymentData.date_approved) {
       updateData.mercado_pago_date_approved = paymentData.date_approved
     }
 
     const { error: updateError } = await supabase
       .from('pedidos')
       .update(updateData)
-      .eq('codigo_pedido', external_reference)
+      .eq('id', pedido.id)
 
     if (updateError) {
       console.error('Erro ao atualizar pedido:', updateError)
@@ -240,14 +183,14 @@ serve(async (req) => {
 
     // Adicionar ao historico com mensagem sobre pagamento
     let observacaoHistorico = observacao
-    if (status === 'approved') {
+    if (novoStatus === 'Pedido criado') {
       observacaoHistorico = 'Pagamento PIX aprovado pelo Mercado Pago. Pedido confirmado e pronto para preparação.'
     }
 
     const { error: historicoError } = await supabase
       .from('historico_pedidos')
       .insert({
-        pedido_id: external_reference,
+        pedido_id: pedido.codigo_pedido,
         status: novoStatus,
         observacao: observacaoHistorico,
         // Multi-estabelecimento: preservar o estabelecimento do pedido
@@ -260,30 +203,18 @@ serve(async (req) => {
 
     console.log('Pedido atualizado com sucesso!')
 
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        message: 'Webhook processado com sucesso',
-        pedido: external_reference,
-        status: novoStatus
-      }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return jsonResponse({
+      success: true,
+      message: 'Webhook processado com sucesso',
+      pedido: pedido.codigo_pedido,
+      status: novoStatus
+    }, 200)
 
   } catch (error) {
     console.error('Erro ao processar webhook:', error)
-    return new Response(
-      JSON.stringify({ 
-        error: 'Erro ao processar webhook',
-        message: error.message 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    )
+    return jsonResponse({
+      error: 'Erro ao processar webhook',
+      message: (error as Error).message
+    }, 500)
   }
 })

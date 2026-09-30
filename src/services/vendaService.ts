@@ -367,6 +367,7 @@ class VendaService {
       .from('sales')
       .select('*')
       .eq('sale_number', saleNumber)
+      .eq('estabelecimento_id', tenantId())
       .single()
 
     if (error) {

@@ -339,16 +339,11 @@ export default function PagamentoPix() {
         unit_price: item.preco_unitario || item.preco || 0
       })) || []
 
-      // URL para webhook (notificações do Mercado Pago)
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-      const notificationUrl = `${supabaseUrl}/functions/v1/mercadopago-webhook`
-
       // Chamar Edge Function para criar pagamento PIX no Mercado Pago
+      // (valor, referência e URL do webhook são definidos no servidor a partir do pedido)
       const { data, error } = await supabase.functions.invoke('create-pix-payment', {
         body: {
           pedido_id: pedido.id,
-          codigo_pedido: pedido.codigo_pedido,
-          transaction_amount: pedido.total,
           description: `Pedido #${pedido.codigo_pedido} - Delivery`,
           payer: {
             email: pedido.cliente_email || 'cliente@email.com',
@@ -359,8 +354,7 @@ export default function PagamentoPix() {
               number: pedido.cliente_cpf || '00000000000'
             }
           },
-          items: items,
-          notification_url: notificationUrl
+          items: items
         }
       })
 

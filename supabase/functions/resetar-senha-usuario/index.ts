@@ -66,11 +66,14 @@ serve(async (req) => {
     // Buscar perfil do usuário autenticado
     const { data: perfilUsuario, error: perfilError } = await supabaseAdmin
       .from('usuarios_estabelecimento')
-      .select('perfil, estabelecimento_id')
+      .select('perfil, estabelecimento_id, tenant_id, tenants(status)')
       .eq('user_id', user.id)
+      .eq('ativo', true)
       .single()
 
-    if (perfilError || !perfilUsuario) {
+    const tenantAtivo = ['trial', 'ativo'].includes((perfilUsuario?.tenants as { status?: string } | null)?.status ?? '')
+
+    if (perfilError || !perfilUsuario || !tenantAtivo) {
       return new Response(
         JSON.stringify({ error: 'Perfil de usuário não encontrado' }),
         {
@@ -121,11 +124,12 @@ serve(async (req) => {
     // Buscar o usuário alvo para validar permissões
     const { data: usuarioAlvo, error: usuarioAlvoError } = await supabaseAdmin
       .from('usuarios_estabelecimento')
-      .select('estabelecimento_id')
+      .select('perfil, estabelecimento_id, tenant_id')
       .eq('user_id', user_id)
       .single()
 
-    if (usuarioAlvoError || !usuarioAlvo) {
+    // Usuário de outro cliente é tratado como inexistente (não revela que existe)
+    if (usuarioAlvoError || !usuarioAlvo || usuarioAlvo.tenant_id !== perfilUsuario.tenant_id) {
       return new Response(
         JSON.stringify({ error: 'Usuário alvo não encontrado' }),
         {
@@ -135,10 +139,12 @@ serve(async (req) => {
       )
     }
 
-    // Admin de Estabelecimento só pode resetar senha de usuários do próprio estabelecimento
+    // Admin de Estabelecimento só pode resetar senha de usuários do próprio
+    // estabelecimento, e nunca de um Admin Geral (seria tomar a conta dele)
     if (
       perfilUsuario.perfil === 'administrador_estabelecimento' &&
-      perfilUsuario.estabelecimento_id !== usuarioAlvo.estabelecimento_id
+      (perfilUsuario.estabelecimento_id !== usuarioAlvo.estabelecimento_id ||
+        usuarioAlvo.perfil === 'administrador_geral')
     ) {
       return new Response(
         JSON.stringify({ 
@@ -178,7 +184,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Erro inesperado:', error)
     return new Response(
-      JSON.stringify({ error: error.message || 'Erro interno do servidor' }),
+      JSON.stringify({ error: (error as Error).message || 'Erro interno do servidor' }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { lerConfig } from '../_shared/configEstabelecimento.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,58 +14,35 @@ serve(async (req) => {
   }
 
   try {
-    const { 
+    // Valor, referência e URL de notificação NÃO vêm do navegador: são
+    // derivados do pedido no banco (senão o comprador paga R$ 0,01 por
+    // qualquer pedido ou aponta o webhook para outro estabelecimento).
+    const {
       pedido_id,
-      codigo_pedido,
-      transaction_amount, 
-      description, 
+      description,
       payer,
-      items,
-      notification_url
+      items
     } = await req.json()
 
     // Validar dados obrigatórios
-    if (!transaction_amount || !payer?.email) {
+    if (!pedido_id || !payer?.email) {
       return new Response(
         JSON.stringify({ error: 'Dados obrigatórios não fornecidos' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
-    // Buscar Access Token do Mercado Pago no banco de dados
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    const { data: configData, error: configError } = await supabase
-      .from('configuracoes')
-      .select('valor')
-      .eq('chave', 'mercado_pago_access_token')
-      .single()
-
-    if (configError || !configData?.valor) {
-      console.error('Access Token do Mercado Pago não configurado:', configError)
-      return new Response(
-        JSON.stringify({ 
-          error: 'Access Token do Mercado Pago não configurado',
-          message: 'Configure o Access Token em: Configurações > Formas de Pagamento > PIX'
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    const mercadoPagoAccessToken = configData.valor
-
     // VERIFICAÇÃO DE SEGURANÇA: Verificar se o pedido já foi pago
     const { data: pedidoExistente, error: pedidoError } = await supabase
       .from('pedidos')
-      .select('status, mercado_pago_payment_id, mercado_pago_status')
+      .select('id, codigo_pedido, total, estabelecimento_id, status, mercado_pago_payment_id, mercado_pago_status')
       .eq('id', pedido_id)
       .single()
 
@@ -111,29 +89,41 @@ serve(async (req) => {
       )
     }
 
-    // Buscar nome da loja para o statement_descriptor
-    const { data: nomeLojaData } = await supabase
-      .from('configuracoes')
-      .select('valor')
-      .eq('chave', 'nome_loja')
-      .single()
+    // Credenciais do Mercado Pago do estabelecimento dono do pedido
+    const estabelecimentoId = pedidoExistente.estabelecimento_id
+    const mercadoPagoAccessToken = await lerConfig(supabase, estabelecimentoId, 'mercado_pago_access_token')
 
-    const nomeLoja = nomeLojaData?.valor || 'Delivery'
+    if (!mercadoPagoAccessToken) {
+      return new Response(
+        JSON.stringify({
+          error: 'Access Token do Mercado Pago não configurado',
+          message: 'Configure o Access Token em: Configurações > Formas de Pagamento > PIX'
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
+    // Buscar nome da loja para o statement_descriptor
+    const nomeLoja = await lerConfig(supabase, estabelecimentoId, 'nome_loja') || 'Delivery'
 
     // Criar pagamento PIX no Mercado Pago com todos os campos recomendados
     const paymentData = {
-      transaction_amount: parseFloat(transaction_amount),
-      description: description || `Pedido #${codigo_pedido}`,
+      transaction_amount: Number(pedidoExistente.total),
+      description: description || `Pedido #${pedidoExistente.codigo_pedido}`,
       payment_method_id: 'pix',
-      
-      // Referência externa (obrigatório) - permite correlacionar payment_id com ID interno
-      external_reference: codigo_pedido,
-      
+
+      // Referência externa (obrigatório) - UUID do pedido, único em todo o SaaS
+      external_reference: pedidoExistente.id,
+
       // Statement descriptor (recomendado) - aparece na fatura do cartão
       statement_descriptor: nomeLoja.substring(0, 22), // Máximo 22 caracteres
-      
-      // Notification URL (obrigatório) - webhook para receber notificações
-      notification_url: notification_url || undefined,
+
+      // Notification URL (obrigatório) - o webhook usa o estabelecimento da
+      // URL para achar as credenciais certas
+      notification_url: `${supabaseUrl}/functions/v1/mercadopago-webhook?estabelecimento_id=${estabelecimentoId}`,
       
       // Dados do pagador
       payer: {
@@ -225,7 +215,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Erro interno ao processar pagamento',
-        message: error.message 
+        message: (error as Error).message 
       }),
       { 
         status: 500, 
