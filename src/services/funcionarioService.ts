@@ -8,7 +8,8 @@
  */
 
 import { supabase } from "@/lib/supabase"
-import { comTenant } from "./tenant"
+import { comTenant, tenantId } from "./tenant"
+import { mensagemErroEdgeFunction } from "./edgeFunction"
 import type { FuncionarioSupabase } from '@/types/supabase'
 
 /**
@@ -243,6 +244,7 @@ export const funcionarioService: FuncionarioService = {
       .from('funcionarios')
       .select('*')
       .eq('email', email)
+      .eq('estabelecimento_id', tenantId())
       .single()
 
     if (error) {
@@ -257,7 +259,12 @@ export const funcionarioService: FuncionarioService = {
   },
 
   /**
-   * Cria funcionário com conta de acesso no auth
+   * Cria funcionário com conta de acesso.
+   *
+   * A credencial, o vínculo em usuarios_estabelecimento (perfil operador no
+   * estabelecimento atual) e o registro em funcionarios são criados no
+   * servidor pela Edge Function `criar-usuario` — a sessão do admin não é
+   * tocada e qualquer falha desfaz a credencial.
    */
   async criarComAcesso(data: {
     nome: string
@@ -266,88 +273,34 @@ export const funcionarioService: FuncionarioService = {
     email: string
     senha: string
   }): Promise<FuncionarioSupabase> {
-    try {
-      // Salvar sessão atual do admin
-      const { data: { session: adminSession } } = await supabase.auth.getSession()
-
-      if (!adminSession) {
-        throw new Error('Nenhuma sessão ativa encontrada. Faça login novamente.')
+    const { data: vinculo, error } = await supabase.functions.invoke('criar-usuario', {
+      body: {
+        nome: data.nome.trim(),
+        email: data.email.trim().toLowerCase(),
+        senha: data.senha,
+        perfil: 'operador',
+        estabelecimento_id: tenantId(),
+        funcionario: { funcao: data.funcao, telefone: data.telefone }
       }
+    })
 
-      // Criar usuário no auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.senha,
-        options: {
-          data: {
-            nome: data.nome,
-            funcao: data.funcao
-          },
-          emailRedirectTo: undefined
-        }
-      })
-
-      if (authError) {
-        console.error('Erro ao criar usuário no auth:', authError)
-        throw new Error(`Falha ao criar usuário no auth: ${authError.message}`)
-      }
-
-      if (!authData.user) {
-        throw new Error('Usuário não foi criado no sistema de autenticação')
-      }
-
-      // Mapear funcao para cargo
-      const cargoMap: Record<string, string> = {
-        'atendente': 'Atendente',
-        'garcom': 'Garçom',
-        'entregador': 'Entregador'
-      }
-
-      // Criar registro na tabela funcionarios
-      const { data: funcionario, error } = await supabase
-        .from('funcionarios')
-        .insert(comTenant({
-          nome: data.nome,
-          funcao: data.funcao,
-          cargo: cargoMap[data.funcao],
-          telefone: data.telefone,
-          email: data.email,
-          user_id: authData.user.id,
-          ativo: true
-        }))
-        .select()
-        .single()
-
-      if (error) {
-        console.error('Erro ao criar funcionário:', error)
-        // Tentar restaurar sessão do admin antes de lançar erro
-        await supabase.auth.setSession({
-          access_token: adminSession.access_token,
-          refresh_token: adminSession.refresh_token
-        })
-        throw new Error(`Falha ao criar funcionário: ${error.message}`)
-      }
-
-      if (!funcionario) {
-        // Tentar restaurar sessão do admin antes de lançar erro
-        await supabase.auth.setSession({
-          access_token: adminSession.access_token,
-          refresh_token: adminSession.refresh_token
-        })
-        throw new Error('Funcionário não foi criado corretamente')
-      }
-
-      // Restaurar sessão do admin
-      await supabase.auth.setSession({
-        access_token: adminSession.access_token,
-        refresh_token: adminSession.refresh_token
-      })
-
-      return funcionario
-    } catch (err) {
-      console.error('Erro ao criar funcionário com acesso:', err)
-      throw err instanceof Error ? err : new Error('Erro desconhecido ao criar funcionário com acesso')
+    if (error) {
+      console.error('Erro ao criar funcionário com acesso:', error)
+      throw new Error(await mensagemErroEdgeFunction(error, 'Erro desconhecido ao criar funcionário com acesso'))
     }
+
+    const { data: funcionario, error: buscaError } = await supabase
+      .from('funcionarios')
+      .select('*')
+      .eq('user_id', (vinculo as { user_id: string }).user_id)
+      .eq('estabelecimento_id', tenantId())
+      .single()
+
+    if (buscaError || !funcionario) {
+      throw new Error('Funcionário criado, mas não foi possível carregá-lo. Atualize a lista.')
+    }
+
+    return funcionario
   }
 }
 

@@ -16,6 +16,7 @@
 
 import { supabase } from '@/lib/supabase'
 import type { PerfilUsuario, UsuarioEstabelecimento } from '@/types/estabelecimento'
+import { mensagemErroEdgeFunction } from './edgeFunction'
 
 export type NovoUsuario = {
   nome: string
@@ -103,15 +104,8 @@ export const usuarioService: UsuarioService = {
     })
 
     if (error) {
-      // Mensagens amigáveis para casos comuns
-      const msg = (error as { message?: string }).message || ''
-      if (msg.includes('already registered') || msg.includes('duplicate') || msg.includes('23505')) {
-        throw new Error('Já existe um usuário com este email.')
-      }
       console.error('Erro ao criar usuário (Edge Function criar-usuario):', error)
-      throw new Error(
-        'Falha ao criar usuário. Verifique se a Edge Function "criar-usuario" está implantada com a service role.'
-      )
+      throw new Error(await mensagemErroEdgeFunction(error, 'Falha ao criar usuário. Tente novamente.'))
     }
     return data as UsuarioEstabelecimento
   },

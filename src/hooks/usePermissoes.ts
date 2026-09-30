@@ -182,6 +182,19 @@ export function usePermissoes() {
             setPerfil(ue.perfil as PerfilUsuario)
             setEstabelecimentoId(ue.estabelecimento_id ?? null)
             // O perfil multi-estabelecimento é a fonte de verdade das permissões.
+            // Operador cadastrado como funcionário (garçom/atendente/entregador)
+            // fica restrito aos menus da sua função.
+            if (ue.perfil === 'operador') {
+              const { data: func } = await supabase
+                .from('funcionarios')
+                .select('funcao')
+                .eq('user_id', user.id)
+                .maybeSingle()
+              if (func?.funcao) {
+                setPermissoes(getPermissoesPorFuncao(func.funcao as Funcao))
+                return
+              }
+            }
             setPermissoes(getPermissoesPorPerfil(ue.perfil as PerfilUsuario))
             return
           } else {
