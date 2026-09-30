@@ -53,14 +53,14 @@ export const EstabelecimentoPublicoProvider = ({ slug, children }: ProviderProps
           // Fluxo por slug (/:slug)
           estab = await estabelecimentoService.buscarPorSlug(slug)
         } else {
-          // Rotas legadas sem slug (/, /checkout): resolve um estabelecimento
-          // padrão. Preferência: último usado (localStorage) entre os ativos;
-          // senão, o primeiro ativo disponível.
-          const ativos = await estabelecimentoService.buscarAtivos()
-          if (!cancelado && ativos && ativos.length > 0) {
-            let preferidoId: string | null = null
-            try { preferidoId = localStorage.getItem('estabelecimento_atual_id') } catch { /* ignore */ }
-            estab = ativos.find((e) => e.id === preferidoId) ?? ativos[0]
+          // Rotas legadas sem slug (/checkout, /avaliar...): no SaaS há lojas
+          // de vários clientes, então não se escolhe "o primeiro ativo".
+          // Usa apenas o último estabelecimento usado neste navegador.
+          let preferidoId: string | null = null
+          try { preferidoId = localStorage.getItem('estabelecimento_atual_id') } catch { /* ignore */ }
+          if (preferidoId) {
+            const ativos = await estabelecimentoService.buscarAtivos()
+            estab = ativos?.find((e) => e.id === preferidoId) ?? null
           }
         }
 

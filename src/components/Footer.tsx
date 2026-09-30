@@ -1,5 +1,6 @@
 import { Heart, ExternalLink } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useEstabelecimentoPublico } from "@/contexts/EstabelecimentoPublicoContext"
 
 interface FooterProps {
   nomeEstabelecimento?: string
@@ -8,6 +9,7 @@ interface FooterProps {
 export default function Footer({ nomeEstabelecimento = "Estabelecimento" }: FooterProps) {
   const anoAtual = new Date().getFullYear()
   const navigate = useNavigate()
+  const { estabelecimento } = useEstabelecimentoPublico()
 
   const handleLinkClick = (tipo: string) => {
     switch (tipo) {
@@ -15,7 +17,8 @@ export default function Footer({ nomeEstabelecimento = "Estabelecimento" }: Foot
         navigate('/politicas-privacidade')
         break
       case 'avaliar':
-        navigate('/avaliar')
+        // Mantém o cliente na loja em que ele está (/:slug/avaliar)
+        navigate(estabelecimento ? `/${estabelecimento.slug}/avaliar` : '/avaliar')
         break
       default:
         break

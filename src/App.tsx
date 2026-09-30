@@ -375,17 +375,6 @@ function LoginPage() {
   )
 }
 
-// Componente principal da página de catálogo
-function CustomerCatalogoPage() {
-  return (
-    <EstabelecimentoPublicoProvider slug={undefined}>
-      <Suspense fallback={<LoadingSpinner />}>
-        <CatalogoPage />
-      </Suspense>
-    </EstabelecimentoPublicoProvider>
-  )
-}
-
 // Componente da página de checkout
 function CustomerCheckoutPage() {
   const handleNavigate = (page: 'delivery' | 'checkout') => {
@@ -553,7 +542,8 @@ function App() {
           <PageTracker />
           <Routes>
             {/* Página principal - Catálogo */}
-            <Route path="/" element={<CustomerCatalogoPage />} />
+            {/* Raiz do SaaS: não há "loja padrão"; catálogos ficam em /:slug */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
             {/* Página de checkout */}
             <Route path="/checkout" element={<CustomerCheckoutPage />} />
