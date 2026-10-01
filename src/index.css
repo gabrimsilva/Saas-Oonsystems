@@ -78,7 +78,7 @@
   /* === CONFIGURAÇÕES GERAIS === */
   --radius: 0.875rem; /* Botões mais arredondados para visual mais suave */
 
-  /* === CORES BASE DO SISTEMA - LIRI THEME (neutro) === */
+  /* === CORES BASE DO SISTEMA - OonSystems (neutro) === */
   --background: oklch(0.985 0 0);
   /* branco neutro */
   --foreground: oklch(0.22 0 0);
@@ -88,12 +88,12 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0 0);
 
-  /* === CORES PRIMÁRIAS (Botões Admin) - LIRI NEUTRO === */
+  /* === CORES PRIMÁRIAS (Botões Admin) - OonSystems (neutro) === */
   --primary: oklch(0.22 0 0);
-  /* preto/grafite LIRI - Botões principais */
+  /* preto/grafite OonSystems - Botões principais */
   --primary-foreground: oklch(1 0 0);
 
-  /* === CORES SECUNDÁRIAS - LIRI NEUTRO === */
+  /* === CORES SECUNDÁRIAS - OonSystems (neutro) === */
   --secondary: oklch(0.95 0 0);
   /* cinza muito claro */
   --secondary-foreground: oklch(0.30 0 0);
@@ -115,9 +115,9 @@
   /* borda cinza suave */
   --input: oklch(0.90 0 0);
   --ring: oklch(0.22 0 0);
-  /* anel de foco grafite LIRI */
+  /* anel de foco grafite OonSystems */
 
-  /* === CORES DE GRÁFICOS - LIRI PALETTE (neutro) === */
+  /* === CORES DE GRÁFICOS - OonSystems (neutro) === */
   --chart-1: oklch(0.30 0 0);
   /* grafite escuro */
   --chart-2: oklch(0.50 0 0);
@@ -129,13 +129,13 @@
   --chart-5: oklch(0.80 0 0);
   /* cinza bem claro */
 
-  /* === SIDEBAR ADMIN - LIRI THEME (neutro) === */
+  /* === SIDEBAR ADMIN - OonSystems (neutro) === */
   --sidebar: oklch(0.97 0 0);
   /* cinza muito claro - Fundo da sidebar */
   --sidebar-foreground: oklch(0.30 0 0);
   /* Texto da sidebar - cinza escuro */
   --sidebar-primary: oklch(0.42 0 0);
-  /* cinza-grafite LIRI - Item ativo */
+  /* cinza-grafite OonSystems - Item ativo */
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.92 0 0);
   /* cinza claro - Hover */
@@ -158,13 +158,13 @@
   --admin-sidebar-hover-bg: var(--sidebar-accent);
   --admin-sidebar-border: var(--sidebar-border);
 
-  /* === CORES DE PREÇOS - LIRI THEME (neutro) === */
+  /* === CORES DE PREÇOS - OonSystems (neutro) === */
   /* Cor padrão para exibição de preços de produtos no admin */
   --price-color: oklch(0.22 0 0);
-  /* grafite LIRI elegante */
+  /* grafite OonSystems elegante */
   /* Cor para exibição de preços nas páginas públicas (delivery/cliente) */
   --price-color-cliente: oklch(0.30 0 0);
-  /* grafite LIRI */
+  /* grafite OonSystems */
   --color-price: var(--price-color);
   --color-price-cliente: var(--price-color-cliente);
 }
@@ -227,7 +227,7 @@
     @apply bg-background text-foreground;
   }
 
-  /* Sombras mais suaves e elegantes - LIRI Theme (neutro) */
+  /* Sombras mais suaves e elegantes - OonSystems (neutro) */
   .shadow-sm {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
   }
@@ -245,11 +245,11 @@
   }
 }
 
-/* Scrollbar customizada apenas para o body principal - LIRI Theme (neutro) */
+/* Scrollbar customizada apenas para o body principal - OonSystems (neutro) */
 body {
   scrollbar-width: thin;
   scrollbar-color: rgb(160 160 160) rgb(245 245 245);
-  /* cinza LIRI */
+  /* cinza OonSystems */
 }
 
 body::-webkit-scrollbar {
@@ -265,7 +265,7 @@ body::-webkit-scrollbar-track {
 
 body::-webkit-scrollbar-thumb {
   background: rgb(160 160 160);
-  /* cinza LIRI */
+  /* cinza OonSystems */
   border-radius: 5px;
   border: 2px solid rgb(245 245 245);
   transition: background 0.3s ease;
@@ -273,7 +273,7 @@ body::-webkit-scrollbar-thumb {
 
 body::-webkit-scrollbar-thumb:hover {
   background: rgb(120 120 120);
-  /* cinza LIRI mais escuro */
+  /* cinza OonSystems mais escuro */
 }
 
 body::-webkit-scrollbar-corner {
@@ -365,7 +365,7 @@ body::-webkit-scrollbar-corner {
   }
 }
 
-/* Background Patterns - LIRI Theme (neutro) */
+/* Background Patterns - OonSystems (neutro) */
 body.bg-pattern-hideout {
   background: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%),
@@ -401,7 +401,7 @@ body.bg-pattern-i-like-food {
   overflow: hidden;
 }
 
-/* Estilos para os sliders de configuração - LIRI Theme (neutro) */
+/* Estilos para os sliders de configuração - OonSystems (neutro) */
 .slider::-webkit-slider-thumb {
   appearance: none;
   height: 20px;
@@ -423,7 +423,7 @@ body.bg-pattern-i-like-food {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Estilos customizados para cards do dashboard - LIRI Theme (neutro) */
+/* Estilos customizados para cards do dashboard - OonSystems (neutro) */
 .dashboard-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 245, 245, 0.98) 100%);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -436,7 +436,7 @@ body.bg-pattern-i-like-food {
   transform: translateY(-2px);
 }
 
-/* Cards com cores específicas - tons LIRI (neutro) */
+/* Cards com cores específicas - tons OonSystems (neutro) */
 .card-pink {
   background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
   border-color: #d4d4d4;

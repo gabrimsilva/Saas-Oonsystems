@@ -96,5 +96,5 @@ Write-Host "✅ Teste concluído!" -ForegroundColor Green
 Write-Host ""
 Write-Host "📚 Para mais informações, consulte:" -ForegroundColor Yellow
 Write-Host "   - GOOGLE-ANALYTICS-INTEGRACAO.md (guia completo)"
-Write-Host "   - docs/GOOGLE_ANALYTICS_RESUMO.md (resumo rápido)"
+Write-Host "   - supabase/functions/get-analytics-data/README.md"
 Write-Host "   - supabase/functions/get-analytics-data/README.md (documentação da função)"

@@ -2,7 +2,7 @@
 -- OONSYSTEMS SAAS: UNICIDADE POR ESTABELECIMENTO
 -- ============================================================================
 -- Arquivo: 20260930121750_unicidade_por_estabelecimento.sql
--- Descrição: No LIRI (um cliente só) estas colunas eram únicas no banco todo.
+-- Descrição: No sistema de origem (um cliente só) estas colunas eram únicas no banco todo.
 --            No SaaS isso faz um cliente bloquear o outro:
 --              * sales.sale_number é sequencial por estabelecimento
 --                (VENDA-AAAAMMDD-001): a 1ª venda do dia do cliente B colidia

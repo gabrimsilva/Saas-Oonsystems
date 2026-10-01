@@ -36,7 +36,6 @@ private-key.pem
 *.sw?
 
 # Kiro MCP settings (contém access token do Supabase — NÃO commitar)
-.kiro/settings/mcp.json
 
 # Artefato de deploy gerado localmente
 deploy_dist.zip
@@ -49,3 +48,7 @@ CREDENCIAIS_ADMIN.md
 
 # Claude Code MCP (contém access token do Supabase — NÃO commitar)
 .mcp.json
+
+# Artefatos de build e testes
+dist.zip
+coverage

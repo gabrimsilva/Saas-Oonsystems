@@ -2,7 +2,7 @@
 -- OONSYSTEMS SAAS: tenant_id PREENCHIDO PELO BANCO
 -- ============================================================================
 -- Arquivo: 20260930124554_tenant_id_padrao.sql
--- Descrição: O frontend herdado do LIRI não conhece tenants. Em vez de cada
+-- Descrição: O frontend herdado não conhece tenants. Em vez de cada
 --            tela enviar tenant_id, o banco assume o tenant de quem está
 --            logado. As políticas RLS continuam exigindo que o valor seja o
 --            tenant do usuário (quem informar outro valor é barrado).

@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS public.tenants (
     ) STORED,
     razao_social VARCHAR(150) NOT NULL,     -- nome completo (PF) ou razão social (PJ)
     nome_fantasia VARCHAR(150),
-    slug VARCHAR(60) NOT NULL,              -- identificador de rota pública (ex: 'casa-do-pai')
+    slug VARCHAR(60) NOT NULL,              -- identificador de rota pública (ex: 'minha-loja')
     email VARCHAR(255),
     telefone VARCHAR(20),
     status VARCHAR(20) NOT NULL DEFAULT 'ativo',

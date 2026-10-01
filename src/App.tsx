@@ -191,13 +191,13 @@ function AdminSystem() {
   // Salva a rota atual no localStorage sempre que o usuário navega
   useEffect(() => {
     if (location.pathname.startsWith('/sistema/') && location.pathname !== '/sistema/') {
-      localStorage.setItem('liri_last_admin_route', location.pathname)
+      localStorage.setItem('oonsystems_last_admin_route', location.pathname)
     }
   }, [location.pathname])
 
   // Restaura a última rota quando o componente monta (usuário volta ao sistema)
   useEffect(() => {
-    const lastRoute = localStorage.getItem('liri_last_admin_route')
+    const lastRoute = localStorage.getItem('oonsystems_last_admin_route')
     // Se está na rota raiz /sistema/ e existe uma última rota salva, redirecionar
     if (location.pathname === '/sistema/' && lastRoute && lastRoute !== '/sistema/') {
       navigate(lastRoute, { replace: true })

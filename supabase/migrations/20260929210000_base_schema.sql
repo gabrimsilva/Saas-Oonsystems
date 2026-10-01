@@ -1,10 +1,9 @@
 -- ============================================================================
--- OONSYSTEMS SAAS: SCHEMA BASE (herdado do LIRI)
+-- OONSYSTEMS SAAS: SCHEMA BASE (herdado do sistema de origem)
 -- ============================================================================
--- Arquivo: 20260929210000_base_schema_liri.sql
--- Origem: pg_dump --schema-only do banco de produção do LIRI (29/09/2026);
---         referência completa em docs/referencia/liri_schema.sql.
--- Removido em relação ao LIRI (sem uso no app):
+-- Arquivo: 20260929210000_base_schema.sql
+-- Origem: pg_dump --schema-only do sistema single-tenant de origem (29/09/2026).
+-- Removido em relação ao schema de origem (sem uso no app):
 --   * tabelas/funções do assistente de IA (ia_config, ia_conversas,
 --     ia_arquivos_temp, contar_conversas_por_status, limpar_arquivos_orfaos,
 --     obter_ultima_mensagem);

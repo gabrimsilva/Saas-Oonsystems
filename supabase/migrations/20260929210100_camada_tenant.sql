@@ -2,7 +2,7 @@
 -- OONSYSTEMS SAAS: CAMADA MULTI-TENANT
 -- ============================================================================
 -- Arquivo: 20260929210100_camada_tenant.sql
--- Descrição: Encaixa o schema herdado do LIRI (multi-estabelecimento) sob a
+-- Descrição: Encaixa o schema herdado (multi-estabelecimento) sob a
 --            tabela tenants. Hierarquia final:
 --
 --              tenants (CPF/CNPJ) -> estabelecimentos -> dados de domínio
@@ -234,7 +234,7 @@ CREATE POLICY logs_auditoria_insert ON public.logs_auditoria
     );
 
 -- ----------------------------------------------------------------------------
--- 7. profile (modelo antigo de "administrador"): no LIRI qualquer usuário
+-- 7. profile (modelo antigo de "administrador"): no sistema de origem qualquer usuário
 --    logado lia/alterava/apagava qualquer profile. Agora: o próprio registro,
 --    ou o admin geral para usuários do mesmo tenant.
 -- ----------------------------------------------------------------------------
