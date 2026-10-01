@@ -2,6 +2,8 @@ import { memo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Eye } from 'lucide-react'
+import { precoAnterior, precoUnitario, formatarReais } from '@/components/catalogo/precos'
+import type { TipoVenda } from '@/services/lojaOnlineService'
 
 /**
  * Interface para representar um produto no catálogo
@@ -12,12 +14,20 @@ export interface ProdutoCatalogo {
   descricao: string
   preco: number
   precoPromocional?: number
+  /** Preço nos pedidos do catálogo (null = preço do PDV/promocional) */
+  precoOnline?: number | null
+  /** Preço no modo atacado (null = preço de varejo do catálogo) */
+  precoAtacado?: number | null
   categoria: string
   urlImagem: string
   estoqueDisponivel?: boolean
   quantidadeEstoque?: number
   /** Indica se o produto tem controle de estoque ativado (toggle "Produto precisa de estoque") */
   requiresStock?: boolean
+  /** false = produto vendido sem controle de estoque (sem saldo a conferir) */
+  controlaEstoque?: boolean
+  /** Variantes do estoque (cor, tamanho...). Obrigatório escolher uma quando houver. */
+  variantes?: Array<{ id: string; nome: string; quantidade: number }>
 }
 
 /**
@@ -28,6 +38,8 @@ interface CatalogoProdutoCardProps {
   produto: ProdutoCatalogo
   /** Callback para abrir modal de detalhes */
   onAbrirDetalhes: (produto: ProdutoCatalogo) => void
+  /** Loja recebendo pedidos pelo catálogo: mostra o preço do modo e apaga o que está esgotado */
+  modoVenda?: TipoVenda
 }
 
 /**
@@ -43,11 +55,20 @@ interface CatalogoProdutoCardProps {
  */
 function CatalogoProdutoCard({
   produto,
-  onAbrirDetalhes
+  onAbrirDetalhes,
+  modoVenda
 }: CatalogoProdutoCardProps) {
+  const preco = modoVenda ? precoUnitario(produto, modoVenda) : null
+  const anterior = modoVenda ? precoAnterior(produto, modoVenda) : null
+  // Com pedidos ativos, produto sem saldo fica apagado (o modal e o servidor bloqueiam o pedido)
+  const esgotado = !!modoVenda && produto.controlaEstoque !== false && (produto.quantidadeEstoque ?? 1) <= 0
+
   return (
     <Card 
-      className="overflow-hidden hover:shadow-lg transition-all duration-300 border border-purple-100 p-0 rounded-2xl"
+      className={`overflow-hidden transition-all duration-300 border border-purple-100 p-0 rounded-2xl ${
+        esgotado ? "grayscale opacity-60" : "hover:shadow-lg"
+      }`}
+      aria-disabled={esgotado || undefined}
       style={{ cursor: 'url(/pointer.png), pointer' }}
       onClick={() => onAbrirDetalhes(produto)}
     >
@@ -98,7 +119,18 @@ function CatalogoProdutoCard({
           </div>
 
           {/* Preço e botão */}
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between gap-2">
+            {preco !== null ? (
+              <div className="flex flex-col leading-tight">
+                {anterior !== null && (
+                  <span className="text-xs text-gray-400 line-through">{formatarReais(anterior)}</span>
+                )}
+                <span className="text-base md:text-lg font-bold text-purple-700">{formatarReais(preco)}</span>
+                {esgotado && <span className="text-xs font-semibold text-gray-600">Esgotado</span>}
+              </div>
+            ) : (
+              <span />
+            )}
             {/* Botão Ver Detalhes */}
             <Button
               size="sm"
@@ -128,6 +160,10 @@ function areEqual(prevProps: CatalogoProdutoCardProps, nextProps: CatalogoProdut
     prevProps.produto.id === nextProps.produto.id &&
     prevProps.produto.preco === nextProps.produto.preco &&
     prevProps.produto.precoPromocional === nextProps.produto.precoPromocional &&
+    prevProps.produto.quantidadeEstoque === nextProps.produto.quantidadeEstoque &&
+    prevProps.produto.precoOnline === nextProps.produto.precoOnline &&
+    prevProps.produto.precoAtacado === nextProps.produto.precoAtacado &&
+    prevProps.modoVenda === nextProps.modoVenda &&
     prevProps.onAbrirDetalhes === nextProps.onAbrirDetalhes
   )
 }

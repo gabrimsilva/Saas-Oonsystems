@@ -16,6 +16,17 @@ interface Produto extends ProdutoSupabase {
   precoPromocional?: number
 }
 
+function formatarReais(valor: number) {
+  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+}
+
+/** Aviso não bloqueante: preço de venda (promocional/online/atacado) abaixo do custo */
+function avisoAbaixoDoCusto(rotulo: string, valor: number, custo: number): string {
+  return valor > 0 && custo > 0 && valor < custo
+    ? `O ${rotulo} (${formatarReais(valor)}) está abaixo do custo (${formatarReais(custo)}), o que gera prejuízo na venda.`
+    : ""
+}
+
 interface ProdutoFormProps {
   produtoParaEditar?: Produto | null
   onSave: (produto: any) => void
@@ -30,10 +41,20 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
   const [custo, setCusto] = useState(0)
   const [preco, setPreco] = useState(0)
   const [precoPromocional, setPrecoPromocional] = useState(0)
+  const [precoOnline, setPrecoOnline] = useState(0)
+  const [precoAtacado, setPrecoAtacado] = useState(0)
   const [categoria, setCategoria] = useState<string>("")
   const [urlImagem, setUrlImagem] = useState("")
   const [requiresStock, setRequiresStock] = useState(true)
   const [barcode, setBarcode] = useState("")
+
+  // Custo maior que o preço bloqueia o salvamento (evita lucro negativo nas
+  // métricas, ex.: custo 1150 digitado no lugar de 11,50)
+  const custoMaiorQuePreco = custo > 0 && preco > 0 && custo > preco
+  const avisoPromocional = avisoAbaixoDoCusto("preço promocional", precoPromocional, custo)
+  const avisoOnline = avisoAbaixoDoCusto("preço do pedido online", precoOnline, custo)
+  const avisoAtacado = avisoAbaixoDoCusto("preço de atacado", precoAtacado, custo)
+  const formularioInvalido = !nome.trim() || !descricao.trim() || !preco || !urlImagem || custoMaiorQuePreco
 
   // Carregar categorias do Supabase
   useEffect(() => {
@@ -64,6 +85,8 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
       setCusto((produtoParaEditar as any).custo || 0)
       setPreco(produtoParaEditar.preco || 0)
       setPrecoPromocional(produtoParaEditar.precoPromocional || 0)
+      setPrecoOnline(Number((produtoParaEditar as any).preco_online) || 0)
+      setPrecoAtacado(Number((produtoParaEditar as any).preco_atacado) || 0)
       setCategoria(produtoParaEditar.categoria)
       setUrlImagem(produtoParaEditar.urlImagem)
       setRequiresStock((produtoParaEditar as any).requires_stock ?? true)
@@ -74,6 +97,8 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
       setCusto(0)
       setPreco(0)
       setPrecoPromocional(0)
+      setPrecoOnline(0)
+      setPrecoAtacado(0)
       setCategoria('pizza')
       setUrlImagem("")
       setRequiresStock(true)
@@ -84,7 +109,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!nome.trim() || !descricao.trim() || !preco || !urlImagem) return
+    if (formularioInvalido) return
 
     const categoriaSelecionada = categorias.find(cat => {
       const catNome = cat.nome.toLowerCase()
@@ -107,6 +132,8 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
       preco,
       preco_promocional: precoPromocional > 0 ? precoPromocional : null,
       precoPromocional: precoPromocional > 0 ? precoPromocional : null,
+      preco_online: precoOnline > 0 ? precoOnline : null,
+      preco_atacado: precoAtacado > 0 ? precoAtacado : null,
       categoria_id: categoriaSelecionada?.id || null,
       categoria_nome: categoria,
       categoria,
@@ -147,15 +174,19 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
           id="custo"
           value={custo}
           onChange={setCusto}
-          aria-invalid={custo > 0 && preco > 0 && custo > preco}
+          aria-invalid={custoMaiorQuePreco}
+          aria-describedby={custoMaiorQuePreco ? "custo-erro" : undefined}
+          className={custoMaiorQuePreco ? "border-red-500 focus-visible:ring-red-500" : ""}
         />
-        <p className="text-xs text-muted-foreground">
-          Custo unitário do produto (usado para calcular o lucro nas métricas)
-        </p>
-        {custo > 0 && preco > 0 && custo > preco && (
-          <p className="text-sm text-red-600 font-medium flex items-center gap-1">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            O custo é maior que o preço de venda. Este produto dará prejuízo.
+        {custoMaiorQuePreco ? (
+          <p id="custo-erro" role="alert" className="text-sm text-red-600 font-medium flex items-center gap-1">
+            <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+            O custo ({formatarReais(custo)}) é maior que o preço de venda ({formatarReais(preco)}). Confira se
+            digitou o valor com os centavos no lugar certo.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Custo unitário do produto (usado para calcular o lucro nas métricas)
           </p>
         )}
       </div>
@@ -168,7 +199,8 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             value={preco}
             onChange={setPreco}
             required
-            aria-invalid={custo > 0 && preco > 0 && custo > preco}
+            aria-invalid={custoMaiorQuePreco}
+            className={custoMaiorQuePreco ? "border-red-500 focus-visible:ring-red-500" : ""}
           />
         </div>
 
@@ -179,7 +211,49 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             placeholder="R$ 0,00 (opcional)"
             value={precoPromocional}
             onChange={setPrecoPromocional}
+            aria-invalid={!!avisoPromocional}
           />
+          {avisoPromocional && (
+            <p role="alert" className="text-sm text-amber-600 font-medium">⚠️ {avisoPromocional}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="precoOnline">Preço para Pedido Online (R$)</Label>
+          <InputMoeda
+            id="precoOnline"
+            placeholder="R$ 0,00 (opcional)"
+            value={precoOnline}
+            onChange={setPrecoOnline}
+            aria-invalid={!!avisoOnline}
+          />
+          {avisoOnline ? (
+            <p role="alert" className="text-sm text-amber-600 font-medium">⚠️ {avisoOnline}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Cobrado nos pedidos pelo catálogo. Em branco, vale o preço (ou o promocional) acima.
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="precoAtacado">Preço de Atacado (R$)</Label>
+          <InputMoeda
+            id="precoAtacado"
+            placeholder="R$ 0,00 (opcional)"
+            value={precoAtacado}
+            onChange={setPrecoAtacado}
+            aria-invalid={!!avisoAtacado}
+          />
+          {avisoAtacado ? (
+            <p role="alert" className="text-sm text-amber-600 font-medium">⚠️ {avisoAtacado}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Cobrado no modo Atacado do catálogo (se a loja vender no atacado). Em branco, vale o preço online.
+            </p>
+          )}
         </div>
       </div>
 
@@ -294,7 +368,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
         </Button>
         <ActionButton 
           type="submit" 
-          disabled={!nome.trim() || !descricao.trim() || !preco || !urlImagem}
+          disabled={formularioInvalido}
           loading={saving}
         >
           {produtoParaEditar ? "Atualizar" : "Salvar"}

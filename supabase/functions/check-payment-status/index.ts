@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { lerConfig } from '../_shared/configEstabelecimento.ts'
+import { lerCredenciaisMercadoPago } from '../_shared/configEstabelecimento.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -49,7 +49,7 @@ serve(async (req) => {
     }
 
     // Buscar Access Token do Mercado Pago do estabelecimento
-    const mercadoPagoAccessToken = await lerConfig(supabase, pedido.estabelecimento_id, 'mercado_pago_access_token')
+    const { accessToken: mercadoPagoAccessToken } = await lerCredenciaisMercadoPago(supabase, pedido.estabelecimento_id)
 
     if (!mercadoPagoAccessToken) {
       return new Response(

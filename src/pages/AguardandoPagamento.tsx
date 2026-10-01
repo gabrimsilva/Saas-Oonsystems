@@ -42,6 +42,7 @@ import {
   CheckCircle2
 } from "lucide-react"
 import { supabase, getEstabelecimentoAtivo } from "@/services"
+import { lojaOnlineService } from "@/services/lojaOnlineService"
 
 interface PedidoAguardando {
   id: string
@@ -69,6 +70,7 @@ interface PedidoAguardando {
   criado_em: string
   mercado_pago_payment_id?: string
   mercado_pago_status?: string
+  origem?: string | null
 }
 
 export default function AguardandoPagamento() {
@@ -102,7 +104,6 @@ export default function AguardandoPagamento() {
         .from('pedidos')
         .select('*')
         .eq('status', 'Aguardando pagamento')
-        .eq('forma_pagamento', 'pix')
         .eq('estabelecimento_id', getEstabelecimentoAtivo() ?? '00000000-0000-0000-0000-000000000000')
         .order('criado_em', { ascending: false })
 
@@ -120,6 +121,27 @@ export default function AguardandoPagamento() {
   }
 
   const verificarStatusPagamento = async (pedido: PedidoAguardando) => {
+    // Pedido do catálogo (Checkout Pro): o servidor procura o pagamento pelo pedido
+    if (pedido.origem === 'catalogo') {
+      try {
+        setVerificandoStatus(pedido.pedido_id)
+        const status = await lojaOnlineService.consultarPedido(pedido.id)
+        if (status.status_pagamento === 'approved') {
+          toast.success('Pagamento aprovado! O pedido foi para o Kanban.')
+        } else if (status.cancelado) {
+          toast('Pedido cancelado', { icon: 'ℹ️' })
+        } else {
+          toast('Pagamento ainda não confirmado', { icon: '⏳' })
+        }
+        await carregarPedidosAguardando()
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Erro ao verificar status do pagamento')
+      } finally {
+        setVerificandoStatus(null)
+      }
+      return
+    }
+
     if (!pedido.mercado_pago_payment_id) {
       toast.error('ID de pagamento não encontrado')
       return

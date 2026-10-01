@@ -116,6 +116,24 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                   <Split className="w-3 h-3" />
                 </Badge>
               )}
+              {pedido.tipo_venda === 'atacado' && (
+                <Badge
+                  variant="outline"
+                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-amber-50 text-amber-800 border-amber-300"
+                  title="Venda no atacado (catálogo)"
+                >
+                  Atacado
+                </Badge>
+              )}
+              {pedido.mercado_pago_status === 'approved' && (
+                <Badge
+                  variant="outline"
+                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-green-50 text-green-700 border-green-300"
+                  title="Pago online pelo Mercado Pago"
+                >
+                  Pago online
+                </Badge>
+              )}
             </div>
 
             <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">

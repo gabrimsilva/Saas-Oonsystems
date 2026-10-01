@@ -418,3 +418,8 @@ enabled = true
 # garantida pela assinatura x-signature e pela consulta ao Mercado Pago.
 [functions.mercadopago-webhook]
 verify_jwt = false
+
+# Checkout do catálogo público + webhook do Mercado Pago (sem JWT). Preços,
+# estoque e pagamento são sempre conferidos no banco e na API do Mercado Pago.
+[functions.catalogo-pedidos]
+verify_jwt = false

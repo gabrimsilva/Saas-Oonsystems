@@ -39,15 +39,16 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Buscar pedidos PIX aguardando pagamento há mais de 10 minutos
+    // Pedidos aguardando pagamento: PIX vence em 10 minutos; cartão no
+    // Checkout Pro do catálogo (link de pagamento) em 1 hora
     const dezMinutosAtras = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+    const umaHoraAtras = new Date(Date.now() - 60 * 60 * 1000).toISOString()
 
     const { data: pedidosExpirados, error: fetchError } = await supabaseClient
       .from('pedidos')
       .select('*')
       .eq('status', 'Aguardando pagamento')
-      .eq('forma_pagamento', 'pix')
-      .lt('criado_em', dezMinutosAtras)
+      .or(`and(forma_pagamento.eq.pix,criado_em.lt.${dezMinutosAtras}),criado_em.lt.${umaHoraAtras}`)
 
     if (fetchError) {
       console.error('Erro ao buscar pedidos expirados:', fetchError)
@@ -85,7 +86,9 @@ Deno.serve(async (req) => {
           .update({ 
             status: 'Cancelado',
             cancelado: true,
-            motivo_cancelamento: 'Tempo de pagamento PIX expirado (10 minutos)',
+            motivo_cancelamento: pedido.forma_pagamento === 'pix'
+              ? 'Tempo de pagamento PIX expirado (10 minutos)'
+              : 'Tempo de pagamento online expirado (1 hora)',
             cancelado_em: new Date().toISOString()
           })
           .eq('id', pedido.id)
@@ -138,7 +141,7 @@ Deno.serve(async (req) => {
           .insert({
             pedido_id: pedido.codigo_pedido,
             status: 'Cancelado',
-            observacao: 'Pedido cancelado automaticamente - tempo de pagamento PIX expirado (limpeza automática)',
+            observacao: 'Pedido cancelado automaticamente - tempo de pagamento expirado (limpeza automática)',
             // Multi-estabelecimento: preservar o estabelecimento do pedido
             estabelecimento_id: pedido.estabelecimento_id
           })

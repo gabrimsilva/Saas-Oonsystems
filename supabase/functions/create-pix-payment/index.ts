@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { lerConfig } from '../_shared/configEstabelecimento.ts'
+import { lerConfig, lerCredenciaisMercadoPago } from '../_shared/configEstabelecimento.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -91,13 +91,13 @@ serve(async (req) => {
 
     // Credenciais do Mercado Pago do estabelecimento dono do pedido
     const estabelecimentoId = pedidoExistente.estabelecimento_id
-    const mercadoPagoAccessToken = await lerConfig(supabase, estabelecimentoId, 'mercado_pago_access_token')
+    const { accessToken: mercadoPagoAccessToken } = await lerCredenciaisMercadoPago(supabase, estabelecimentoId)
 
     if (!mercadoPagoAccessToken) {
       return new Response(
         JSON.stringify({
           error: 'Access Token do Mercado Pago não configurado',
-          message: 'Configure o Access Token em: Configurações > Formas de Pagamento > PIX'
+          message: 'Configure o Access Token em: Configurações > Pagamento > Loja online'
         }),
         {
           status: 500,

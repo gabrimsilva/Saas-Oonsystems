@@ -42,7 +42,7 @@ const configCards: ConfigCard[] = [
   {
     id: 'pagamento',
     title: 'Pagamentos',
-    description: 'Formas de pagamento e configurações PIX',
+    description: 'Formas de pagamento e pedidos pela loja online',
     icon: <CreditCard className="h-6 w-6" />,
     color: 'text-pink-600'
   },

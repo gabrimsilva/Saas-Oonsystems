@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { lerConfig } from '../_shared/configEstabelecimento.ts'
+import { lerCredenciaisMercadoPago } from '../_shared/configEstabelecimento.ts'
 import { assinaturaValida } from '../_shared/assinaturaMercadoPago.ts'
 
 const corsHeaders = {
@@ -52,7 +52,7 @@ serve(async (req) => {
     }
 
     // Assinatura: obrigatória quando o estabelecimento configurou o segredo
-    const webhookSecret = await lerConfig(supabase, estabelecimentoId, 'mercado_pago_webhook_secret')
+    const { webhookSecret, accessToken: mercadoPagoAccessToken } = await lerCredenciaisMercadoPago(supabase, estabelecimentoId)
     if (webhookSecret) {
       const xSignature = req.headers.get('x-signature')
       const dataId = url.searchParams.get('data.id') ?? String(data.id)
@@ -71,7 +71,6 @@ serve(async (req) => {
     const payment_id = data.id
     console.log(`Processando pagamento ID: ${payment_id}`)
 
-    const mercadoPagoAccessToken = await lerConfig(supabase, estabelecimentoId, 'mercado_pago_access_token')
     if (!mercadoPagoAccessToken) {
       return jsonResponse({ error: 'Access Token nao configurado' }, 500)
     }

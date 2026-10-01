@@ -86,6 +86,18 @@ export interface ProdutoService {
 /**
  * Implementação do serviço de produtos
  */
+/**
+ * Trava de custo maior que o preço de venda (defesa além do formulário):
+ * evita lucro negativo nas métricas por valor digitado sem os centavos.
+ */
+function validarCustoPreco(custo: unknown, preco: unknown): void {
+  const c = Number(custo) || 0
+  const p = Number(preco) || 0
+  if (c > 0 && p > 0 && c > p) {
+    throw new Error('O custo do produto é maior que o preço de venda. Confira os valores digitados.')
+  }
+}
+
 export const produtoService: ProdutoService = {
   /**
    * Busca todos os produtos ativos ordenados por categoria e nome
@@ -155,6 +167,8 @@ export const produtoService: ProdutoService = {
    */
   async criar(data: Omit<ProdutoSupabase, 'id' | 'criado_em' | 'atualizado_em'>): Promise<ProdutoSupabase> {
     try {
+      validarCustoPreco(data.custo, data.preco)
+
       // 1. Criar produto (injeta estabelecimento_id do tenant atual)
       const { data: produto, error } = await supabase
         .from('produtos')
@@ -268,6 +282,8 @@ export const produtoService: ProdutoService = {
         custo: (data as any).custo !== undefined ? (data as any).custo : undefined,
         preco: data.preco,
         preco_promocional: data.preco_promocional ?? null,
+        preco_online: data.preco_online,
+        preco_atacado: data.preco_atacado,
         categoria_id: data.categoria_id,
         categoria_nome: data.categoria_nome,
         imagem_path: data.imagem_path,
@@ -286,6 +302,12 @@ export const produtoService: ProdutoService = {
           delete (dataLimpa as any)[key]
         }
       })
+
+      // Compara os valores efetivos depois da alteração (custo ou preço podem vir sozinhos)
+      validarCustoPreco(
+        dataLimpa.custo !== undefined ? dataLimpa.custo : (produtoAtual as ProdutoSupabase).custo,
+        dataLimpa.preco !== undefined ? dataLimpa.preco : produtoAtual.preco
+      )
 
       console.log('✅ Dados validados:', dataLimpa)
       

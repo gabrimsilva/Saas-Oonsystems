@@ -55,6 +55,7 @@ const Comandas = lazy(() => import("@/pages/Comandas"))
 const HistoricoVendas = lazy(() => import("@/pages/HistoricoVendas"))
 const HistoricoComandas = lazy(() => import("@/pages/HistoricoComandas"))
 const CatalogoPage = lazy(() => import("@/pages/CatalogoPage"))
+const PedidoCatalogoStatus = lazy(() => import("@/pages/PedidoCatalogoStatus"))
 const CheckoutWrapper = lazy(() => import("@/components/CheckoutWrapper"))
 const ProcessandoPedido = lazy(() => import("@/pages/ProcessandoPedido"))
 const MeusPedidos = lazy(() => import("@/pages/MeusPedidos"))
@@ -420,7 +421,7 @@ function AvaliarEstabelecimentoPage() {
 }
 
 // ============================================================================
-// Fluxos públicos por slug (multi-estabelecimento) — /:slug, /:slug/checkout, /:slug/avaliar
+// Fluxos públicos por slug (multi-estabelecimento) — /:slug, /:slug/pedido/:id, /:slug/avaliar
 // ============================================================================
 function SlugCatalogoPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -433,12 +434,18 @@ function SlugCatalogoPage() {
   )
 }
 
+// O pedido é feito no carrinho do próprio catálogo (Edge Function catalogo-pedidos)
 function SlugCheckoutPage() {
+  const { slug } = useParams<{ slug: string }>()
+  return <Navigate to={`/${slug}`} replace />
+}
+
+function SlugPedidoStatusPage() {
   const { slug } = useParams<{ slug: string }>()
   return (
     <EstabelecimentoPublicoProvider slug={slug}>
       <Suspense fallback={<LoadingSpinner />}>
-        <CheckoutWrapper onNavigate={(page) => { if (page === 'delivery') window.location.href = `/${slug}` }} />
+        <PedidoCatalogoStatus />
       </Suspense>
     </EstabelecimentoPublicoProvider>
   )
@@ -618,6 +625,7 @@ function App() {
 
             {/* Fluxos públicos por slug (multi-estabelecimento) */}
             <Route path="/:slug/checkout" element={<SlugCheckoutPage />} />
+            <Route path="/:slug/pedido/:pedidoId" element={<SlugPedidoStatusPage />} />
             <Route path="/:slug/avaliar" element={<SlugAvaliarPage />} />
             <Route path="/:slug" element={<SlugCatalogoPage />} />
 
