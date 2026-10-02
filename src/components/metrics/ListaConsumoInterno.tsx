@@ -135,7 +135,7 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Package className="h-5 w-5 text-blue-600" />
+          <Package className="h-5 w-5 text-primary" />
           Produtos Consumidos
         </CardTitle>
         <CardDescription>
@@ -151,7 +151,7 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
             </div>
           </div>
         ) : erro ? (
-          <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
             <AlertCircle className="h-5 w-5" />
             <span className="text-sm">{erro}</span>
           </div>
@@ -164,7 +164,7 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-200">
+                <TableRow className="border-border">
                   <TableHead className="text-left">Produto</TableHead>
                   <TableHead className="text-right">Quantidade</TableHead>
                   <TableHead className="text-right">Unidade</TableHead>
@@ -173,33 +173,33 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
               </TableHeader>
               <TableBody>
                 {produtos.map((produto, index) => (
-                  <TableRow key={`${produto.nome}-${index}`} className="border-gray-100 hover:bg-gray-50">
-                    <TableCell className="font-medium text-gray-900">
+                  <TableRow key={`${produto.nome}-${index}`} className="border-border hover:bg-accent">
+                    <TableCell className="font-medium text-foreground">
                       {produto.nome}
                     </TableCell>
-                    <TableCell className="text-right font-semibold text-gray-700">
+                    <TableCell className="text-right font-semibold text-foreground/80">
                       {produto.quantidade.toLocaleString('pt-BR')}
                     </TableCell>
-                    <TableCell className="text-right text-gray-600">
+                    <TableCell className="text-right text-muted-foreground">
                       {produto.unidade}
                     </TableCell>
-                    <TableCell className="text-right font-semibold text-green-700">
+                    <TableCell className="text-right font-semibold text-success">
                       R$ {produto.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
                   </TableRow>
                 ))}
                 {/* Linha de total */}
-                <TableRow className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
-                  <TableCell className="text-gray-900">
+                <TableRow className="border-t-2 border-input bg-muted/50 font-semibold">
+                  <TableCell className="text-foreground">
                     TOTAL
                   </TableCell>
-                  <TableCell className="text-right text-gray-900">
+                  <TableCell className="text-right text-foreground">
                     {produtos.reduce((sum, p) => sum + p.quantidade, 0).toLocaleString('pt-BR')}
                   </TableCell>
                   <TableCell className="text-right">
                     un
                   </TableCell>
-                  <TableCell className="text-right text-green-700 text-base">
+                  <TableCell className="text-right text-success text-base">
                     R$ {produtos.reduce((sum, p) => sum + p.valorTotal, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </TableCell>
                 </TableRow>

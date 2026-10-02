@@ -9,7 +9,6 @@ export type AdminPage =
   | 'pdv'
   | 'comandas'
   | 'historico-comandas'
-  | 'analytics'
   | 'funcionarios'
   | 'novo-funcionario'
   | 'editar-funcionario'

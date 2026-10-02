@@ -132,13 +132,13 @@ export default function EscolherAdicionaisModal({
         {/* Botão fechar mobile */}
         <button
           onClick={handleClose}
-          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-white p-2 hover:bg-gray-100 transition-colors shadow-md cursor-pointer"
+          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-card p-2 hover:bg-accent transition-colors shadow-md cursor-pointer"
           aria-label="Fechar"
         >
-          <X className="h-5 w-5 text-gray-600" />
+          <X className="h-5 w-5 text-muted-foreground" />
         </button>
 
-        <AlertDialogHeader className="flex-shrink-0 max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-white max-md:z-10 max-md:border-b">
+        <AlertDialogHeader className="flex-shrink-0 max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-card max-md:z-10 max-md:border-b">
           <AlertDialogTitle className="max-md:pr-10">Adicionar Extras</AlertDialogTitle>
           <AlertDialogDescription>
             Selecione os adicionais que deseja incluir no seu pedido
@@ -163,11 +163,11 @@ export default function EscolherAdicionaisModal({
                   return (
                     <div
                       key={adicional.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
                     >
                       <div className="flex-1 min-w-0 pr-2">
-                        <h4 className="font-medium text-gray-900 truncate">{adicional.nome}</h4>
-                        <p className="text-sm text-gray-600 whitespace-nowrap">
+                        <h4 className="font-medium text-foreground truncate">{adicional.nome}</h4>
+                        <p className="text-sm text-muted-foreground whitespace-nowrap">
                           +R$ {adicional.valor.toFixed(2).replace('.', ',')}
                         </p>
                       </div>
@@ -233,7 +233,7 @@ export default function EscolherAdicionaisModal({
               </div>
               <div className="flex justify-between font-bold text-base border-t pt-2 mt-2">
                 <span>Total de adicionais:</span>
-                <span className="text-green-600 whitespace-nowrap">
+                <span className="text-success whitespace-nowrap">
                   +R$ {calcularTotal().toFixed(2).replace('.', ',')}
                 </span>
               </div>
@@ -241,7 +241,7 @@ export default function EscolherAdicionaisModal({
           </div>
         )}
 
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2 flex-shrink-0 max-md:sticky max-md:bottom-0 max-md:bg-white max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <AlertDialogFooter className="flex-col sm:flex-row gap-2 flex-shrink-0 max-md:sticky max-md:bottom-0 max-md:bg-card max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <Button
             type="button"
             variant="outline"
@@ -253,7 +253,7 @@ export default function EscolherAdicionaisModal({
           <Button
             type="button"
             onClick={handleConfirmar}
-            className={variant === 'delivery' ? 'w-full sm:w-auto bg-red-600 hover:bg-red-700' : 'w-full sm:w-auto'}
+            className={variant === 'delivery' ? 'w-full sm:w-auto bg-primary hover:bg-primary-hover' : 'w-full sm:w-auto'}
             disabled={adicionaisSelecionados.length === 0}
           >
             {adicionaisSelecionados.length > 0

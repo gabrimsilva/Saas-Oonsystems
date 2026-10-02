@@ -143,16 +143,16 @@ export default function CardConsumoInterno({ dataInicio: dataInicioExterno, data
   return (
     <Card className={`${
       statusVisual === 'alto' 
-        ? 'border-orange-200 bg-orange-50' 
+        ? 'border-warning/30 bg-warning/10' 
         : statusVisual === 'neutral'
-        ? 'border-gray-200 bg-gray-50'
-        : 'border-green-200 bg-green-50'
+        ? 'border-border bg-muted/50'
+        : 'border-success/30 bg-success/5'
     }`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-blue-600" />
+              <Zap className="h-5 w-5 text-primary" />
               Consumo Interno
             </CardTitle>
             <CardDescription>
@@ -181,11 +181,11 @@ export default function CardConsumoInterno({ dataInicio: dataInicioExterno, data
       <CardContent>
         {carregando ? (
           <div className="space-y-4">
-            <div className="h-12 bg-gray-200 rounded animate-pulse" />
-            <div className="h-6 bg-gray-200 rounded animate-pulse w-1/2" />
+            <div className="h-12 bg-muted rounded animate-pulse" />
+            <div className="h-6 bg-muted rounded animate-pulse w-1/2" />
           </div>
         ) : erro ? (
-          <div className="flex items-center gap-2 text-red-600">
+          <div className="flex items-center gap-2 text-destructive">
             <AlertCircle className="h-5 w-5" />
             <span className="text-sm">{erro}</span>
           </div>
@@ -193,10 +193,10 @@ export default function CardConsumoInterno({ dataInicio: dataInicioExterno, data
           <div className="space-y-4">
             {/* Total Grande */}
             <div className="flex items-baseline gap-2">
-              <div className="text-4xl font-bold text-gray-900">
+              <div className="text-4xl font-bold text-foreground">
                 {totalAtual.toLocaleString('pt-BR')}
               </div>
-              <div className="text-sm text-gray-600">unidades</div>
+              <div className="text-sm text-muted-foreground">unidades</div>
             </div>
 
             {/* Variação (não mostrar se filtro externo) */}
@@ -204,20 +204,20 @@ export default function CardConsumoInterno({ dataInicio: dataInicioExterno, data
               <div className="flex items-center gap-2">
                 {variacao.sinal === 'up' ? (
                   <>
-                    <TrendingUp className="h-4 w-4 text-orange-600" />
-                    <span className="text-sm font-semibold text-orange-600">
+                    <TrendingUp className="h-4 w-4 text-warning-foreground" />
+                    <span className="text-sm font-semibold text-warning-foreground">
                       +{variacao.percentual}% vs período anterior
                     </span>
                   </>
                 ) : variacao.sinal === 'down' ? (
                   <>
-                    <TrendingDown className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-semibold text-green-600">
+                    <TrendingDown className="h-4 w-4 text-success" />
+                    <span className="text-sm font-semibold text-success">
                       -{variacao.percentual}% vs período anterior
                     </span>
                   </>
                 ) : (
-                  <span className="text-sm font-semibold text-gray-600">
+                  <span className="text-sm font-semibold text-muted-foreground">
                     — Sem variação vs período anterior
                   </span>
                 )}
@@ -228,7 +228,7 @@ export default function CardConsumoInterno({ dataInicio: dataInicioExterno, data
 
             {/* Mensagem se sem dados */}
             {totalAtual === 0 && (
-              <div className="p-3 bg-gray-100 rounded text-sm text-gray-700">
+              <div className="p-3 bg-muted rounded text-sm text-foreground/80">
                 Nenhum consumo registrado neste período
               </div>
             )}

@@ -115,12 +115,12 @@ export default function ComboForm({ comboParaEditar, onSave, onCancel, saving = 
 
   const getCategoriaColor = (categoria: string) => {
     const colors = {
-      pizza: 'bg-red-100 text-red-800',
-      lanche: 'bg-green-100 text-green-800',
-      bebida: 'bg-indigo-100 text-indigo-800',
-      combo: 'bg-purple-100 text-purple-800'
+      pizza: 'bg-destructive/10 text-destructive',
+      lanche: 'bg-success/10 text-success',
+      bebida: 'bg-primary/10 text-primary',
+      combo: 'bg-primary/10 text-primary'
     }
-    return colors[categoria as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+    return colors[categoria as keyof typeof colors] || 'bg-muted text-foreground'
   }
 
   const precoOriginal = calcularPrecoOriginal()
@@ -203,7 +203,7 @@ export default function ComboForm({ comboParaEditar, onSave, onCancel, saving = 
                     id={`produto-${produto.id}`}
                     checked={produtosSelecionados.includes(produto.id)}
                     onChange={(e) => handleProdutoChange(produto.id, e.target.checked)}
-                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30"
                   />
                   <div>
                     <Label htmlFor={`produto-${produto.id}`} className="flex items-center space-x-2">
@@ -227,7 +227,7 @@ export default function ComboForm({ comboParaEditar, onSave, onCancel, saving = 
       </div>
 
       {produtosSelecionados.length > 0 && (
-        <div className="space-y-3 border-t pt-4 bg-gray-50 p-4 rounded-lg">
+        <div className="space-y-3 border-t pt-4 bg-muted/50 p-4 rounded-lg">
           <h4 className="font-semibold text-sm">Resumo do Combo:</h4>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
@@ -236,13 +236,13 @@ export default function ComboForm({ comboParaEditar, onSave, onCancel, saving = 
             </div>
             <div>
               <span className="text-muted-foreground">Preço do Combo:</span>
-              <p className="font-semibold text-green-600">
+              <p className="font-semibold text-success">
                 R$ {(parseFloat(precoCombo) || 0).toFixed(2).replace('.', ',')}
               </p>
             </div>
             <div>
               <span className="text-muted-foreground">Desconto:</span>
-              <p className="font-semibold text-orange-600">
+              <p className="font-semibold text-warning-foreground">
                 {desconto.toFixed(1)}%
               </p>
             </div>

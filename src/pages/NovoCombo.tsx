@@ -46,7 +46,7 @@ export default function NovoCombo() {
   return (
     <div className="w-full p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package2 className="h-6 w-6" />
           Novo Combo
         </h1>
@@ -56,7 +56,7 @@ export default function NovoCombo() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           {error}
         </div>
       )}

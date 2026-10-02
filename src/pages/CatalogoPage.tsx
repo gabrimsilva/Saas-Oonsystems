@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import toast from "react-hot-toast"
 import Footer from "@/components/Footer"
-import CookieConsent from "@/components/CookieConsent"
 import FiltroCategorias from "@/components/delivery/FiltroCategorias"
 import BotaoVoltarTopo from "@/components/delivery/BotaoVoltarTopo"
 import CatalogoProdutoCard, { type ProdutoCatalogo } from "@/components/delivery/CatalogoProdutoCard"
@@ -244,10 +243,10 @@ export default function CatalogoPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-muted/50">
       {/* Banner com controles sobrepostos */}
       {configuracao.bannerUrl && (
-        <div className="w-full h-48 md:h-64 bg-gradient-to-r from-purple-600 to-pink-600 relative overflow-hidden">
+        <div className="w-full h-48 md:h-64 bg-primary relative overflow-hidden">
           <img
             src={configuracao.bannerUrl}
             alt="Banner"
@@ -260,10 +259,10 @@ export default function CatalogoPage() {
 
           {/* Controles sobrepostos */}
           <div className="absolute top-4 right-4 flex items-center gap-3">
-            <LojaStatusBadge className="bg-white bg-opacity-95 shadow-md" />
+            <LojaStatusBadge className="bg-card bg-opacity-95 shadow-md" />
             <button
               onClick={() => setModalInfoAberto(true)}
-              className="flex items-center gap-2 bg-white bg-opacity-95 px-4 py-2 rounded-full shadow-md text-purple-600 hover:text-purple-700 font-medium transition-colors cursor-pointer text-sm"
+              className="flex items-center gap-2 bg-card bg-opacity-95 px-4 py-2 rounded-full shadow-md text-primary hover:text-primary-hover font-medium transition-colors cursor-pointer text-sm"
             >
               <Info className="h-4 w-4" />
               <span>Mais informações</span>
@@ -275,8 +274,8 @@ export default function CatalogoPage() {
       {/* Conteúdo Principal */}
       <main className="flex-1 container mx-auto px-4 py-6 max-w-7xl">
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-600 text-center">{error}</p>
+          <div className="bg-destructive/5 border border-destructive/30 rounded-lg p-4 mb-6">
+            <p className="text-destructive text-center">{error}</p>
           </div>
         )}
 
@@ -304,9 +303,9 @@ export default function CatalogoPage() {
           <div className="space-y-8 mt-6">
             {produtosAgrupados.map(({ categoria, produtos: produtosCategoria }) => (
               <section key={categoria.id} id={`categoria-${categoria.id}`}>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
                   {categoria.nome}
-                  <span className="text-sm font-normal text-gray-500">
+                  <span className="text-sm font-normal text-muted-foreground">
                     ({produtosCategoria.length} {produtosCategoria.length === 1 ? 'produto' : 'produtos'})
                   </span>
                 </h2>
@@ -328,9 +327,9 @@ export default function CatalogoPage() {
         {/* Grid de Produtos - Categoria Específica */}
         {!loading && categoriaAtiva !== 'todos' && (
           <div className="mt-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               {obterNomeCategoria(categoriaAtiva)}
-              <span className="text-sm font-normal text-gray-500 ml-2">
+              <span className="text-sm font-normal text-muted-foreground ml-2">
                 ({produtosFiltrados.length} {produtosFiltrados.length === 1 ? 'produto' : 'produtos'})
               </span>
             </h2>
@@ -350,7 +349,7 @@ export default function CatalogoPage() {
         {/* Mensagem vazia */}
         {!loading && produtosFiltrados.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Nenhum produto encontrado nesta categoria.</p>
+            <p className="text-muted-foreground text-lg">Nenhum produto encontrado nesta categoria.</p>
           </div>
         )}
       </main>
@@ -377,12 +376,12 @@ export default function CatalogoPage() {
             <button
               type="button"
               onClick={() => setCarrinhoAberto(true)}
-              className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white pl-4 pr-5 py-3 rounded-full shadow-xl cursor-pointer max-w-[calc(100%-2rem)]"
+              className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-primary hover:bg-primary-hover text-white pl-4 pr-5 py-3 rounded-full shadow-xl cursor-pointer max-w-[calc(100%-2rem)]"
               aria-label={`Abrir carrinho com ${carrinho.quantidadeTotal} itens`}
             >
               <span className="relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-2 -right-2.5 bg-white text-purple-700 text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2.5 bg-card text-primary text-[10px] font-bold rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center">
                   {carrinho.quantidadeTotal}
                 </span>
               </span>
@@ -419,7 +418,6 @@ export default function CatalogoPage() {
       />
 
       {/* Cookie Consent */}
-      <CookieConsent />
     </div>
   )
 }

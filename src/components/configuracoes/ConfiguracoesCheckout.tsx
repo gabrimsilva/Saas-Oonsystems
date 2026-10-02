@@ -29,8 +29,8 @@ export function ConfiguracoesCheckout({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg mb-4">
-          <p className="text-sm text-gray-700">
+        <div className="p-4 bg-muted/50 border border-border rounded-lg mb-4">
+          <p className="text-sm text-foreground/80">
             <strong>ℹ️ Checkout Padrão:</strong> O sistema usa checkout step-by-step dividido em etapas:
             <br />
             1) Dados para entrega, 2) Informações de pagamento
@@ -51,10 +51,10 @@ export function ConfiguracoesCheckout({
         </div>
         
         {modoCardapioWhatsapp && (
-          <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
             <div className="flex items-start gap-2">
-              <div className="text-indigo-600 mt-0.5">ℹ️</div>
-              <div className="text-sm text-indigo-700">
+              <div className="text-primary mt-0.5">ℹ️</div>
+              <div className="text-sm text-primary">
                 <p className="font-medium mb-1">Como funciona:</p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Cliente escolhe produtos normalmente</li>

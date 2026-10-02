@@ -20,7 +20,6 @@ import CombosSection from "@/components/CombosSection"
 import Header from "@/components/Header"
 import CarrinhoSheet from "@/components/CarrinhoSheet"
 import Footer from "@/components/Footer"
-import CookieConsent from "@/components/CookieConsent"
 import FiltroCategorias from "@/components/delivery/FiltroCategorias"
 import GridProdutos from "@/components/delivery/GridProdutos"
 import SecaoCategoria from "@/components/delivery/SecaoCategoria"
@@ -375,11 +374,11 @@ export default function DeliveryPage({ onNavigateToCheckout }: DeliveryPageProps
 
         <div className="max-w-6xl mx-auto px-4 py-6 pb-0">
           <div className="mb-6">
-            <div className="h-10 bg-gray-200 rounded-md animate-pulse w-full max-w-md" />
+            <div className="h-10 bg-muted rounded-md animate-pulse w-full max-w-md" />
           </div>
 
           <div className="pb-8">
-            <div className="h-7 bg-gray-200 rounded-md animate-pulse w-48 mb-4" />
+            <div className="h-7 bg-muted rounded-md animate-pulse w-48 mb-4" />
             <ProdutoCardSkeletonGrid count={8} />
           </div>
         </div>
@@ -393,7 +392,7 @@ export default function DeliveryPage({ onNavigateToCheckout }: DeliveryPageProps
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-destructive mb-4">{error}</p>
           <Button onClick={carregarDados} variant="outline">Tentar novamente</Button>
         </div>
       </div>
@@ -461,7 +460,6 @@ export default function DeliveryPage({ onNavigateToCheckout }: DeliveryPageProps
 
       <Footer nomeEstabelecimento={configuracao.nomeEstabelecimento} />
 
-      <CookieConsent />
 
       <CarrinhoSheet
         carrinho={carrinho as any}

@@ -6,6 +6,7 @@
 import { configuracaoService } from './configuracaoService'
 import type { ReceiptData, ReceiptConfig } from '@/types/receipt'
 import type { Sale } from './vendaService'
+import { descreverPagamentoVenda, partesDaVenda } from '@/utils/pagamentoDividido'
 
 class ReceiptService {
   /**
@@ -56,9 +57,15 @@ class ReceiptService {
       subtotal: subtotalOriginal, // Subtotal ANTES do desconto
       desconto: descontoTotal > 0 ? descontoTotal : undefined, // Desconto total
       total: sale.total_amount, // Total DEPOIS do desconto
-      formaPagamento: this.formatPaymentMethod(sale.payment_method),
+      formaPagamento: sale.forma_pagamento_dividido
+        ? descreverPagamentoVenda(sale)
+        : this.formatPaymentMethod(sale.payment_method),
       precisaTroco: sale.needs_change,
       valorTroco: sale.change_amount,
+      // Na venda dividida o troco é sobre a parte em dinheiro, não sobre o total
+      baseTroco: sale.forma_pagamento_dividido
+        ? partesDaVenda(sale).find((p) => p.metodo === 'CASH')?.valor
+        : undefined,
       observacoes: sale.notes
     }
 
@@ -395,7 +402,7 @@ class ReceiptService {
     <strong>Forma de Pagamento:</strong> ${data.formaPagamento}
     ${data.precisaTroco && data.valorTroco ? `
     <br><strong>Troco para:</strong> R$ ${this.formatCurrency(data.valorTroco)}
-    <br><strong>Troco:</strong> R$ ${this.formatCurrency(data.valorTroco - data.total)}
+    <br><strong>Troco:</strong> R$ ${this.formatCurrency(data.valorTroco - (data.baseTroco ?? data.total))}
     ` : ''}
   </div>
   

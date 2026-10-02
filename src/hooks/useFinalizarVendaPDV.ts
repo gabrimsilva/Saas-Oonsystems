@@ -4,6 +4,7 @@ import { receiptService } from "@/services/receiptService"
 import { printJobService } from "@/services/printJobService"
 import { type ItemCarrinhoPDV } from '@/components/pdv/types'
 import { sanitizeFreeText } from '@/utils/sanitizacao'
+import type { PagamentoDivididoResolvido } from '@/utils/pagamentoDividido'
 
 /**
  * Dados de pagamento da venda
@@ -39,8 +40,8 @@ interface FinalizarVendaParams {
   desconto?: number
   /** Tipo do desconto (sempre 'valor' - simplificado) */
   tipoDesconto?: 'valor'
-  /** Se o pagamento é dividido (sempre false - simplificado) */
-  formaPagamentoDividido?: boolean
+  /** Pagamento em duas formas (dadosPagamento.formaPagamento = 'dividido') */
+  pagamentoDividido?: PagamentoDivididoResolvido
   /** Se é consumo interno (sem cobrança) */
   consumoInterno?: boolean
 }
@@ -92,10 +93,12 @@ export function useFinalizarVendaPDV() {
       carrinho,
       subtotal,
       dadosPagamento,
-      consumoInterno = false
+      consumoInterno = false,
+      pagamentoDividido
       // desconto = 0,
       // tipoDesconto = 'valor'
     } = params
+    const dividido = !consumoInterno && !!pagamentoDividido
 
     try {
       setProcessando(true)
@@ -125,12 +128,12 @@ export function useFinalizarVendaPDV() {
         precoTotal: item.precoTotal
       }))
 
-      const ehVendaAPrazo = !consumoInterno && dadosPagamento.formaPagamento === 'aPrazo'
+      const ehVendaAPrazo = !consumoInterno && !dividido && dadosPagamento.formaPagamento === 'aPrazo'
 
       // Preparar dados da venda
       const dadosVenda: any = {
         total_amount: total, // Será 0 se consumo interno
-        payment_method: consumoInterno ? 'INTERNAL_CONSUMPTION' : dadosPagamento.formaPagamento,
+        payment_method: consumoInterno ? 'INTERNAL_CONSUMPTION' : dividido ? 'SPLIT' : dadosPagamento.formaPagamento,
         needs_change: consumoInterno ? false : dadosPagamento.precisaTroco,
         change_amount: (consumoInterno || !dadosPagamento.precisaTroco) ? undefined : dadosPagamento.valorTroco,
         sale_type: consumoInterno ? 'INTERNAL_CONSUMPTION' : 'PDV',
@@ -141,7 +144,16 @@ export function useFinalizarVendaPDV() {
           : `Venda realizada via PDV - ${new Date().toLocaleString()}`,
         payment_term_days: ehVendaAPrazo ? dadosPagamento.prazoDias : undefined,
         installments_count: ehVendaAPrazo ? dadosPagamento.numeroParcelas : undefined,
-        customer_name: !consumoInterno && dadosPagamento.nomeCliente ? dadosPagamento.nomeCliente : undefined
+        customer_name: !consumoInterno && dadosPagamento.nomeCliente ? dadosPagamento.nomeCliente : undefined,
+        ...(dividido && pagamentoDividido
+          ? {
+              forma_pagamento_dividido: true,
+              pagamento_1_tipo: pagamentoDividido.pagamento1Tipo,
+              pagamento_1_valor: pagamentoDividido.pagamento1Valor,
+              pagamento_2_tipo: pagamentoDividido.pagamento2Tipo,
+              pagamento_2_valor: pagamentoDividido.pagamento2Valor
+            }
+          : {})
       }
 
       // VALIDAR ESTOQUE ANTES DE FINALIZAR VENDA.

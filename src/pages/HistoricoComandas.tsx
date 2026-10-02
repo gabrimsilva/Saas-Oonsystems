@@ -61,8 +61,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { CarregandoPagina } from '@/components/ui/feedback'
+import { EstadoVazio } from '@/components/ui/feedback'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 export default function HistoricoComandas() {
+  const tabelaRef = useTabelaResponsiva()
   const [comandas, setComandas] = useState<HistoricoComandaSupabase[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -527,14 +531,7 @@ export default function HistoricoComandas() {
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Carregando histórico...</p>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
@@ -542,7 +539,7 @@ export default function HistoricoComandas() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <History className="h-6 w-6" />
             Histórico de Comandas
           </h1>
@@ -572,7 +569,7 @@ export default function HistoricoComandas() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <History className="h-6 w-6" />
             Histórico de Comandas
           </h1>
@@ -722,7 +719,7 @@ export default function HistoricoComandas() {
       </div>
 
       {/* Tabela com Scroll Horizontal */}
-      <div className="border rounded-lg overflow-hidden">
+      <div ref={tabelaRef} className="tabela-responsiva border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <Table className="min-w-full">
             <TableHeader>
@@ -741,8 +738,12 @@ export default function HistoricoComandas() {
             <TableBody>
               {comandasFiltradas.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                    {searchTerm ? 'Nenhuma comanda encontrada' : 'Nenhuma comanda no histórico'}
+                  <TableCell colSpan={9}>
+                    <EstadoVazio
+                      icone={ClipboardList}
+                      titulo={searchTerm ? 'Nenhuma comanda encontrada' : 'Nenhuma comanda no histórico'}
+                      descricao={searchTerm ? 'Tente buscar com outros termos.' : 'As comandas fechadas aparecem aqui.'}
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -757,8 +758,8 @@ export default function HistoricoComandas() {
                     <TableCell>
                       {comanda.forma_pagamento_dividido ? (
                         <div className="flex items-center gap-1">
-                          <Split className="h-3 w-3 text-purple-600" />
-                          <span className="text-xs text-purple-700">Dividido</span>
+                          <Split className="h-3 w-3 text-primary" />
+                          <span className="text-xs text-primary">Dividido</span>
                         </div>
                       ) : (
                         formatarFormaPagamento(comanda.forma_pagamento)
@@ -822,7 +823,7 @@ export default function HistoricoComandas() {
                 size="sm"
                 onClick={() => comandaSelecionada && imprimirComanda(comandaSelecionada)}
                 disabled={imprimindo}
-                className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                className="text-primary hover:text-primary-hover hover:bg-primary/5"
               >
                 <Printer className="h-4 w-4 mr-2" />
                 Imprimir
@@ -840,35 +841,35 @@ export default function HistoricoComandas() {
               <div className="space-y-6">
                 {/* Informações do Pedido */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
-                    <Package className="w-5 h-5 text-orange-600" />
+                  <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
+                    <Package className="w-5 h-5 text-warning-foreground" />
                     Informações do Pedido
                   </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-2">
+                  <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
                     {comandaSelecionada?.criado_em && (
                       <div className="grid grid-cols-[120px_1fr] gap-2">
-                        <span className="text-gray-600 font-medium">Criado em:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground font-medium">Criado em:</span>
+                        <span className="font-medium text-foreground">
                           {formatarData(comandaSelecionada.criado_em)} às {formatarHora(comandaSelecionada.criado_em)}
                         </span>
                       </div>
                     )}
                     {comandaSelecionada?.finalizado_em && (
                       <div className="grid grid-cols-[120px_1fr] gap-2">
-                        <span className="text-gray-600 font-medium">Finalizado em:</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-muted-foreground font-medium">Finalizado em:</span>
+                        <span className="font-medium text-foreground">
                           {formatarData(comandaSelecionada.finalizado_em)} às {formatarHora(comandaSelecionada.finalizado_em)}
                         </span>
                       </div>
                     )}
                     <div className="grid grid-cols-[120px_1fr] gap-2">
-                      <span className="text-gray-600 font-medium">Pagamento:</span>
-                      <span className="font-medium text-gray-900">
+                      <span className="text-muted-foreground font-medium">Pagamento:</span>
+                      <span className="font-medium text-foreground">
                         {comandaSelecionada?.forma_pagamento_dividido ? (
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <Split className="w-4 h-4 text-purple-600" />
-                              <span className="text-purple-700 font-semibold">Pagamento Dividido</span>
+                              <Split className="w-4 h-4 text-primary" />
+                              <span className="text-primary font-semibold">Pagamento Dividido</span>
                             </div>
                             <div className="text-sm pl-6">
                               {formatarFormaPagamento(comandaSelecionada.pagamento_1_tipo || '')}: R$ {(comandaSelecionada.pagamento_1_valor || 0).toFixed(2).replace('.', ',')}
@@ -884,14 +885,14 @@ export default function HistoricoComandas() {
                     </div>
                     {comandaSelecionada?.criador?.email && (
                       <div className="grid grid-cols-[120px_1fr] gap-2">
-                        <span className="text-gray-600 font-medium">Criado por:</span>
-                        <span className="font-medium text-gray-900">{comandaSelecionada.criador.email}</span>
+                        <span className="text-muted-foreground font-medium">Criado por:</span>
+                        <span className="font-medium text-foreground">{comandaSelecionada.criador.email}</span>
                       </div>
                     )}
                     {comandaSelecionada?.finalizador?.email && (
                       <div className="grid grid-cols-[120px_1fr] gap-2">
-                        <span className="text-gray-600 font-medium">Finalizado por:</span>
-                        <span className="font-medium text-gray-900">{comandaSelecionada.finalizador.email}</span>
+                        <span className="text-muted-foreground font-medium">Finalizado por:</span>
+                        <span className="font-medium text-foreground">{comandaSelecionada.finalizador.email}</span>
                       </div>
                     )}
                   </div>
@@ -900,24 +901,24 @@ export default function HistoricoComandas() {
 
               {/* Coluna Direita - Itens da Comanda */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-red-600" />
+                <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
+                  <Package className="w-5 h-5 text-destructive" />
                   Itens da Comanda
                 </h3>
                 <div className="space-y-3">
                   {comandaSelecionada?.itens && comandaSelecionada.itens.length > 0 ? (
                     comandaSelecionada.itens.map((item: any, index: number) => (
-                      <div key={index} className="border border-gray-200 p-4 rounded-lg bg-white hover:shadow-md transition-shadow">
+                      <div key={index} className="border border-border p-4 rounded-lg bg-card hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start mb-2">
-                          <div className="font-semibold text-gray-900 text-base">
+                          <div className="font-semibold text-foreground text-base">
                             {item.quantidade}x {item.produto?.nome}
                             {(item.produto?.categoria_nome || item.produto?.categoria) && (
-                              <span className="text-xs text-gray-500 ml-2 font-normal">
+                              <span className="text-xs text-muted-foreground ml-2 font-normal">
                                 ({item.produto.categoria_nome || item.produto.categoria})
                               </span>
                             )}
                           </div>
-                          <div className="text-base font-bold text-green-600">
+                          <div className="text-base font-bold text-success">
                             R$ {(item.precoTotal || 0).toFixed(2).replace('.', ',')}
                           </div>
                         </div>
@@ -929,22 +930,22 @@ export default function HistoricoComandas() {
                         {!item.produtosCombo && (
                           <div className="space-y-1 text-sm">
                             {item.tamanhoSelecionado && (
-                              <div className="text-gray-600">
+                              <div className="text-muted-foreground">
                                 <span className="font-medium">Tamanho:</span> {item.tamanhoSelecionado.nome}
                               </div>
                             )}
                             {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                              <div className="text-gray-600">
+                              <div className="text-muted-foreground">
                                 <span className="font-medium">Sabores:</span> {item.saboresSelecionados.map((s: any) => s.nome).join(', ')}
                               </div>
                             )}
                             {item.bordaSelecionada && (
-                              <div className="text-gray-600">
+                              <div className="text-muted-foreground">
                                 <span className="font-medium">Borda:</span> {item.bordaSelecionada.nome}
                               </div>
                             )}
                             {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                              <div className="text-gray-600">
+                              <div className="text-muted-foreground">
                                 <div className="font-medium">Adicionais:</div>
                                 <div className="ml-2 space-y-0.5">
                                   {item.adicionaisSelecionados.map((adicional: any, idx: number) => (
@@ -956,7 +957,7 @@ export default function HistoricoComandas() {
                               </div>
                             )}
                             {item.observacoes && (
-                              <div className="text-sm text-gray-700 mt-2 italic bg-yellow-50 p-2 rounded border border-yellow-200">
+                              <div className="text-sm text-foreground/80 mt-2 italic bg-warning/10 p-2 rounded border border-warning/30">
                                 <span className="font-medium">Obs:</span> {item.observacoes}
                               </div>
                             )}
@@ -974,10 +975,10 @@ export default function HistoricoComandas() {
 
           {/* Footer fixo com totais - Compacto */}
           <div className="border-t pt-3 flex-shrink-0">
-            <div className="bg-gray-50 p-3 rounded-lg">
+            <div className="bg-muted/50 p-3 rounded-lg">
               <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="text-muted-foreground">Subtotal:</span>
                   <span className="font-medium">R$ {comandaSelecionada?.subtotal.toFixed(2).replace('.', ',')}</span>
                 </div>
                 {comandaSelecionada && comandaSelecionada.desconto > 0 && (() => {
@@ -988,10 +989,10 @@ export default function HistoricoComandas() {
                   )
                   return (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">
+                      <span className="text-muted-foreground">
                         Desconto {comandaSelecionada.tipo_desconto === 'percentual' ? `(${comandaSelecionada.desconto}%)` : ''}:
                       </span>
-                      <span className="font-medium text-red-600">
+                      <span className="font-medium text-destructive">
                         -R$ {descontoCalculado.toFixed(2).replace('.', ',')}
                       </span>
                     </div>

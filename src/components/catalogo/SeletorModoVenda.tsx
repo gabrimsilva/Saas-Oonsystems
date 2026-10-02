@@ -16,7 +16,7 @@ export default function SeletorModoVenda({ modo, onMudar, pedidoMinimoAtacado }:
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-      <div role="radiogroup" aria-label="Tipo de compra" className="inline-flex bg-white border border-purple-200 rounded-full p-1 shadow-sm self-start">
+      <div role="radiogroup" aria-label="Tipo de compra" className="inline-flex bg-card border border-primary/20 rounded-full p-1 shadow-sm self-start">
         {opcoes.map(o => (
           <button
             key={o.id}
@@ -25,14 +25,14 @@ export default function SeletorModoVenda({ modo, onMudar, pedidoMinimoAtacado }:
             aria-checked={modo === o.id}
             onClick={() => onMudar(o.id)}
             className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer ${
-              modo === o.id ? "bg-purple-600 text-white shadow" : "text-gray-700 hover:text-purple-700"
+              modo === o.id ? "bg-primary text-white shadow" : "text-foreground/80 hover:text-primary-hover"
             }`}
           >
             {o.titulo}
           </button>
         ))}
       </div>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-muted-foreground">
         {modo === "atacado"
           ? pedidoMinimoAtacado > 0
             ? `Preços de atacado · pedido mínimo de ${formatarReais(pedidoMinimoAtacado)}`

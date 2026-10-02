@@ -4,7 +4,6 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
 import BotoesFlutantes from "@/components/delivery/BotoesFlutantes"
-import CookieConsent from "@/components/CookieConsent"
 import { configuracaoService } from "@/services"
 
 export default function TermosUso() {
@@ -39,7 +38,7 @@ export default function TermosUso() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-muted/50">
       <Header
         nomeEstabelecimento={configuracoes.nome_estabelecimento}
         logoUrl={configuracoes.logo_url}
@@ -50,12 +49,12 @@ export default function TermosUso() {
       />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
-        <div className="bg-white rounded-lg shadow-sm p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Termos de Uso</h1>
+        <div className="bg-card rounded-lg shadow-sm p-6 md:p-8">
+          <h1 className="text-2xl font-semibold text-foreground mb-6">Termos de Uso</h1>
           
-          <div className="space-y-6 text-gray-700">
+          <div className="space-y-6 text-foreground/80">
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">1. Aceitação dos Termos</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">1. Aceitação dos Termos</h2>
                 <p>
                   Ao utilizar nosso sistema de delivery, você concorda com estes termos de uso. 
                   Se não concordar com algum dos termos, não utilize nossos serviços. Estes termos 
@@ -64,7 +63,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">2. Uso do Serviço</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">2. Uso do Serviço</h2>
                 <p>
                   Nosso serviço de delivery está disponível para pedidos de alimentos e bebidas. 
                   Você deve fornecer informações precisas e atualizadas ao fazer pedidos. É proibido:
@@ -78,7 +77,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">3. Pedidos e Pagamentos</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">3. Pedidos e Pagamentos</h2>
                 <p>
                   Todos os pedidos estão sujeitos à disponibilidade dos produtos. 
                   Os preços podem variar sem aviso prévio. O pagamento deve ser efetuado 
@@ -92,7 +91,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">4. Entrega</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">4. Entrega</h2>
                 <p>
                   Os tempos de entrega são estimativas e podem variar conforme a demanda 
                   e condições externas. Não nos responsabilizamos por atrasos causados 
@@ -105,7 +104,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">5. Cancelamentos e Reembolsos</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">5. Cancelamentos e Reembolsos</h2>
                 <p>
                   Pedidos podem ser cancelados até o início do preparo. 
                   Após esse momento, o cancelamento pode não ser possível. Em caso de cancelamento 
@@ -118,7 +117,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">6. Responsabilidades</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">6. Responsabilidades</h2>
                 <p>
                   O {configuracoes.nome_estabelecimento} se compromete a fornecer produtos de qualidade 
                   e serviço adequado, mas não se responsabiliza por danos indiretos 
@@ -131,7 +130,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">7. Propriedade Intelectual</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">7. Propriedade Intelectual</h2>
                 <p>
                   Todo o conteúdo do site, incluindo textos, imagens, logos e design, 
                   é propriedade do {configuracoes.nome_estabelecimento} e está protegido 
@@ -140,7 +139,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">8. Modificações dos Termos</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">8. Modificações dos Termos</h2>
                 <p>
                   Reservamo-nos o direito de modificar estes termos a qualquer momento. 
                   As alterações entrarão em vigor imediatamente após sua publicação no site. 
@@ -149,7 +148,7 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">9. Lei Aplicável</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">9. Lei Aplicável</h2>
                 <p>
                   Estes termos são regidos pelas leis brasileiras. Qualquer disputa será 
                   resolvida no foro da comarca do estabelecimento.
@@ -157,15 +156,15 @@ export default function TermosUso() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">10. Contato</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">10. Contato</h2>
                 <p>
                   Para questões sobre estes termos, entre em contato através dos 
                   nossos canais de atendimento disponíveis no site.
                 </p>
               </section>
 
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-500">
+              <div className="mt-8 pt-6 border-t border-border">
+                <p className="text-sm text-muted-foreground">
                   Última atualização: {new Date().toLocaleDateString('pt-BR')}
                 </p>
               </div>
@@ -177,7 +176,6 @@ export default function TermosUso() {
 
       <Footer nomeEstabelecimento={configuracoes.nome_estabelecimento} />
 
-      <CookieConsent />
 
       <InformacoesEstabelecimentoModal
         isOpen={modalAberto}

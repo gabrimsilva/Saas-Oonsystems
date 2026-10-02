@@ -9,7 +9,7 @@ export default function LojaStatusBadge({ className = '' }: LojaStatusBadgeProps
 
   if (loading) {
     return (
-      <div className={`text-xs px-2 py-1 rounded bg-gray-100 text-gray-500 ${className}`}>
+      <div className={`text-xs px-2 py-1 rounded bg-muted text-muted-foreground ${className}`}>
         Carregando...
       </div>
     )
@@ -20,8 +20,8 @@ export default function LojaStatusBadge({ className = '' }: LojaStatusBadgeProps
       className={`
         text-xs px-2 py-1 rounded font-medium transition-colors
         ${isAberta 
-          ? 'bg-green-100 text-green-700 border border-green-200' 
-          : 'bg-red-100 text-red-700 border border-red-200'
+          ? 'bg-success/10 text-success border border-success/30' 
+          : 'bg-destructive/10 text-destructive border border-destructive/30'
         }
         ${className}
       `}
@@ -30,7 +30,7 @@ export default function LojaStatusBadge({ className = '' }: LojaStatusBadgeProps
         <div 
           className={`
             w-2 h-2 rounded-full
-            ${isAberta ? 'bg-green-500' : 'bg-red-500'}
+            ${isAberta ? 'bg-success' : 'bg-destructive'}
           `}
         />
         {isAberta ? 'Loja Aberta' : 'Loja Fechada'}

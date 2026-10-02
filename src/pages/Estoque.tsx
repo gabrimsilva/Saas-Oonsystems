@@ -9,6 +9,7 @@ import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import VariantesModal from "@/components/VariantesModal"
 import { estoqueService, stockService, produtoService, auditoriaService, type EstoqueSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 type ItemEstoque = EstoqueSupabase & {
   quantidadeMinima: number // Alias para quantidade_minima
@@ -216,14 +217,7 @@ export default function Estoque() {
   )
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando estoque...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
@@ -231,7 +225,7 @@ export default function Estoque() {
       {/* Layout Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Package className="h-6 w-6" />
             Estoque
           </h1>
@@ -248,7 +242,7 @@ export default function Estoque() {
       {/* Layout Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Package className="h-6 w-6" />
             Estoque
           </h1>
@@ -263,7 +257,7 @@ export default function Estoque() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>

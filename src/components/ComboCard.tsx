@@ -12,7 +12,7 @@ interface ComboCardProps {
 
 export default function ComboCard({ combo, quantidadeNoCarrinho, onAdicionar, onRemover }: ComboCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow border border-gray-200 p-0">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow border border-border p-0">
       <div className="flex items-center">
         {/* Imagem */}
         <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 m-3">
@@ -30,13 +30,13 @@ export default function ComboCard({ combo, quantidadeNoCarrinho, onAdicionar, on
         {/* Conteúdo */}
         <div className="flex-1 p-3 pl-0 flex flex-col justify-center">
           <div className="flex-1">
-            <h3 className="font-bold text-base md:text-lg mb-0.5 text-gray-900 leading-tight">
+            <h3 className="font-bold text-base md:text-lg mb-0.5 text-foreground leading-tight">
               {combo.nome}
             </h3>
-            <p className="text-xs md:text-sm text-gray-400 mb-1 leading-tight">
+            <p className="text-xs md:text-sm text-muted-foreground/70 mb-1 leading-tight">
               Combo - Economize {combo.desconto.toFixed(1)}%
             </p>
-            <p className="text-gray-500 text-xs md:text-sm mb-2 line-clamp-1 md:line-clamp-2 leading-tight">
+            <p className="text-muted-foreground text-xs md:text-sm mb-2 line-clamp-1 md:line-clamp-2 leading-tight">
               {combo.descricao}
             </p>
           </div>
@@ -47,7 +47,7 @@ export default function ComboCard({ combo, quantidadeNoCarrinho, onAdicionar, on
               <span className="text-base md:text-lg font-bold text-[color:var(--price-color-cliente)]">
                 R$ {combo.preco_combo.toFixed(2).replace('.', ',')}
               </span>
-              <span className="text-xs md:text-sm text-gray-400 line-through">
+              <span className="text-xs md:text-sm text-muted-foreground/70 line-through">
                 R$ {combo.preco_original.toFixed(2).replace('.', ',')}
               </span>
             </div>
@@ -56,7 +56,7 @@ export default function ComboCard({ combo, quantidadeNoCarrinho, onAdicionar, on
               <Button
                 size="sm"
                 onClick={() => onAdicionar(combo)}
-                className="bg-red-600 hover:bg-red-700 h-7 w-7 md:h-8 md:w-8 p-0 rounded-full mr-3 cursor-pointer"
+                className="bg-primary hover:bg-primary-hover h-7 w-7 md:h-8 md:w-8 p-0 rounded-full mr-3 cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" />
               </Button>
@@ -66,7 +66,7 @@ export default function ComboCard({ combo, quantidadeNoCarrinho, onAdicionar, on
                   size="sm"
                   variant="outline"
                   onClick={() => onRemover(combo.id)}
-                  className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-full border-gray-300 bg-gray-100 cursor-pointer"
+                  className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-full border-input bg-muted cursor-pointer"
                 >
                   <Minus className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 </Button>
@@ -76,7 +76,7 @@ export default function ComboCard({ combo, quantidadeNoCarrinho, onAdicionar, on
                 <Button
                   size="sm"
                   onClick={() => onAdicionar(combo)}
-                  className="bg-red-600 hover:bg-red-700 h-7 w-7 md:h-8 md:w-8 p-0 rounded-full cursor-pointer"
+                  className="bg-primary hover:bg-primary-hover h-7 w-7 md:h-8 md:w-8 p-0 rounded-full cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 </Button>

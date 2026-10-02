@@ -92,10 +92,10 @@ export const EstabelecimentoPublicoProvider = ({ slug, children }: ProviderProps
   // antes do tenant ativo ser definido (catálogo vazio / erro ao finalizar).
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-muted/50">
         <div className="text-center">
-          <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-600">Carregando…</p>
+          <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-muted-foreground">Carregando…</p>
         </div>
       </div>
     )
@@ -103,10 +103,10 @@ export const EstabelecimentoPublicoProvider = ({ slug, children }: ProviderProps
 
   if (erro || !estabelecimento) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="max-w-md w-full bg-white rounded-lg shadow p-8 text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Estabelecimento indisponível</h2>
-          <p className="text-gray-600">{erro || 'Não foi possível carregar o estabelecimento.'}</p>
+      <div className="min-h-screen flex items-center justify-center bg-muted/50 p-6">
+        <div className="max-w-md w-full bg-card rounded-xl border border-border shadow-xs p-8 text-center">
+          <h2 className="text-xl font-bold text-foreground mb-2">Estabelecimento indisponível</h2>
+          <p className="text-muted-foreground">{erro || 'Não foi possível carregar o estabelecimento.'}</p>
         </div>
       </div>
     )

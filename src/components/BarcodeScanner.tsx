@@ -154,7 +154,7 @@ export default function BarcodeScanner({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-2 text-base font-semibold">
-          <Scan className="h-5 w-5 text-indigo-500" />
+          <Scan className="h-5 w-5 text-primary" />
           Scanner de Código de Barras
         </Label>
         {onClose && (
@@ -179,7 +179,7 @@ export default function BarcodeScanner({
             onChange={(e) => setBarcode(e.target.value)}
             placeholder={placeholder}
             disabled={disabled}
-            className={`pr-20 ${isScanning ? 'border-indigo-500 ring-2 ring-indigo-200' : ''}`}
+            className={`pr-20 ${isScanning ? 'border-primary ring-2 ring-primary/20' : ''}`}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
@@ -216,7 +216,7 @@ export default function BarcodeScanner({
                 type="submit"
                 size="sm"
                 disabled={!barcode.trim() || disabled}
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="bg-primary hover:bg-primary-hover"
               >
                 Buscar
               </Button>
@@ -225,15 +225,15 @@ export default function BarcodeScanner({
         )}
 
         {isScanning && (
-          <div className="flex items-center gap-2 text-sm text-indigo-600 animate-pulse">
+          <div className="flex items-center gap-2 text-sm text-primary animate-pulse">
             <Scan className="h-4 w-4" />
             <span>Lendo código de barras...</span>
           </div>
         )}
       </form>
 
-      <div className="text-xs text-gray-500 space-y-1">
-        <p>💡 Dica: Aponte o leitor para o código de barras e pressione o gatilho</p>
+      <div className="text-xs text-muted-foreground space-y-1">
+        <p>Dica: Aponte o leitor para o código de barras e pressione o gatilho</p>
         <p>⌨️ Ou ative o "Modo Manual" para digitar o código</p>
       </div>
     </div>

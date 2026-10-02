@@ -236,12 +236,12 @@ export default function FuncionarioForm({
 
           {isEditing && (
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50">
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
                 <div className="flex items-center gap-3">
                   {bloqueado ? (
-                    <ShieldOff className="h-5 w-5 text-red-600" />
+                    <ShieldOff className="h-5 w-5 text-destructive" />
                   ) : (
-                    <ShieldCheck className="h-5 w-5 text-green-600" />
+                    <ShieldCheck className="h-5 w-5 text-success" />
                   )}
                   <div>
                     <Label htmlFor="bloqueado" className="text-base font-medium cursor-pointer">
@@ -262,9 +262,9 @@ export default function FuncionarioForm({
                 />
               </div>
               {bloqueado && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-800">
-                    ⚠️ Ao bloquear este funcionário, ele será desconectado automaticamente e não poderá mais fazer login no sistema.
+                <div className="bg-destructive/5 border border-destructive/30 rounded-lg p-3">
+                  <p className="text-sm text-destructive">
+                    Ao bloquear este funcionário, ele será desconectado automaticamente e não poderá mais fazer login no sistema.
                   </p>
                 </div>
               )}
@@ -336,8 +336,8 @@ export default function FuncionarioForm({
               </div>
 
               {erroSenha && (
-                <p className="text-sm text-red-600">
-                  ⚠️ {erroSenha}
+                <p className="text-sm text-destructive">
+                  {erroSenha}
                 </p>
               )}
             </>

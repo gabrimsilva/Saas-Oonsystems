@@ -14,6 +14,7 @@ import { chaveTelefoneLoja } from '@/services/tenant'
 import { disponivelParaCompra, formatarReais, precoAnterior, precoUnitario } from "@/components/catalogo/precos"
 import type { ItemCarrinhoCatalogo } from "@/hooks/useCarrinhoCatalogo"
 import type { TipoVenda } from "@/services/lojaOnlineService"
+import toast from 'react-hot-toast'
 
 interface CatalogoProdutoModalProps {
   isOpen: boolean
@@ -73,7 +74,7 @@ export default function CatalogoProdutoModal({
         return
       }
       
-      alert('WhatsApp não configurado. Entre em contato pelo site.')
+      toast.error('WhatsApp não configurado. Entre em contato pelo site.')
       return
     }
     
@@ -84,7 +85,7 @@ export default function CatalogoProdutoModal({
     // Validar que o telefone limpo tem dígitos suficientes
     if (whatsappClean.length < 10) {
       console.error('❌ Telefone inválido! Muito curto:', whatsappClean)
-      alert('Número de WhatsApp inválido. Entre em contato pelo site.')
+      toast.error('Número de WhatsApp inválido. Entre em contato pelo site.')
       return
     }
     
@@ -136,7 +137,7 @@ export default function CatalogoProdutoModal({
         </button>
 
         {/* Imagem do produto */}
-        <div className="w-full h-48 bg-gray-50 max-md:h-[35vh] max-md:flex-shrink-0 flex items-center justify-center">
+        <div className="w-full h-48 bg-muted/50 max-md:h-[35vh] max-md:flex-shrink-0 flex items-center justify-center">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
@@ -151,26 +152,26 @@ export default function CatalogoProdutoModal({
         {/* Conteúdo com scroll */}
         <div className="flex-1 overflow-y-auto p-5 max-md:flex max-md:flex-col">
           <AlertDialogHeader className="space-y-2 text-left">
-            <AlertDialogTitle className="text-xl font-bold text-gray-900">
+            <AlertDialogTitle className="text-xl font-bold text-foreground">
               {produto.nome}
             </AlertDialogTitle>
             
-            <p className="text-sm text-purple-600 font-medium capitalize">
+            <p className="text-sm text-primary font-medium capitalize">
               {produto.categoria}
             </p>
 
-            <AlertDialogDescription className="text-sm text-gray-600 leading-relaxed">
+            <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
               {produto.descricao}
             </AlertDialogDescription>
 
             {preco !== null && (
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-purple-700">{formatarReais(preco)}</span>
+                <span className="text-2xl font-bold text-primary">{formatarReais(preco)}</span>
                 {anterior !== null && (
-                  <span className="text-sm text-gray-400 line-through">{formatarReais(anterior)}</span>
+                  <span className="text-sm text-muted-foreground/70 line-through">{formatarReais(anterior)}</span>
                 )}
                 {compra?.modo === "atacado" && (
-                  <span className="text-xs font-semibold uppercase tracking-wide text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-primary bg-primary/5 px-2 py-0.5 rounded-full">
                     Atacado
                   </span>
                 )}
@@ -178,8 +179,8 @@ export default function CatalogoProdutoModal({
             )}
 
             {!compra && !produto.estoqueDisponivel && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-2">
-                <p className="text-sm text-red-600 font-semibold">
+              <div className="bg-destructive/5 border border-destructive/30 rounded-lg p-3 mt-2">
+                <p className="text-sm text-destructive font-semibold">
                   ⚠️ Produto temporariamente indisponível
                 </p>
               </div>
@@ -190,7 +191,7 @@ export default function CatalogoProdutoModal({
             <div className="mt-4 space-y-4 text-left">
               {temVariantes && (
                 <fieldset>
-                  <legend className="text-sm font-medium text-gray-900 mb-2">Escolha uma opção</legend>
+                  <legend className="text-sm font-medium text-foreground mb-2">Escolha uma opção</legend>
                   <div className="flex flex-wrap gap-2">
                     {produto.variantes!.map(v => {
                       const semEstoque = produto.controlaEstoque !== false && v.quantidade <= 0
@@ -204,8 +205,8 @@ export default function CatalogoProdutoModal({
                           onClick={() => { setVarianteId(v.id); setQuantidade(1) }}
                           className={`px-3 py-1.5 rounded-full border text-sm transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 disabled:line-through ${
                             selecionada
-                              ? "bg-purple-600 border-purple-600 text-white"
-                              : "bg-white border-gray-300 text-gray-800 hover:border-purple-400"
+                              ? "bg-primary border-primary text-white"
+                              : "bg-card border-input text-foreground hover:border-primary/40"
                           }`}
                         >
                           {v.nome}
@@ -218,7 +219,7 @@ export default function CatalogoProdutoModal({
 
               {!precisaVariante && !esgotado && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-gray-900">Quantidade</span>
+                  <span className="text-sm font-medium text-foreground">Quantidade</span>
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
@@ -241,7 +242,7 @@ export default function CatalogoProdutoModal({
                         const n = Math.max(1, Math.floor(Number(e.target.value) || 1))
                         setQuantidade(restante !== null ? Math.min(n, Math.max(restante, 1)) : n)
                       }}
-                      className="w-16 h-9 text-center border border-gray-300 rounded-md text-sm"
+                      className="w-16 h-9 text-center border border-input rounded-md text-sm"
                       aria-label="Quantidade"
                     />
                     <Button
@@ -260,17 +261,17 @@ export default function CatalogoProdutoModal({
               )}
 
               {semPreco && (
-                <p className="text-sm text-amber-700 font-medium" role="status">
+                <p className="text-sm text-warning-foreground font-medium" role="status">
                   Produto sem preço cadastrado. Fale com a loja pelo WhatsApp.
                 </p>
               )}
               {esgotado && (
-                <p className="text-sm text-red-600 font-medium" role="status">
+                <p className="text-sm text-destructive font-medium" role="status">
                   {noCarrinho > 0 ? "Você já adicionou todo o estoque disponível." : "Produto esgotado."}
                 </p>
               )}
               {!esgotado && !precisaVariante && restante !== null && (
-                <p className={`text-xs ${restante <= 10 ? "text-amber-700" : "text-gray-500"}`} role="status">
+                <p className={`text-xs ${restante <= 10 ? "text-warning-foreground" : "text-muted-foreground"}`} role="status">
                   {restante <= 10 ? `Restam ${restante} unidade(s).` : `${restante} unidades disponíveis.`}
                 </p>
               )}
@@ -279,7 +280,7 @@ export default function CatalogoProdutoModal({
                 <Button
                   onClick={handleAdicionar}
                   disabled={!podeAdicionar}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-5 text-base cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                  className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-5 text-base cursor-pointer shadow-lg flex items-center justify-center gap-2"
                 >
                   <ShoppingCart className="h-5 w-5" />
                   {semPreco
@@ -291,7 +292,7 @@ export default function CatalogoProdutoModal({
                 <button
                   type="button"
                   onClick={handleWhatsApp}
-                  className="w-full text-sm text-green-700 hover:text-green-800 font-medium flex items-center justify-center gap-1.5 py-1 cursor-pointer"
+                  className="w-full text-sm text-success hover:text-success font-medium flex items-center justify-center gap-1.5 py-1 cursor-pointer"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Dúvidas? Fale no WhatsApp
@@ -302,8 +303,8 @@ export default function CatalogoProdutoModal({
             <>
               {/* Informação sobre contato */}
               <div className="mt-4 mb-4 text-left">
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                  <p className="text-sm text-purple-800 font-medium text-center">
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                  <p className="text-sm text-primary font-medium text-center">
                     💬 Entre em contato pelo WhatsApp para saber mais sobre valores e disponibilidade!
                   </p>
                 </div>
@@ -313,7 +314,7 @@ export default function CatalogoProdutoModal({
               <AlertDialogFooter className="sm:justify-center mt-4">
                 <Button
                   onClick={handleWhatsApp}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-5 text-base cursor-pointer shadow-lg flex items-center justify-center gap-2"
+                  className="w-full bg-success hover:bg-success/90 text-white font-semibold py-5 text-base cursor-pointer shadow-lg flex items-center justify-center gap-2"
                 >
                   <MessageCircle className="h-5 w-5" />
                   Tenho interesse - Falar no WhatsApp

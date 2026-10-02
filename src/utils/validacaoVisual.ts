@@ -12,8 +12,8 @@ import type { EstadoValidacaoCampo } from '@/hooks/useValidacaoCheckout'
  * <Input
  *   className={obterClassesValidacao(estadosValidacao.cpf, "w-full")}
  * />
- * // Resultado: "w-full border-red-500" (se inválido)
- * // Resultado: "w-full border-green-500" (se válido)
+ * // Resultado: "w-full border-destructive" (se inválido)
+ * // Resultado: "w-full border-success" (se válido)
  * // Resultado: "w-full" (se neutro/não validado)
  * ```
  */
@@ -25,10 +25,10 @@ export function obterClassesValidacao(
 
   if (estadoValidacao.valido === false) {
     // Campo inválido: borda vermelha
-    classes.push('border-red-500 focus:border-red-500 focus:ring-red-500')
+    classes.push('border-destructive focus:border-destructive focus:ring-destructive')
   } else if (estadoValidacao.valido === true) {
     // Campo válido: borda verde
-    classes.push('border-green-500 focus:border-green-500 focus:ring-green-500')
+    classes.push('border-success focus:border-success focus:ring-success')
   }
   // Se null, não adiciona classes extras (estado neutro)
 
@@ -79,7 +79,7 @@ export function deveMostrarErro(estadoValidacao: EstadoValidacaoCampo): boolean 
  * @example
  * ```tsx
  * const erro = obterMensagemErro(estadosValidacao.cpf)
- * {erro && <p className="text-red-500 text-xs mt-1">⚠️ {erro}</p>}
+ * {erro && <p className="text-destructive text-xs mt-1">⚠️ {erro}</p>}
  * ```
  */
 export function obterMensagemErro(estadoValidacao: EstadoValidacaoCampo): string | undefined {

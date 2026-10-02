@@ -35,7 +35,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
   if (!config) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        {erro ? <p className="text-red-600">{erro}</p> : <Loader2 className="h-6 w-6 animate-spin" />}
+        {erro ? <p className="text-destructive">{erro}</p> : <Loader2 className="h-6 w-6 animate-spin" />}
       </div>
     )
   }
@@ -75,7 +75,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
   return (
     <div className="space-y-6">
       {!moduloContratado && (
-        <p className="flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3" role="alert">
+        <p className="flex items-start gap-2 text-sm text-warning-foreground bg-warning/10 border border-warning/30 rounded-lg p-3" role="alert">
           <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
           O módulo "Pedidos online" não está ativo no seu plano. Você pode deixar tudo configurado, mas o
           catálogo só recebe pedidos depois que o módulo for liberado.
@@ -86,7 +86,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <ShoppingBag className="h-5 w-5 text-purple-600" />
+            <ShoppingBag className="h-5 w-5 text-primary" />
             Pedidos pelo catálogo
           </CardTitle>
           <CardDescription>
@@ -143,7 +143,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
             <Label htmlFor="mp-token">Access Token</Label>
             {config.token_configurado && !editandoToken ? (
               <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 text-sm text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2">
+                <span className="inline-flex items-center gap-1.5 text-sm text-success bg-success/5 border border-success/30 rounded-md px-3 py-2">
                   <CheckCircle2 className="h-4 w-4" /> Token configurado
                 </span>
                 <Button type="button" variant="outline" size="sm" onClick={() => setEditandoToken(true)}>
@@ -162,7 +162,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
                   aria-invalid={!tokenValido}
                 />
                 {!tokenValido && (
-                  <p className="text-sm text-red-600" role="alert">O token deve começar com TEST- ou APP_USR-.</p>
+                  <p className="text-sm text-destructive" role="alert">O token deve começar com TEST- ou APP_USR-.</p>
                 )}
                 {config.token_configurado && (
                   <Button type="button" variant="ghost" size="sm" onClick={() => { setEditandoToken(false); setNovoToken("") }}>
@@ -191,7 +191,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
                 <label
                   key={amb}
                   className={`flex items-center gap-2 border rounded-lg px-3 py-2 cursor-pointer text-sm ${
-                    config.ambiente === amb ? "border-indigo-600 bg-indigo-50" : "border-gray-200"
+                    config.ambiente === amb ? "border-primary bg-primary/5" : "border-border"
                   }`}
                 >
                   <input
@@ -199,14 +199,14 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
                     name="ambiente"
                     checked={config.ambiente === amb}
                     onChange={() => atualizar("ambiente", amb)}
-                    className="accent-indigo-600"
+                    className="accent-primary"
                   />
                   {amb === "teste" ? "Teste (sandbox)" : "Produção (vendas reais)"}
                 </label>
               ))}
             </div>
             {tokenInformado && tokenPareceTeste && config.ambiente === "producao" && (
-              <p className="text-sm text-amber-700 flex items-center gap-1.5">
+              <p className="text-sm text-warning-foreground flex items-center gap-1.5">
                 <AlertTriangle className="h-4 w-4" /> Token de teste com ambiente de produção.
               </p>
             )}
@@ -241,7 +241,7 @@ export function PagamentoOnlineConfig({ moduloContratado }: { moduloContratado: 
             </div>
           )}
           {nenhumaForma && config.pagamento_online && (
-            <p className="text-sm text-amber-700" role="alert">Ative ao menos uma forma de pagamento.</p>
+            <p className="text-sm text-warning-foreground" role="alert">Ative ao menos uma forma de pagamento.</p>
           )}
         </CardContent>
       </Card>

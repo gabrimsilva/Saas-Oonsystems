@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { calcularSubtotal, calcularPrecoItem } from '@/utils/calculos'
-import { googleAnalytics } from '@/services/googleAnalyticsService'
 import { chaveCarrinhoPublico } from '@/services/tenant'
 
 /**
@@ -189,13 +188,6 @@ export function useCarrinho(chaveStorage: string = chaveCarrinhoPublico()): UseC
               : item
           )
           
-          googleAnalytics.trackAddToCart({
-            id: novoItem.produto.id,
-            name: novoItem.produto.nome,
-            category: novoItem.produto.categoria,
-            price: novoItem.produto.precoPromocional || novoItem.produto.preco,
-            quantity: novoItem.quantidade,
-          })
           return novoCarrinho
         }
       }
@@ -204,14 +196,6 @@ export function useCarrinho(chaveStorage: string = chaveCarrinhoPublico()): UseC
       console.log('NOVO_ITEM_CARRINHO', novoItem.produto.id, novoItem.produto.nome)
       const novoCarrinho = [...prevCarrinho, novoItem]
       
-      const preco = calcularPrecoItem(novoItem as any)
-      googleAnalytics.trackAddToCart({
-        id: novoItem.produto.id,
-        name: novoItem.produto.nome,
-        category: novoItem.produto.categoria,
-        price: preco,
-        quantity: novoItem.quantidade,
-      })
       
       return novoCarrinho
     })
@@ -225,16 +209,6 @@ export function useCarrinho(chaveStorage: string = chaveCarrinhoPublico()): UseC
     setCarrinho(prevCarrinho => {
       const novoCarrinho = [...prevCarrinho]
       const item = novoCarrinho[index]
-
-      // Rastrear remoção do carrinho
-      const preco = calcularPrecoItem(item as any)
-      googleAnalytics.trackRemoveFromCart({
-        id: item.produto.id,
-        name: item.produto.nome,
-        category: item.produto.categoria,
-        price: preco,
-        quantity: 1,
-      })
 
       if (item.quantidade > 1) {
         novoCarrinho[index] = { ...item, quantidade: item.quantidade - 1 }
@@ -288,19 +262,7 @@ export function useCarrinho(chaveStorage: string = chaveCarrinhoPublico()): UseC
    * Limpa o carrinho completamente
    */
   const limparCarrinho = useCallback(() => {
-    setCarrinho(prevCarrinho => {
-      // Rastrear cada item removido
-      prevCarrinho.forEach(item => {
-        const preco = calcularPrecoItem(item as any)
-        googleAnalytics.trackRemoveFromCart({
-          id: item.produto.id,
-          name: item.produto.nome,
-          category: item.produto.categoria,
-          price: preco,
-          quantity: item.quantidade,
-        })
-      })
-      
+    setCarrinho(() => {
       localStorage.removeItem(chaveStorage)
       return []
     })

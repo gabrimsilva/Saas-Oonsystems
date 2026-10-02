@@ -431,13 +431,13 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
         {/* Botão fechar mobile */}
         <button
           onClick={onClose}
-          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-white p-2 hover:bg-gray-100 transition-colors shadow-md cursor-pointer"
+          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-card p-2 hover:bg-accent transition-colors shadow-md cursor-pointer"
           aria-label="Fechar"
         >
-          <X className="h-5 w-5 text-gray-600" />
+          <X className="h-5 w-5 text-muted-foreground" />
         </button>
 
-        <AlertDialogHeader className="max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-white max-md:z-10 max-md:border-b">
+        <AlertDialogHeader className="max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-card max-md:z-10 max-md:border-b">
           <AlertDialogTitle className="text-xl font-bold max-md:pr-10">
             Personalize seu Pedido
           </AlertDialogTitle>
@@ -453,8 +453,8 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
           <div className="space-y-6 pb-4 max-md:px-4 max-md:pb-4">
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando sabores...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Carregando sabores...</p>
             </div>
           ) : (
             <>
@@ -467,8 +467,8 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                       <div
                         key={tamanho.id}
                         className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between ${tamanhoSelecionado?.id === tamanho.id
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-gray-200 hover:bg-gray-50'
+                          ? 'border-destructive bg-destructive/5'
+                          : 'border-border hover:bg-accent'
                           }`}
                         onClick={() => setTamanhoSelecionado(tamanho)}
                       >
@@ -478,10 +478,10 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                             {tamanho.tamanho}
                           </Badge>
                           {tamanhoSelecionado?.id === tamanho.id && (
-                            <Check className="h-4 w-4 text-red-500" />
+                            <Check className="h-4 w-4 text-destructive" />
                           )}
                         </div>
-                        <span className="text-sm font-bold text-red-600">
+                        <span className="text-sm font-bold text-destructive">
                           R$ {tamanho.valor.toFixed(2).replace('.', ',')}
                         </span>
                       </div>
@@ -499,7 +499,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                   
                   {/* Campo de pesquisa */}
                   <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
                     <Input
                       type="text"
                       placeholder="Pesquisar sabores..."
@@ -509,7 +509,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                     />
                   </div>
                   {sabores.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-muted-foreground">
                       <p>Nenhum sabor disponível.</p>
                       <p className="text-sm">Cadastre sabores na página de configurações.</p>
                     </div>
@@ -521,7 +521,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
 
                         if (!temResultados && pesquisaSabor.trim()) {
                           return (
-                            <div className="text-center py-8 text-gray-500">
+                            <div className="text-center py-8 text-muted-foreground">
                               <Search className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                               <p>Nenhum sabor encontrado para "{pesquisaSabor}"</p>
                               <p className="text-sm">Tente pesquisar com outros termos</p>
@@ -534,8 +534,8 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                           .map(categoria => (
                             <div key={categoria} className="space-y-3">
                               {/* Título da categoria */}
-                              <div className="border-b border-gray-200 pb-2">
-                                <h4 className="text-md font-semibold text-gray-800">
+                              <div className="border-b border-border pb-2">
+                                <h4 className="text-md font-semibold text-foreground">
                                   {obterNomeCategoriaSabor(categoria)}
                                 </h4>
                               </div>
@@ -550,10 +550,10 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                                     <div
                                       key={sabor.id}
                                       className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between ${isSelected
-                                        ? 'border-red-500 bg-red-50'
+                                        ? 'border-destructive bg-destructive/5'
                                         : canSelect
-                                          ? 'border-gray-200 hover:bg-gray-50'
-                                          : 'border-gray-200 opacity-50 cursor-not-allowed'
+                                          ? 'border-border hover:bg-accent'
+                                          : 'border-border opacity-50 cursor-not-allowed'
                                         }`}
                                       onClick={() => (isSelected || canSelect) && toggleSabor(sabor)}
                                     >
@@ -561,7 +561,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                                         <div className="flex items-center gap-2 mb-1">
                                           <h4 className="font-medium text-sm">{sabor.nome}</h4>
                                           {isSelected && (
-                                            <Check className="h-4 w-4 text-red-500" />
+                                            <Check className="h-4 w-4 text-destructive" />
                                           )}
                                           {/* Não mostrar badge para refrigerantes */}
                                           {(sabor as any).categoria_sabor !== 'refrigerante' && (
@@ -571,10 +571,10 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                                           )}
                                         </div>
                                         {sabor.descricao && (
-                                          <p className="text-xs text-gray-600">{sabor.descricao}</p>
+                                          <p className="text-xs text-muted-foreground">{sabor.descricao}</p>
                                         )}
                                       </div>
-                                      <span className="text-sm font-bold text-red-600 ml-3">
+                                      <span className="text-sm font-bold text-destructive ml-3">
                                         +R$ {(sabor.preco || 0).toFixed(2).replace('.', ',')}
                                       </span>
                                     </div>
@@ -598,18 +598,18 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                       <div
                         key={borda.id}
                         className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between ${bordaSelecionada?.id === borda.id
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-gray-200 hover:bg-gray-50'
+                          ? 'border-destructive bg-destructive/5'
+                          : 'border-border hover:bg-accent'
                           }`}
                         onClick={() => setBordaSelecionada(borda)}
                       >
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium text-sm">{borda.nome}</h4>
                           {bordaSelecionada?.id === borda.id && (
-                            <Check className="h-4 w-4 text-red-500" />
+                            <Check className="h-4 w-4 text-destructive" />
                           )}
                         </div>
-                        <span className="text-sm text-red-600 font-semibold">
+                        <span className="text-sm text-destructive font-semibold">
                           {borda.preco === 0 ? 'Grátis' : `+R$ ${borda.preco.toFixed(2).replace('.', ',')}`}
                         </span>
                       </div>
@@ -646,8 +646,8 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                 </div>
 
                 <div className="text-right">
-                  <p className="text-sm text-gray-600 mb-1">Total</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-sm text-muted-foreground mb-1">Total</p>
+                  <p className="text-2xl font-bold text-destructive">
                     R$ {calcularPrecoTotal().toFixed(2).replace('.', ',')}
                   </p>
                 </div>
@@ -657,7 +657,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
           </div>
         </ScrollArea>
 
-        <AlertDialogFooter className="pt-4 border-t bg-white max-md:sticky max-md:bottom-0 max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <AlertDialogFooter className="pt-4 border-t bg-card max-md:sticky max-md:bottom-0 max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <div className="flex gap-3 w-full">
             <Button
               variant="outline"
@@ -672,7 +672,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
                 (categoria?.tem_tamanhos && tamanhos.length > 0 && !tamanhoSelecionado) ||
                 ((categoria?.tem_sabores || produto?.saboresDisponiveis) && sabores.length > 0 && saboresSelecionados.length === 0)
               }
-              className={variant === 'delivery' ? 'bg-red-600 hover:bg-red-700 flex-1 cursor-pointer' : 'flex-1'}
+              className={variant === 'delivery' ? 'bg-primary hover:bg-primary-hover flex-1 cursor-pointer' : 'flex-1'}
             >
               Adicionar ao Carrinho
             </Button>

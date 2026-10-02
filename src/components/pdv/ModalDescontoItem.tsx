@@ -89,16 +89,16 @@ export default function ModalDescontoItem({
 
         <div className="space-y-4">
           {/* Informações do Item */}
-          <div className="bg-gray-50 p-3 rounded-lg space-y-1">
+          <div className="bg-muted/50 p-3 rounded-lg space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Preço Original:</span>
+              <span className="text-muted-foreground">Preço Original:</span>
               <span className="font-medium">R$ {precoOriginal.toFixed(2).replace('.', ',')}</span>
             </div>
             {descontoAtual > 0 && (
               <>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Desconto Atual:</span>
-                  <span className="font-medium text-orange-600">
+                  <span className="text-muted-foreground">Desconto Atual:</span>
+                  <span className="font-medium text-warning-foreground">
                     {tipoDescontoAtual === 'percentual'
                       ? `${descontoAtual}%`
                       : tipoDescontoAtual === 'preco_fixo'
@@ -107,8 +107,8 @@ export default function ModalDescontoItem({
                   </span>
                 </div>
                 <div className="flex justify-between text-sm border-t pt-1">
-                  <span className="text-gray-600">Preço com Desconto:</span>
-                  <span className="font-bold text-green-600">R$ {precoComDesconto.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-muted-foreground">Preço com Desconto:</span>
+                  <span className="font-bold text-success">R$ {precoComDesconto.toFixed(2).replace('.', ',')}</span>
                 </div>
               </>
             )}
@@ -178,17 +178,17 @@ export default function ModalDescontoItem({
               autoFocus
             />
             {tipoDesconto === 'percentual' && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Máximo: 100%
               </p>
             )}
             {tipoDesconto === 'valor' && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Máximo: R$ {precoOriginal.toFixed(2).replace('.', ',')}
               </p>
             )}
             {tipoDesconto === 'preco_fixo' && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Preço unitário original: R$ {precoUnitarioOriginal.toFixed(2).replace('.', ',')} — vale para qualquer quantidade
 </p>
             )}
@@ -196,15 +196,15 @@ export default function ModalDescontoItem({
 
           {/* Preview do Desconto */}
           {valorDesconto && parseFloat(valorDesconto) > 0 && (
-            <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+            <div className="bg-success/5 border border-success/30 p-3 rounded-lg">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-700">Novo Preço:</span>
-                <span className="text-lg font-bold text-green-600">
+                <span className="text-sm text-foreground/80">Novo Preço:</span>
+                <span className="text-lg font-bold text-success">
                   R$ {novoPrecoPreview.toFixed(2).replace('.', ',')}
                 </span>
               </div>
               {tipoDesconto === 'preco_fixo' && (
-                <div className="text-xs text-gray-600 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   R$ {valorDigitado.toFixed(2).replace('.', ',')} x {item.quantidade} — Desconto: R$ {(precoOriginal - novoPrecoPreview).toFixed(2).replace('.', ',')}
                 </div>
               )}

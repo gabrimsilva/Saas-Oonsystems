@@ -41,6 +41,8 @@ export interface ReceiptData {
   formaPagamento: string
   precisaTroco?: boolean
   valorTroco?: number
+  /** Valor sobre o qual o troco é calculado (parte em dinheiro da venda dividida; padrão: total) */
+  baseTroco?: number
   
   // Observações
   observacoes?: string

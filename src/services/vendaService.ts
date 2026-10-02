@@ -14,7 +14,7 @@ export interface Sale {
   id: string
   sale_number: string
   total_amount: number
-  payment_method: 'DEBIT' | 'CREDIT' | 'PIX' | 'CASH' | 'A_PRAZO' | 'INTERNAL_CONSUMPTION'
+  payment_method: 'DEBIT' | 'CREDIT' | 'PIX' | 'CASH' | 'A_PRAZO' | 'INTERNAL_CONSUMPTION' | 'SPLIT'
   needs_change: boolean
   change_amount?: number
   sale_type: string
@@ -29,6 +29,12 @@ export interface Sale {
   installments_count?: number | null
   /** Nome do cliente (opcional, útil para vendas A_PRAZO) */
   customer_name?: string | null
+  /** Venda paga em duas formas (payment_method = 'SPLIT') */
+  forma_pagamento_dividido?: boolean
+  pagamento_1_tipo?: 'DEBIT' | 'CREDIT' | 'PIX' | 'CASH' | null
+  pagamento_1_valor?: number | null
+  pagamento_2_tipo?: 'DEBIT' | 'CREDIT' | 'PIX' | 'CASH' | null
+  pagamento_2_valor?: number | null
 }
 
 /**
@@ -98,8 +104,10 @@ class VendaService {
   /**
    * Mapeia forma de pagamento do formato antigo para o novo
    */
-  private mapearFormaPagamento(formaPagamento: string): 'DEBIT' | 'CREDIT' | 'PIX' | 'CASH' | 'A_PRAZO' | 'INTERNAL_CONSUMPTION' {
-    const mapa: { [key: string]: 'DEBIT' | 'CREDIT' | 'PIX' | 'CASH' | 'A_PRAZO' | 'INTERNAL_CONSUMPTION' } = {
+  private mapearFormaPagamento(formaPagamento: string): Sale['payment_method'] {
+    const mapa: { [key: string]: Sale['payment_method'] } = {
+      'dividido': 'SPLIT',
+      'SPLIT': 'SPLIT',
       'dinheiro': 'CASH',
       'cartaoDebito': 'DEBIT',
       'cartaoCredito': 'CREDIT',
@@ -179,7 +187,12 @@ class VendaService {
     total_amount: number,
     payment_term_days?: number,
     installments_count?: number,
-    customer_name?: string
+    customer_name?: string,
+    forma_pagamento_dividido?: boolean,
+    pagamento_1_tipo?: string,
+    pagamento_1_valor?: number,
+    pagamento_2_tipo?: string,
+    pagamento_2_valor?: number
   }): Promise<Sale> {
     try {
       // Gerar número da venda se não foi fornecido
@@ -201,7 +214,16 @@ class VendaService {
         created_by: user?.id || null,
         payment_term_days: vendaData.payment_term_days ?? null,
         installments_count: vendaData.installments_count ?? null,
-        customer_name: vendaData.customer_name ?? null
+        customer_name: vendaData.customer_name ?? null,
+        ...(vendaData.forma_pagamento_dividido
+          ? {
+              forma_pagamento_dividido: true,
+              pagamento_1_tipo: this.mapearFormaPagamento(vendaData.pagamento_1_tipo || ''),
+              pagamento_1_valor: vendaData.pagamento_1_valor,
+              pagamento_2_tipo: this.mapearFormaPagamento(vendaData.pagamento_2_tipo || ''),
+              pagamento_2_valor: vendaData.pagamento_2_valor
+            }
+          : {})
       })
 
       // Inserir venda

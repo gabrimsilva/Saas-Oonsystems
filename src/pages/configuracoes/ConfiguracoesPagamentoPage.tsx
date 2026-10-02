@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { ActionButton } from "@/components/ui/action-button"
-import { Save, Loader2, CheckCircle, Store, Globe } from "lucide-react"
+import { Save, CheckCircle, Store, Globe } from "lucide-react"
 import { configuracaoService } from "@/services"
 import { moduloService } from "@/services/moduloService"
 import { FormasPagamentoConfig } from "@/components/configuracoes/FormasPagamentoConfig"
@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 type AbaPagamento = 'balcao' | 'online'
 
@@ -92,11 +93,7 @@ export default function ConfiguracoesPagamentoPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-6 w-6 animate-spin" />
-      </div>
-    )
+    return <CarregandoPagina variante="formulario" />
   }
 
   return (
@@ -144,7 +141,7 @@ export default function ConfiguracoesPagamentoPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-success" />
               Sucesso!
             </AlertDialogTitle>
             <AlertDialogDescription>

@@ -85,7 +85,7 @@ export default function DialogCancelarPedido({
     <Dialog open={aberto} onOpenChange={handleFechar}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-red-600">
+          <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
             Cancelar Pedido
           </DialogTitle>
@@ -98,7 +98,7 @@ export default function DialogCancelarPedido({
           {/* Motivo do cancelamento */}
           <div className="space-y-2">
             <Label htmlFor="motivo">
-              Motivo do cancelamento <span className="text-red-500">*</span>
+              Motivo do cancelamento <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="motivo"
@@ -127,13 +127,13 @@ export default function DialogCancelarPedido({
 
           {/* Campos de extorno (aparecem apenas se requer extorno) */}
           {requerExtorno && (
-            <div className="space-y-4 pl-6 border-l-2 border-orange-300 bg-orange-50 p-4 rounded-r-lg">
+            <div className="space-y-4 pl-6 border-l-2 border-warning/40 bg-warning/10 p-4 rounded-r-lg">
               <div className="space-y-2">
                 <Label htmlFor="valor-extorno">
-                  Valor do extorno <span className="text-red-500">*</span>
+                  Valor do extorno <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                     R$
                   </span>
                   <Input
@@ -147,14 +147,14 @@ export default function DialogCancelarPedido({
                     className="pl-10"
                   />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Valor total do pedido: R$ {valorTotal.toFixed(2).replace('.', ',')}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="forma-pagamento-extorno">
-                  Forma de pagamento do extorno <span className="text-red-500">*</span>
+                  Forma de pagamento do extorno <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formaPagamentoExtorno}

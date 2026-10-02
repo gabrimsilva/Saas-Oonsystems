@@ -49,14 +49,14 @@ describe('ModalFinalizarPedido - Consumo Interno Checkbox', () => {
     expect(screen.getByText('R$ 0,00')).toBeInTheDocument()
   })
 
-  it('quando marcado: forma de pagamento é desabilitada', () => {
+  it('quando marcado: forma de pagamento deixa de ser exibida', () => {
     render(<ModalFinalizarPedido {...defaultProps} />)
+    expect(screen.getByRole('combobox')).toBeInTheDocument()
     
     const checkbox = screen.getByRole('checkbox', { name: /consumo interno/i })
     fireEvent.click(checkbox)
     
-    const selectPagamento = screen.getByRole('combobox') as HTMLSelectElement
-    expect(selectPagamento.disabled).toBe(true)
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
   })
 
   it('quando marcado: exibe mensagem de confirmação visual', () => {
@@ -79,7 +79,7 @@ describe('ModalFinalizarPedido - Consumo Interno Checkbox', () => {
     
     // Desmarcar
     fireEvent.click(checkbox)
-    expect(screen.getByText('R$ 100,00')).toBeInTheDocument()
+    expect(screen.getAllByText('R$ 100,00').length).toBeGreaterThan(0)
   })
 
   it('botão "Confirmar" é desabilitado se consumo_interno marcado E carrinho vazio', () => {

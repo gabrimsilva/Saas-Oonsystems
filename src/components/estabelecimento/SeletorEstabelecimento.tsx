@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { Building2, ChevronDown, Check, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
+import { corPersonalizada } from '@/utils/cor'
 
 export default function SeletorEstabelecimento() {
   const {
@@ -24,7 +25,7 @@ export default function SeletorEstabelecimento() {
   const [aberto, setAberto] = useState(false)
   const [trocando, setTrocando] = useState(false)
 
-  const cor = estabelecimentoAtual?.cor_tema || '#64748b'
+  const cor = corPersonalizada(estabelecimentoAtual?.cor_tema) ?? 'var(--primary)'
 
   const handleTrocar = async (id: string) => {
     if (id === estabelecimentoAtual?.id) {
@@ -44,9 +45,9 @@ export default function SeletorEstabelecimento() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 animate-pulse">
-        <Building2 className="h-4 w-4 text-gray-400" />
-        <span className="text-sm text-gray-400">Carregando…</span>
+      <div className="flex h-9 items-center gap-2 rounded-md bg-muted px-3 animate-pulse">
+        <Building2 className="size-4 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Carregando…</span>
       </div>
     )
   }
@@ -55,15 +56,14 @@ export default function SeletorEstabelecimento() {
   if (!podeTrocar) {
     return (
       <div
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border"
-        style={{ borderColor: cor, color: cor }}
+        className="flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-foreground"
         title="Você não tem permissão para trocar de estabelecimento"
       >
-        <Building2 className="h-4 w-4" />
-        <span className="text-sm font-medium">
+        <span className="size-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ backgroundColor: cor }} aria-hidden="true" />
+        <span className="max-w-[200px] truncate text-sm font-medium">
           {estabelecimentoAtual?.nome ?? 'Nenhum estabelecimento'}
         </span>
-        <Lock className="h-3 w-3 opacity-60" />
+        <Lock className="size-3 text-muted-foreground" />
       </div>
     )
   }
@@ -71,9 +71,9 @@ export default function SeletorEstabelecimento() {
   // Admin geral sem estabelecimentos ativos (Req 3.2)
   if (estabelecimentosAutorizados.length === 0) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
-        <Building2 className="h-4 w-4 text-amber-600" />
-        <span className="text-sm text-amber-700">Nenhum estabelecimento disponível</span>
+      <div className="flex h-9 items-center gap-2 rounded-md border border-warning/40 bg-warning/10 px-3">
+        <Building2 className="size-4 text-warning-foreground" />
+        <span className="text-sm text-warning-foreground">Nenhum estabelecimento disponível</span>
       </div>
     )
   }
@@ -84,20 +84,23 @@ export default function SeletorEstabelecimento() {
         type="button"
         onClick={() => setAberto((v) => !v)}
         disabled={trocando}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors hover:bg-gray-50 disabled:opacity-60"
-        style={{ borderColor: cor }}
+        className="flex h-9 items-center gap-2 rounded-md border border-input bg-card px-3 text-foreground shadow-xs hover:bg-accent hover:border-border-strong disabled:opacity-60 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        title="Trocar de estabelecimento"
       >
-        <Building2 className="h-4 w-4" style={{ color: cor }} />
-        <span className="text-sm font-semibold" style={{ color: cor }}>
+        <span className="size-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ backgroundColor: cor }} aria-hidden="true" />
+        <span className="max-w-[200px] truncate text-sm font-medium">
           {estabelecimentoAtual?.nome ?? 'Selecione'}
         </span>
-        <ChevronDown className="h-4 w-4 text-gray-500" />
+        <ChevronDown className={`size-4 text-muted-foreground transition-transform duration-200 ${aberto ? 'rotate-180' : ''}`} />
       </button>
 
       {aberto && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setAberto(false)} />
-          <div className="absolute right-0 z-50 mt-1 w-64 max-h-80 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg py-1">
+          <div role="listbox" className="absolute right-0 z-50 mt-1.5 w-64 max-h-80 overflow-y-auto rounded-lg border border-border bg-popover p-1 shadow-lg animate-in fade-in-0 zoom-in-[0.98]">
+            <p className="px-2.5 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Estabelecimentos</p>
             {estabelecimentosAutorizados.map((e) => {
               const ativoSel = e.id === estabelecimentoAtual?.id
               return (
@@ -105,14 +108,16 @@ export default function SeletorEstabelecimento() {
                   key={e.id}
                   type="button"
                   onClick={() => handleTrocar(e.id)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 ${ativoSel ? 'font-semibold' : ''}`}
+                  role="option"
+                  aria-selected={ativoSel}
+                  className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm hover:bg-accent ${ativoSel ? 'bg-primary/5 font-medium text-foreground' : 'text-foreground/90'}`}
                 >
                   <span
-                    className="inline-block h-3 w-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: e.cor_tema }}
+                    className="inline-block size-2.5 flex-shrink-0 rounded-full"
+                    style={{ backgroundColor: corPersonalizada(e.cor_tema) ?? 'var(--primary)' }}
                   />
                   <span className="flex-1 truncate">{e.nome}</span>
-                  {ativoSel && <Check className="h-4 w-4 text-green-600" />}
+                  {ativoSel && <Check className="size-4 text-primary" />}
                 </button>
               )
             })}

@@ -48,7 +48,7 @@ export function ConfiguracoesNotificacao({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Seleção do Som */}
           <div className="space-y-2">
-            <label htmlFor="som-notificacao" className="text-sm font-medium text-gray-700">
+            <label htmlFor="som-notificacao" className="text-sm font-medium text-foreground/80">
               Som de Notificação
             </label>
             <select
@@ -56,7 +56,7 @@ export function ConfiguracoesNotificacao({
               name="som-notificacao"
               value={somNotificacao}
               onChange={(e) => onSomChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring/30"
             >
               {audioService.getSoundOptions().map(option => (
                 <option key={option.key} value={option.key}>
@@ -82,7 +82,7 @@ export function ConfiguracoesNotificacao({
 
           {/* Controle de Volume */}
           <div className="space-y-2">
-            <label htmlFor="volume-notificacao" className="text-sm font-medium text-gray-700">
+            <label htmlFor="volume-notificacao" className="text-sm font-medium text-foreground/80">
               Volume: {volumeNotificacao}%
             </label>
             <input
@@ -94,10 +94,10 @@ export function ConfiguracoesNotificacao({
               step="5"
               value={volumeNotificacao}
               onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider"
               disabled={somNotificacao === 'none'}
             />
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>0%</span>
               <span>100%</span>
             </div>
@@ -105,12 +105,12 @@ export function ConfiguracoesNotificacao({
         </div>
 
         {/* Informações sobre o Som */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <Volume2 className="h-5 w-5 text-indigo-600 mt-0.5" />
+            <Volume2 className="h-5 w-5 text-primary mt-0.5" />
             <div>
-              <h4 className="text-sm font-medium text-indigo-900">Como funciona</h4>
-              <p className="text-sm text-indigo-700 mt-1">
+              <h4 className="text-sm font-medium text-primary">Como funciona</h4>
+              <p className="text-sm text-primary mt-1">
                 O som será reproduzido automaticamente quando um novo pedido for recebido no sistema. 
                 Certifique-se de que o volume do seu navegador e sistema estejam habilitados.
               </p>

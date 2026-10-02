@@ -66,9 +66,9 @@ export interface EstadosValidacao {
  *         setDadosCliente({ ...dadosCliente, cpf: e.target.value })
  *         validarCampoEmTempoReal('cpf', e.target.value, dadosCliente)
  *       }}
- *       className={estadosValidacao.cpf.valido === false ? 'border-red-500' : ''}
+ *       className={estadosValidacao.cpf.valido === false ? 'border-destructive' : ''}
  *     />
- *     {estadosValidacao.cpf.erro && <span className="text-red-500">{estadosValidacao.cpf.erro}</span>}
+ *     {estadosValidacao.cpf.erro && <span className="text-destructive">{estadosValidacao.cpf.erro}</span>}
  *   )
  * }
  * ```

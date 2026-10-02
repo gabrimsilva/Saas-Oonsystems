@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react"
-import { Edit, Loader2 } from "lucide-react"
+import { Edit } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import AdicionalForm, { type AdicionalFormData } from "@/components/AdicionalForm"
 import { adicionalService } from "@/services"
 import toast from "react-hot-toast"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 export default function EditarAdicional() {
   const navigate = useNavigate()
@@ -70,21 +71,14 @@ export default function EditarAdicional() {
   }
 
   if (loadingAdicional) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando adicional...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="formulario" />
   }
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Edit className="h-6 w-6" />
           Editar Adicional
         </h1>

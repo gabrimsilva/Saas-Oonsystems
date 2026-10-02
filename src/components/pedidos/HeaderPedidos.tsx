@@ -79,7 +79,7 @@ export function HeaderPedidos({
     return (
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <ShoppingCart className="h-6 w-6" />
             Pedidos - Kanban
           </h1>
@@ -94,7 +94,7 @@ export function HeaderPedidos({
 
         <div className="space-y-2">
           {novoPedidoRecebido && (
-            <Badge className="bg-green-500 text-white animate-pulse w-full justify-center py-2">
+            <Badge className="bg-success text-white animate-pulse w-full justify-center py-2">
               Novo pedido!
             </Badge>
           )}
@@ -106,8 +106,8 @@ export function HeaderPedidos({
               onClick={onToggleNotificacoes}
               className={`flex items-center justify-center gap-2 ${
                 notificacoesAtivas
-                  ? 'text-indigo-600 border-indigo-200 hover:bg-indigo-50'
-                  : 'text-gray-400 border-gray-200'
+                  ? 'text-primary border-primary/20 hover:bg-primary/5'
+                  : 'text-muted-foreground/70 border-border'
               }`}
             >
               {notificacoesAtivas ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
@@ -149,7 +149,7 @@ export function HeaderPedidos({
   return (
     <div className="hidden md:flex items-center justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <ShoppingCart className="h-6 w-6" />
           Pedidos - Kanban
         </h1>
@@ -164,7 +164,7 @@ export function HeaderPedidos({
 
       <div className="flex items-center gap-3">
         {novoPedidoRecebido && (
-          <Badge className="bg-green-500 text-white animate-pulse">
+          <Badge className="bg-success text-white animate-pulse">
             Novo pedido!
           </Badge>
         )}
@@ -175,8 +175,8 @@ export function HeaderPedidos({
           onClick={onToggleNotificacoes}
           className={`flex items-center gap-2 ${
             notificacoesAtivas
-              ? 'text-indigo-600 border-indigo-200 hover:bg-indigo-50'
-              : 'text-gray-400 border-gray-200'
+              ? 'text-primary border-primary/20 hover:bg-primary/5'
+              : 'text-muted-foreground/70 border-border'
           }`}
         >
           {notificacoesAtivas ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}

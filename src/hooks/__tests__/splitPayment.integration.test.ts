@@ -1,350 +1,138 @@
 /**
- * Integration tests for Split Payment functionality
- * 
- * Tests the complete flow of split payment from component to database:
- * - PDV flow: useFinalizarPedidoPDV hook
- * - Comandas flow: useFinalizarPedido hook (when integrated)
- * - Database persistence verification
- * 
- * These tests verify Requirements 7.1, 7.2, 4.1, 4.2, 4.3
+ * Pagamento dividido no PDV: o hook de finalizar venda grava as duas partes
+ * na venda (payment_method = 'dividido' => SPLIT no serviço).
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
-import { useFinalizarPedidoPDV } from '../useFinalizarPedidoPDV'
-import { pedidoService } from '@/services'
-import type { ItemCarrinhoPDV, DadosClientePDV } from '@/components/pdv/types'
+import { renderHook, act } from '@testing-library/react'
+import { useFinalizarVendaPDV } from '../useFinalizarVendaPDV'
+import { vendaService, stockService } from '@/services'
+import type { ItemCarrinhoPDV } from '@/components/pdv/types'
+import type { PagamentoDivididoResolvido } from '@/utils/pagamentoDividido'
 
-// Mock dos serviços
 vi.mock('@/services', () => ({
-  pedidoService: {
-    salvar: vi.fn()
-  },
-  clienteService: {
-    buscarOuCriar: vi.fn(),
-    incrementarEstatisticas: vi.fn()
-  }
+  vendaService: { salvar: vi.fn(), criarParcelas: vi.fn() },
+  stockService: { validarEstoqueVenda: vi.fn(), darBaixaEmVenda: vi.fn() },
+  configuracaoService: { buscarPorChave: vi.fn().mockResolvedValue(null) },
 }))
+vi.mock('@/services/receiptService', () => ({ receiptService: { generateSaleReceipt: vi.fn() } }))
+vi.mock('@/services/printJobService', () => ({ printJobService: { create: vi.fn(), print: vi.fn() } }))
 
-describe('Split Payment Integration Tests', () => {
-  // Dados de teste reutilizáveis
-  const mockCarrinho: ItemCarrinhoPDV[] = [
-    {
-      id: 'item-1',
-      produto: {
-        id: 'prod-1',
-        nome: 'Pizza Margherita',
-        preco: 45.00,
-        categoria: 'pizza',
-        urlImagem: '/pizza.jpg'
-      },
-      quantidade: 2,
-      precoUnitario: 45.00,
-      precoTotal: 90.00
-    },
-    {
-      id: 'item-2',
-      produto: {
-        id: 'prod-2',
-        nome: 'Refrigerante',
-        preco: 10.00,
-        categoria: 'bebida',
-        urlImagem: '/refri.jpg'
-      },
-      quantidade: 1,
-      precoUnitario: 10.00,
-      precoTotal: 10.00
-    }
-  ]
+const carrinho = [
+  {
+    id: 'item-1',
+    produto: { id: 'prod-1', nome: 'Camiseta', preco: 45, categoria: 'roupas', urlImagem: '/c.jpg' },
+    quantidade: 2,
+    precoUnitario: 45,
+    precoTotal: 90,
+  },
+  {
+    id: 'item-2',
+    produto: { id: 'prod-2', nome: 'Meia', preco: 10, categoria: 'roupas', urlImagem: '/m.jpg' },
+    quantidade: 1,
+    precoUnitario: 10,
+    precoTotal: 10,
+  },
+] as ItemCarrinhoPDV[]
 
-  const mockDadosCliente: DadosClientePDV = {
-    nome: 'João',
-    sobrenome: 'Silva',
-    telefone: '11999999999',
-    email: 'joao@example.com',
-    endereco: 'Rua Teste',
-    numero: '123',
-    complemento: 'Apto 45',
-    bairro: 'Centro',
-    cidade: 'São Paulo',
-    estado: 'SP',
-    cep: '01234-567'
-  }
+const divisao: PagamentoDivididoResolvido = {
+  formaPagamentoDividido: true,
+  pagamento1Tipo: 'pix',
+  pagamento1Valor: 60,
+  pagamento2Tipo: 'dinheiro',
+  pagamento2Valor: 40,
+  trocoPara: 50,
+}
 
+async function finalizar(params: Parameters<ReturnType<typeof useFinalizarVendaPDV>['finalizarVenda']>[0]) {
+  const { result } = renderHook(() => useFinalizarVendaPDV())
+  let resposta: Awaited<ReturnType<typeof result.current.finalizarVenda>> | undefined
+  await act(async () => {
+    resposta = await result.current.finalizarVenda(params)
+  })
+  return resposta!
+}
+
+const vendaSalva = () => vi.mocked(vendaService.salvar).mock.calls[0][0] as Record<string, unknown>
+
+describe('PDV - pagamento dividido', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
-    // Mock do pedidoService.salvar para retornar sucesso
-    vi.mocked(pedidoService.salvar).mockResolvedValue({
-      id: 'pedido-123',
-      codigo_pedido: 'PDV-001',
-      total: 100.00,
-      created_at: new Date().toISOString()
-    } as any)
+    vi.mocked(vendaService.salvar).mockResolvedValue({ id: 'venda-1', sale_number: 'VENDA-001' } as never)
+    vi.mocked(stockService.validarEstoqueVenda).mockResolvedValue(undefined as never)
+    vi.mocked(stockService.darBaixaEmVenda).mockResolvedValue(undefined as never)
   })
 
-  describe('PDV Split Payment Flow', () => {
-    it('should finalize order with split payment data', async () => {
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
-
-      const splitPaymentData = {
-        formaPagamentoDividido: true,
-        pagamento1Tipo: 'PIX',
-        pagamento1Valor: 60.00,
-        pagamento2Tipo: 'Dinheiro',
-        pagamento2Valor: 40.00
-      }
-
-      let finalizacaoResult: any
-
-      await act(async () => {
-        finalizacaoResult = await result.current.finalizarPedido({
-          carrinho: mockCarrinho,
-          dadosCliente: mockDadosCliente,
-          entregaDomicilio: true,
-          subtotal: 100.00,
-          taxaEntrega: 0,
-          dadosPagamento: {
-            formaPagamento: 'pagamento_dividido',
-            precisaTroco: false
-          },
-          ...splitPaymentData
-        })
-      })
-
-      // Verificar que o pedido foi salvo
-      expect(pedidoService.salvar).toHaveBeenCalledTimes(1)
-
-      // Verificar que os dados de split payment foram incluídos
-      const chamadaSalvar = vi.mocked(pedidoService.salvar).mock.calls[0][0]
-      
-      expect(chamadaSalvar.forma_pagamento_dividido).toBe(true)
-      expect(chamadaSalvar.pagamento_1_tipo).toBe('PIX')
-      expect(chamadaSalvar.pagamento_1_valor).toBe(60.00)
-      expect(chamadaSalvar.pagamento_2_tipo).toBe('Dinheiro')
-      expect(chamadaSalvar.pagamento_2_valor).toBe(40.00)
-
-      // Verificar resultado da finalização
-      expect(finalizacaoResult.sucesso).toBe(true)
-      expect(finalizacaoResult.codigoPedido).toBe('PDV-001')
+  it('grava as duas partes e marca a venda como dividida', async () => {
+    const resposta = await finalizar({
+      carrinho,
+      subtotal: 100,
+      dadosPagamento: { formaPagamento: 'dividido', precisaTroco: true, valorTroco: 50 },
+      pagamentoDividido: divisao,
     })
 
-    it('should finalize order without split payment (backward compatibility)', async () => {
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
-
-      let finalizacaoResult: any
-
-      await act(async () => {
-        finalizacaoResult = await result.current.finalizarPedido({
-          carrinho: mockCarrinho,
-          dadosCliente: mockDadosCliente,
-          entregaDomicilio: true,
-          subtotal: 100.00,
-          taxaEntrega: 5.00,
-          dadosPagamento: {
-            formaPagamento: 'dinheiro',
-            precisaTroco: true,
-            valorTroco: 150
-          }
-        })
-      })
-
-      // Verificar que o pedido foi salvo
-      expect(pedidoService.salvar).toHaveBeenCalledTimes(1)
-
-      // Verificar que os campos de split payment são false/undefined
-      const chamadaSalvar = vi.mocked(pedidoService.salvar).mock.calls[0][0]
-      
-      expect(chamadaSalvar.forma_pagamento_dividido).toBe(false)
-      expect(chamadaSalvar.pagamento_1_tipo).toBeUndefined()
-      expect(chamadaSalvar.pagamento_1_valor).toBeUndefined()
-      expect(chamadaSalvar.pagamento_2_tipo).toBeUndefined()
-      expect(chamadaSalvar.pagamento_2_valor).toBeUndefined()
-
-      // Verificar forma de pagamento tradicional
-      expect(chamadaSalvar.forma_pagamento).toBe('dinheiro')
-      expect(chamadaSalvar.precisa_troco).toBe(true)
-      expect(chamadaSalvar.valor_troco).toBe(150)
-
-      // Verificar resultado da finalização
-      expect(finalizacaoResult.sucesso).toBe(true)
+    expect(resposta.sucesso).toBe(true)
+    expect(vendaSalva()).toMatchObject({
+      total_amount: 100,
+      payment_method: 'SPLIT',
+      forma_pagamento_dividido: true,
+      pagamento_1_tipo: 'pix',
+      pagamento_1_valor: 60,
+      pagamento_2_tipo: 'dinheiro',
+      pagamento_2_valor: 40,
+      needs_change: true,
+      change_amount: 50,
     })
-
-    it('should include all required fields when split payment is enabled', async () => {
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
-
-      await act(async () => {
-        await result.current.finalizarPedido({
-          carrinho: mockCarrinho,
-          dadosCliente: mockDadosCliente,
-          entregaDomicilio: false,
-          subtotal: 100.00,
-          taxaEntrega: 0,
-          dadosPagamento: {
-            formaPagamento: 'pagamento_dividido',
-            precisaTroco: false
-          },
-          formaPagamentoDividido: true,
-          pagamento1Tipo: 'Débito',
-          pagamento1Valor: 70.00,
-          pagamento2Tipo: 'Crédito',
-          pagamento2Valor: 30.00
-        })
-      })
-
-      const chamadaSalvar = vi.mocked(pedidoService.salvar).mock.calls[0][0]
-
-      // Verificar todos os campos obrigatórios
-      expect(chamadaSalvar).toHaveProperty('forma_pagamento_dividido', true)
-      expect(chamadaSalvar).toHaveProperty('pagamento_1_tipo', 'Débito')
-      expect(chamadaSalvar).toHaveProperty('pagamento_1_valor', 70.00)
-      expect(chamadaSalvar).toHaveProperty('pagamento_2_tipo', 'Crédito')
-      expect(chamadaSalvar).toHaveProperty('pagamento_2_valor', 30.00)
-
-      // Verificar que outros campos do pedido também estão presentes
-      expect(chamadaSalvar).toHaveProperty('cliente_nome', 'João')
-      expect(chamadaSalvar).toHaveProperty('cliente_telefone', '11999999999')
-      expect(chamadaSalvar).toHaveProperty('subtotal', 100.00)
-      expect(chamadaSalvar).toHaveProperty('itens')
-      expect(chamadaSalvar.itens).toHaveLength(2)
-    })
-
-    it('should handle split payment with different payment combinations', async () => {
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
-
-      const combinations = [
-        { tipo1: 'PIX', valor1: 50, tipo2: 'Dinheiro', valor2: 50 },
-        { tipo1: 'Débito', valor1: 75, tipo2: 'Crédito', valor2: 25 },
-        { tipo1: 'Crédito', valor1: 30, tipo2: 'PIX', valor2: 70 },
-        { tipo1: 'Dinheiro', valor1: 90, tipo2: 'Débito', valor2: 10 }
-      ]
-
-      for (const combo of combinations) {
-        vi.clearAllMocks()
-
-        await act(async () => {
-          await result.current.finalizarPedido({
-            carrinho: mockCarrinho,
-            dadosCliente: mockDadosCliente,
-            entregaDomicilio: true,
-            subtotal: 100.00,
-            taxaEntrega: 0,
-            dadosPagamento: {
-              formaPagamento: 'pagamento_dividido',
-              precisaTroco: false
-            },
-            formaPagamentoDividido: true,
-            pagamento1Tipo: combo.tipo1,
-            pagamento1Valor: combo.valor1,
-            pagamento2Tipo: combo.tipo2,
-            pagamento2Valor: combo.valor2
-          })
-        })
-
-        const chamadaSalvar = vi.mocked(pedidoService.salvar).mock.calls[0][0]
-
-        expect(chamadaSalvar.forma_pagamento_dividido).toBe(true)
-        expect(chamadaSalvar.pagamento_1_tipo).toBe(combo.tipo1)
-        expect(chamadaSalvar.pagamento_1_valor).toBe(combo.valor1)
-        expect(chamadaSalvar.pagamento_2_tipo).toBe(combo.tipo2)
-        expect(chamadaSalvar.pagamento_2_valor).toBe(combo.valor2)
-      }
-    })
-
-    it('should handle errors gracefully when split payment save fails', async () => {
-      // Mock falha no salvamento
-      vi.mocked(pedidoService.salvar).mockRejectedValueOnce(
-        new Error('Database connection failed')
-      )
-
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
-
-      let finalizacaoResult: any
-
-      await act(async () => {
-        finalizacaoResult = await result.current.finalizarPedido({
-          carrinho: mockCarrinho,
-          dadosCliente: mockDadosCliente,
-          entregaDomicilio: true,
-          subtotal: 100.00,
-          taxaEntrega: 0,
-          dadosPagamento: {
-            formaPagamento: 'pagamento_dividido',
-            precisaTroco: false
-          },
-          formaPagamentoDividido: true,
-          pagamento1Tipo: 'PIX',
-          pagamento1Valor: 60.00,
-          pagamento2Tipo: 'Dinheiro',
-          pagamento2Valor: 40.00
-        })
-      })
-
-      // Verificar que o erro foi tratado
-      expect(finalizacaoResult.sucesso).toBe(false)
-      expect(finalizacaoResult.erro).toBeDefined()
-      expect(finalizacaoResult.codigoPedido).toBeUndefined()
-    })
+    expect(stockService.darBaixaEmVenda).toHaveBeenCalledTimes(2)
   })
 
-  describe('Data Validation', () => {
-    it('should accept split payment with exact total match', async () => {
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
-
-      await act(async () => {
-        await result.current.finalizarPedido({
-          carrinho: mockCarrinho,
-          dadosCliente: mockDadosCliente,
-          entregaDomicilio: true,
-          subtotal: 100.00,
-          taxaEntrega: 0,
-          dadosPagamento: {
-            formaPagamento: 'pagamento_dividido',
-            precisaTroco: false
-          },
-          formaPagamentoDividido: true,
-          pagamento1Tipo: 'PIX',
-          pagamento1Valor: 60.00,
-          pagamento2Tipo: 'Dinheiro',
-          pagamento2Valor: 40.00
-        })
-      })
-
-      expect(pedidoService.salvar).toHaveBeenCalled()
-      
-      const chamadaSalvar = vi.mocked(pedidoService.salvar).mock.calls[0][0]
-      const somaValores = chamadaSalvar.pagamento_1_valor + chamadaSalvar.pagamento_2_valor
-      
-      // Verificar que a soma dos valores é igual ao total
-      expect(somaValores).toBe(100.00)
+  it('venda com uma forma só continua sem campos de divisão', async () => {
+    await finalizar({
+      carrinho,
+      subtotal: 100,
+      dadosPagamento: { formaPagamento: 'pix', precisaTroco: false },
     })
 
-    it('should store decimal values correctly', async () => {
-      const { result } = renderHook(() => useFinalizarPedidoPDV())
+    expect(vendaSalva().payment_method).toBe('pix')
+    expect(vendaSalva()).not.toHaveProperty('forma_pagamento_dividido')
+    expect(vendaSalva()).not.toHaveProperty('pagamento_1_tipo')
+  })
 
-      await act(async () => {
-        await result.current.finalizarPedido({
-          carrinho: mockCarrinho,
-          dadosCliente: mockDadosCliente,
-          entregaDomicilio: true,
-          subtotal: 100.00,
-          taxaEntrega: 0,
-          dadosPagamento: {
-            formaPagamento: 'pagamento_dividido',
-            precisaTroco: false
-          },
-          formaPagamentoDividido: true,
-          pagamento1Tipo: 'PIX',
-          pagamento1Valor: 33.33,
-          pagamento2Tipo: 'Dinheiro',
-          pagamento2Valor: 66.67
-        })
-      })
-
-      const chamadaSalvar = vi.mocked(pedidoService.salvar).mock.calls[0][0]
-      
-      expect(chamadaSalvar.pagamento_1_valor).toBe(33.33)
-      expect(chamadaSalvar.pagamento_2_valor).toBe(66.67)
+  it('consumo interno ignora a divisão', async () => {
+    await finalizar({
+      carrinho,
+      subtotal: 100,
+      dadosPagamento: { formaPagamento: 'dividido', precisaTroco: false },
+      pagamentoDividido: divisao,
+      consumoInterno: true,
     })
+
+    expect(vendaSalva()).toMatchObject({ payment_method: 'INTERNAL_CONSUMPTION', total_amount: 0 })
+    expect(vendaSalva()).not.toHaveProperty('forma_pagamento_dividido')
+  })
+
+  it('venda dividida não gera parcelas de "A Prazo"', async () => {
+    await finalizar({
+      carrinho,
+      subtotal: 100,
+      dadosPagamento: { formaPagamento: 'dividido', precisaTroco: false, prazoDias: 7, numeroParcelas: 3 },
+      pagamentoDividido: divisao,
+    })
+
+    expect(vendaService.criarParcelas).not.toHaveBeenCalled()
+  })
+
+  it('falha ao salvar devolve o erro sem dar baixa no estoque', async () => {
+    vi.mocked(vendaService.salvar).mockRejectedValueOnce(new Error('violates check constraint'))
+
+    const resposta = await finalizar({
+      carrinho,
+      subtotal: 100,
+      dadosPagamento: { formaPagamento: 'dividido', precisaTroco: false },
+      pagamentoDividido: divisao,
+    })
+
+    expect(resposta.sucesso).toBe(false)
+    expect(stockService.darBaixaEmVenda).not.toHaveBeenCalled()
   })
 })

@@ -26,13 +26,13 @@ export function getStatusColor(status: string, entregaDomicilio?: boolean): stri
   const statusExibicao = getStatusExibicao(status, entregaDomicilio)
   const statusLower = statusExibicao.toLowerCase()
   
-  if (statusLower.includes('criado') || statusLower.includes('recebido')) return 'bg-indigo-500'
-  if (statusLower.includes('preparando') || statusLower.includes('cozinha')) return 'bg-orange-500'
-  if (statusLower.includes('pronto') && statusLower.includes('retirada')) return 'bg-green-500'
-  if (statusLower.includes('liberado')) return 'bg-green-500'
-  if (statusLower.includes('entrega') || statusLower.includes('saiu')) return 'bg-purple-500'
-  if (statusLower.includes('finalizado') || statusLower.includes('entregue') || statusLower.includes('retirado') || statusLower.includes('concluído')) return 'bg-green-600'
-  if (statusLower.includes('cancelado')) return 'bg-red-500'
+  if (statusLower.includes('criado') || statusLower.includes('recebido')) return 'bg-primary'
+  if (statusLower.includes('preparando') || statusLower.includes('cozinha')) return 'bg-warning'
+  if (statusLower.includes('pronto') && statusLower.includes('retirada')) return 'bg-success'
+  if (statusLower.includes('liberado')) return 'bg-success'
+  if (statusLower.includes('entrega') || statusLower.includes('saiu')) return 'bg-teal-600'
+  if (statusLower.includes('finalizado') || statusLower.includes('entregue') || statusLower.includes('retirado') || statusLower.includes('concluído')) return 'bg-success'
+  if (statusLower.includes('cancelado')) return 'bg-destructive'
   
   return 'bg-gray-500'
 }

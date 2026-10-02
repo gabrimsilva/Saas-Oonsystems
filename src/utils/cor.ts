@@ -15,6 +15,19 @@ export function corHexValida(cor: string | null | undefined): cor is string {
   return typeof cor === 'string' && HEX_REGEX.test(cor.trim())
 }
 
+/**
+ * Cor que todo cliente recebia por padrão no cadastro (antes do design system).
+ * Não é uma escolha do cliente: tratá-la como "sem cor personalizada" faz valer
+ * a cor principal do sistema.
+ */
+export const COR_TEMA_PADRAO_ANTIGA = '#111827'
+
+/** Cor escolhida pela loja, ou null se inválida ou se for o padrão antigo. */
+export function corPersonalizada(cor: string | null | undefined): string | null {
+  if (!corHexValida(cor)) return null
+  return cor.trim().toLowerCase() === COR_TEMA_PADRAO_ANTIGA ? null : cor.trim()
+}
+
 /** Normaliza #RGB -> #RRGGBB. Retorna null se inválida. */
 function normalizarHex(cor: string): { r: number; g: number; b: number } | null {
   if (!corHexValida(cor)) return null
@@ -80,10 +93,21 @@ export function hexParaOklch(cor: string): string | null {
 export interface PaletaTema {
   base: string         // --primary / --sidebar-primary / --chart-1 / --ring
   baseHex: string
+  /** Hover/pressed: mais escuro (ou mais claro, se a cor já for muito escura) */
+  hover: string
+  /** Texto sobre a cor base: branco ou grafite, o que tiver contraste */
+  texto: string
 }
 
 export function gerarPaleta(corHex: string): PaletaTema | null {
   const base = hexParaOklch(corHex)
   if (!base) return null
-  return { base, baseHex: corHex }
+  const [L, C, H] = base.slice(6, -1).split(' ').map(Number)
+  const Lhover = L < 0.35 ? L + 0.08 : L - 0.06
+  return {
+    base,
+    baseHex: corHex,
+    hover: `oklch(${+Lhover.toFixed(4)} ${C} ${H})`,
+    texto: L > 0.68 ? 'oklch(0.24 0.012 260)' : 'oklch(1 0 0)',
+  }
 }

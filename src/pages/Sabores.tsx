@@ -70,7 +70,7 @@ export default function Sabores() {
     categorias.forEach(categoria => {
       grupos.push({
         nome: categoria.nome,
-        cor: 'bg-indigo-500',
+        cor: 'bg-primary',
         categoriaId: categoria.id,
         tipoSabor: 'normal'
       })
@@ -142,7 +142,7 @@ export default function Sabores() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Pizza className="h-6 w-6" />
             Sabores
           </h1>
@@ -159,7 +159,7 @@ export default function Sabores() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Pizza className="h-6 w-6" />
             Sabores
           </h1>
@@ -175,7 +175,7 @@ export default function Sabores() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -235,7 +235,7 @@ export default function Sabores() {
                       <div className="hidden md:flex items-start justify-between mb-2">
                         <div className="flex items-center space-x-2">
                           <div className={`w-3 h-3 ${grupo.cor} rounded-full flex-shrink-0`}></div>
-                          <h3 className="font-medium text-gray-900">{sabor.nome}</h3>
+                          <h3 className="font-medium text-foreground">{sabor.nome}</h3>
                         </div>
                         <div className="flex space-x-1">
                           <Button
@@ -269,13 +269,13 @@ export default function Sabores() {
                       {/* Nome do sabor Mobile */}
                       <div className="md:hidden flex items-center space-x-2 mb-3">
                         <div className={`w-3 h-3 ${grupo.cor} rounded-full flex-shrink-0`}></div>
-                        <h3 className="font-medium text-gray-900">{sabor.nome}</h3>
+                        <h3 className="font-medium text-foreground">{sabor.nome}</h3>
                       </div>
 
                       {/* Descrição do sabor */}
                       {(sabor as any).descricao && (
                         <div className="mb-3">
-                          <p className="text-sm text-gray-600 italic">
+                          <p className="text-sm text-muted-foreground italic">
                             {(sabor as any).descricao}
                           </p>
                         </div>
@@ -285,18 +285,18 @@ export default function Sabores() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2 flex-wrap gap-1">
                           {sabor.isPremium && (
-                            <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-1 rounded">
+                            <span className="bg-warning/15 text-warning-foreground text-xs font-medium px-2 py-1 rounded">
                               Premium
                             </span>
                           )}
                           {(sabor as any).categoria_sabor && (
-                            <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded capitalize">
+                            <span className="bg-muted text-foreground/80 text-xs font-medium px-2 py-1 rounded capitalize">
                               {(sabor as any).categoria_sabor.replace('_', ' ')}
                             </span>
                           )}
                         </div>
                         {sabor.isPremium && sabor.valorPremium && (
-                          <span className="text-sm text-gray-600 font-medium">
+                          <span className="text-sm text-muted-foreground font-medium">
                             +R$ {sabor.valorPremium.toFixed(2).replace('.', ',')}
                           </span>
                         )}
@@ -320,7 +320,7 @@ export default function Sabores() {
                               variant="outline"
                               size="sm"
                               disabled={saving}
-                              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Remover Sabor

@@ -144,11 +144,11 @@ export default function CategoriaForm({
               onChange={handleOrdemChange}
               required
               disabled={isLoading}
-              className={erroOrdem ? "border-red-500 focus-visible:ring-red-500" : ""}
+              className={erroOrdem ? "border-destructive focus-visible:ring-destructive" : ""}
             />
             {erroOrdem && (
-              <p className="text-sm text-red-600 mt-1">
-                ⚠️ {erroOrdem}
+              <p className="text-sm text-destructive mt-1">
+                {erroOrdem}
               </p>
             )}
             <p className="text-sm text-muted-foreground">
@@ -163,7 +163,7 @@ export default function CategoriaForm({
               checked={ativa}
               onChange={(e) => setAtiva(e.target.checked)}
               disabled={isLoading}
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 disabled:opacity-50"
+              className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30 disabled:opacity-50"
             />
             <Label htmlFor="ativa">Categoria ativa</Label>
           </div>

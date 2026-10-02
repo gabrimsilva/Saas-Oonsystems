@@ -32,7 +32,7 @@ const PERMISSOES_DO_MODULO: Record<CodigoModulo, Array<keyof Permissoes>> = {
   comandas: ['podeAcessarComandas', 'podeAcessarHistoricoComandas'],
   pedidos_online: ['podeAcessarPedidos', 'podeAcessarHistorico', 'podeAcessarAguardandoPagamento'],
   estoque: ['podeAcessarEstoque'],
-  metricas: ['podeAcessarMetricas', 'podeAcessarAnalytics'],
+  metricas: ['podeAcessarMetricas'],
 }
 
 /**

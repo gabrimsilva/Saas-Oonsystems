@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Package, Layers, AlertTriangle, Loader2, AlertCircle, ArrowUpDown, Settings, X, HelpCircle } from "lucide-react"
+import { CartaoIndicador } from '@/components/ui/indicador'
+import { AlertOctagon, CheckCircle2, Keyboard, Lightbulb, ScanBarcode } from 'lucide-react'
 import VariantesModal from "@/components/VariantesModal"
 import BuscaUnificadaPDV from "@/components/pdv/BuscaUnificadaPDV"
 import MovimentacaoManualModal from "@/components/MovimentacaoManualModal"
@@ -11,6 +13,7 @@ import EditarEstoqueModal from "@/components/EditarEstoqueModal"
 import { stockService, produtoService, type StockItem } from "@/services"
 import { calcularStatusEstoque } from "@/services/stockService"
 import toast from "react-hot-toast"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 interface StockItemWithProduct extends StockItem {
   product_name?: string
@@ -198,10 +201,10 @@ export default function EstoqueProdutos() {
   // Função para obter label do filtro
   const getFiltroLabel = (filtro: FiltroStatus) => {
     switch (filtro) {
-      case 'CRITICAL': return '🔴 Críticos'
-      case 'WARNING': return '🟡 Atenção'
-      case 'HEALTHY': return '🟢 Saudáveis'
-      default: return '📦 Todos'
+      case 'CRITICAL': return 'Críticos'
+      case 'WARNING': return 'Atenção'
+      case 'HEALTHY': return 'Saudáveis'
+      default: return 'Todos'
     }
   }
 
@@ -217,49 +220,42 @@ export default function EstoqueProdutos() {
       case 'CRITICAL':
         return { 
           status: 'CRITICAL', 
-          label: '🔴 Crítico', 
+          label: 'Crítico', 
           cor: 'red', 
-          bgClass: 'bg-red-100 border-red-200',
-          textClass: 'text-red-800',
+          bgClass: 'bg-destructive/10 border-destructive/30',
+          textClass: 'text-destructive',
           icon: AlertTriangle 
         }
       case 'WARNING':
         return { 
           status: 'WARNING', 
-          label: '🟡 Atenção', 
+          label: 'Atenção', 
           cor: 'yellow', 
-          bgClass: 'bg-yellow-100 border-yellow-200',
-          textClass: 'text-yellow-800',
+          bgClass: 'bg-warning/15 border-warning/30',
+          textClass: 'text-warning-foreground',
           icon: AlertTriangle 
         }
       case 'HEALTHY':
         return { 
           status: 'HEALTHY', 
-          label: '🟢 Saudável', 
+          label: 'Saudável', 
           cor: 'green', 
-          bgClass: 'bg-green-100 border-green-200',
-          textClass: 'text-green-800',
+          bgClass: 'bg-success/10 border-success/30',
+          textClass: 'text-success',
           icon: Package 
         }
     }
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando estoque...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
           Estoque de Produtos
         </h1>
@@ -269,7 +265,7 @@ export default function EstoqueProdutos() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -280,7 +276,7 @@ export default function EstoqueProdutos() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">📊 Resumo do Estoque</CardTitle>
+              <CardTitle className="text-base">Resumo do estoque</CardTitle>
               <Button
                 variant="outline"
                 size="sm"
@@ -301,82 +297,40 @@ export default function EstoqueProdutos() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Críticos */}
-              <div 
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <CartaoIndicador
+                titulo="Críticos"
+                valor={contadores.critical}
+                icone={AlertOctagon}
+                tom="perigo"
+                colorirValor
+                ativo={filtroStatus === 'CRITICAL'}
                 onClick={() => toggleFiltro('CRITICAL')}
-                className={`
-                  flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200
-                  cursor-pointer transition-all
-                  ${filtroStatus === 'CRITICAL' 
-                    ? 'ring-2 ring-red-500 shadow-lg scale-105' 
-                    : 'hover:shadow-md hover:scale-102'
-                  }
-                `}
-              >
-                <span className="text-3xl">🔴</span>
-                <div>
-                  <p className="text-2xl font-bold text-red-600">{contadores.critical}</p>
-                  <p className="text-xs text-red-700 font-medium">Críticos</p>
-                </div>
-              </div>
-
-              {/* Atenção */}
-              <div 
+              />
+              <CartaoIndicador
+                titulo="Atenção"
+                valor={contadores.warning}
+                icone={AlertTriangle}
+                tom="atencao"
+                ativo={filtroStatus === 'WARNING'}
                 onClick={() => toggleFiltro('WARNING')}
-                className={`
-                  flex items-center gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200
-                  cursor-pointer transition-all
-                  ${filtroStatus === 'WARNING' 
-                    ? 'ring-2 ring-yellow-500 shadow-lg scale-105' 
-                    : 'hover:shadow-md hover:scale-102'
-                  }
-                `}
-              >
-                <span className="text-3xl">🟡</span>
-                <div>
-                  <p className="text-2xl font-bold text-yellow-600">{contadores.warning}</p>
-                  <p className="text-xs text-yellow-700 font-medium">Atenção</p>
-                </div>
-              </div>
-
-              {/* Saudáveis */}
-              <div 
+              />
+              <CartaoIndicador
+                titulo="Saudáveis"
+                valor={contadores.healthy}
+                icone={CheckCircle2}
+                tom="sucesso"
+                colorirValor
+                ativo={filtroStatus === 'HEALTHY'}
                 onClick={() => toggleFiltro('HEALTHY')}
-                className={`
-                  flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200
-                  cursor-pointer transition-all
-                  ${filtroStatus === 'HEALTHY' 
-                    ? 'ring-2 ring-green-500 shadow-lg scale-105' 
-                    : 'hover:shadow-md hover:scale-102'
-                  }
-                `}
-              >
-                <span className="text-3xl">🟢</span>
-                <div>
-                  <p className="text-2xl font-bold text-green-600">{contadores.healthy}</p>
-                  <p className="text-xs text-green-700 font-medium">Saudáveis</p>
-                </div>
-              </div>
-
-              {/* Total */}
-              <div 
+              />
+              <CartaoIndicador
+                titulo="Total"
+                valor={contadores.total}
+                icone={Package}
+                ativo={filtroStatus === 'ALL'}
                 onClick={() => setFiltroStatus('ALL')}
-                className={`
-                  flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200
-                  cursor-pointer transition-all
-                  ${filtroStatus === 'ALL' 
-                    ? 'ring-2 ring-gray-500 shadow-lg scale-105' 
-                    : 'hover:shadow-md hover:scale-102'
-                  }
-                `}
-              >
-                <span className="text-3xl">📦</span>
-                <div>
-                  <p className="text-2xl font-bold text-gray-600">{contadores.total}</p>
-                  <p className="text-xs text-gray-700 font-medium">Total</p>
-                </div>
-              </div>
+              />
             </div>
           </CardContent>
         </Card>
@@ -384,12 +338,12 @@ export default function EstoqueProdutos() {
 
       {/* Indicador de Filtro Ativo */}
       {filtroStatus !== 'ALL' && (
-        <div className="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-indigo-900">
+            <span className="text-sm font-medium text-primary">
               Filtrando: {getFiltroLabel(filtroStatus)}
             </span>
-            <span className="text-xs text-indigo-700">
+            <span className="text-xs text-primary">
               ({itensOrdenados.length} {itensOrdenados.length === 1 ? 'produto' : 'produtos'})
             </span>
           </div>
@@ -397,7 +351,7 @@ export default function EstoqueProdutos() {
             size="sm" 
             variant="ghost"
             onClick={() => setFiltroStatus('ALL')}
-            className="text-indigo-700 hover:text-indigo-900 hover:bg-indigo-100"
+            className="text-primary hover:text-primary-hover hover:bg-primary/10"
           >
             <X className="h-4 w-4 mr-1" />
             Limpar Filtro
@@ -416,17 +370,17 @@ export default function EstoqueProdutos() {
             onBuscarPorBarcode={handleBuscarPorBarcode}
             placeholder="Buscar por nome ou código de barras..."
           />
-          <div className="text-xs text-gray-500 space-y-1 pt-2 border-t">
+          <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
             <p className="flex items-start gap-2">
-              <span className="text-base">💡</span>
+              <Lightbulb className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span>Digite o nome do produto para filtrar a lista</span>
             </p>
             <p className="flex items-start gap-2">
-              <span className="text-base">📱</span>
+              <ScanBarcode className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span>Use o leitor de código de barras (BIP) para localizar o produto</span>
             </p>
             <p className="flex items-start gap-2">
-              <span className="text-base">⌨️</span>
+              <Keyboard className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <span>Ou digite o código e pressione Enter</span>
             </p>
           </div>
@@ -520,7 +474,7 @@ export default function EstoqueProdutos() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleAbrirMovimentacao(item)}
-                    className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                    className="w-full border-primary/20 text-primary hover:bg-primary/5"
                   >
                     <ArrowUpDown className="h-4 w-4 mr-2" />
                     Entrada / Saída
@@ -531,7 +485,7 @@ export default function EstoqueProdutos() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleAbrirEdicaoEstoque(item)}
-                    className="w-full border-gray-200 text-gray-700 hover:bg-gray-50"
+                    className="w-full border-border text-foreground/80 hover:bg-accent"
                   >
                     <Settings className="h-4 w-4 mr-2" />
                     Configurar Estoque
@@ -539,7 +493,7 @@ export default function EstoqueProdutos() {
 
                   {item.has_variants && (
                     <p className="text-xs text-muted-foreground text-center pt-1 border-t">
-                      💡 Total calculado automaticamente pela soma das variantes
+                      Total calculado automaticamente pela soma das variantes
                     </p>
                   )}
                 </CardContent>

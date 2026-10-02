@@ -49,7 +49,7 @@ export default function DetalhesProdutoModal({
         </button>
 
         {/* Imagem do produto */}
-        <div className="w-full h-44 bg-gray-50 max-md:h-[30vh] max-md:flex-shrink-0 flex items-center justify-center">
+        <div className="w-full h-44 bg-muted/50 max-md:h-[30vh] max-md:flex-shrink-0 flex items-center justify-center">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
@@ -64,17 +64,17 @@ export default function DetalhesProdutoModal({
         {/* Conteúdo com scroll */}
         <div className="flex-1 overflow-y-auto p-4 max-md:flex max-md:flex-col">
           <AlertDialogHeader className="space-y-2 text-left">
-            <AlertDialogTitle className="text-lg font-bold text-gray-900">
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
               {produto.nome}
             </AlertDialogTitle>
             
             {produto.saboresDisponiveis && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Até {produto.quantidadeSabores || 1} sabores
               </p>
             )}
 
-            <AlertDialogDescription className="text-sm text-gray-600 leading-relaxed">
+            <AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed">
               {produto.descricao}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -86,10 +86,10 @@ export default function DetalhesProdutoModal({
                 <span className="text-2xl font-bold text-[color:var(--price-color-cliente)]">
                   R$ {precoExibicao.toFixed(2).replace('.', ',')}
                 </span>
-                <span className="text-sm text-gray-400 line-through">
+                <span className="text-sm text-muted-foreground/70 line-through">
                   R$ {produto.preco.toFixed(2).replace('.', ',')}
                 </span>
-                <span className="bg-red-100 text-red-600 text-xs font-semibold px-2 py-0.5 rounded">
+                <span className="bg-destructive/10 text-destructive text-xs font-semibold px-2 py-0.5 rounded">
                   {Math.round(((produto.preco - precoExibicao) / produto.preco) * 100)}% OFF
                 </span>
               </div>
@@ -104,7 +104,7 @@ export default function DetalhesProdutoModal({
           <AlertDialogFooter className="sm:justify-center mt-4">
             <Button
               onClick={handleAdicionar}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-5 text-base cursor-pointer"
+              className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-5 text-base cursor-pointer"
             >
               Adicionar ao carrinho
             </Button>

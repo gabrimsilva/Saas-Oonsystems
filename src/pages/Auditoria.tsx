@@ -6,10 +6,13 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
-import { ScrollText, ShieldAlert, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ScrollText, ShieldAlert, ChevronLeft, ChevronRight } from 'lucide-react'
 import { auditoriaService, usuarioService } from '@/services'
 import { usePermissoes } from '@/hooks/usePermissoes'
 import type { LogAuditoria } from '@/types/estabelecimento'
+import { History } from 'lucide-react'
+import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 function formatarDataHora(iso: string): string {
   try {
@@ -20,6 +23,7 @@ function formatarDataHora(iso: string): string {
 }
 
 export default function Auditoria() {
+  const tabelaRef = useTabelaResponsiva()
   const { podeVerAuditoria } = usePermissoes()
   const [registros, setRegistros] = useState<LogAuditoria[]>([])
   const [pagina, setPagina] = useState(0)
@@ -81,9 +85,9 @@ export default function Auditoria() {
   if (!podeVerAuditoria) {
     return (
       <div className="p-6">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8 text-center">
-          <ShieldAlert className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600">Seu perfil não tem permissão para visualizar a auditoria.</p>
+        <div className="max-w-md mx-auto bg-card rounded-xl border border-border shadow-xs p-8 text-center">
+          <ShieldAlert className="h-12 w-12 text-muted-foreground/70 mx-auto mb-3" />
+          <p className="text-muted-foreground">Seu perfil não tem permissão para visualizar a auditoria.</p>
         </div>
       </div>
     )
@@ -93,15 +97,15 @@ export default function Auditoria() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <ScrollText className="h-7 w-7 text-primary" />
-        <h1 className="text-2xl font-bold text-gray-900">Auditoria</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Auditoria</h1>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+        <TabelaCarregando colunas={4} />
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div ref={tabelaRef} className="tabela-responsiva bg-card rounded-xl border border-border shadow-xs overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600">
+            <thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3">Data/Hora</th>
                 <th className="text-left px-4 py-3">Usuário</th>
@@ -111,15 +115,15 @@ export default function Auditoria() {
             </thead>
             <tbody>
               {registros.map((r) => (
-                <tr key={r.id} className="border-t border-gray-100">
-                  <td className="px-4 py-3 whitespace-nowrap text-gray-500">{formatarDataHora(r.criado_em)}</td>
+                <tr key={r.id} className="border-t border-border transition-colors hover:bg-muted/40">
+                  <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">{formatarDataHora(r.criado_em)}</td>
                   <td className="px-4 py-3 whitespace-nowrap">{nomeAutor(r)}</td>
-                  <td className="px-4 py-3"><code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">{r.acao}</code></td>
+                  <td className="px-4 py-3"><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{r.acao}</code></td>
                   <td className="px-4 py-3">{r.descricao}</td>
                 </tr>
               ))}
               {registros.length === 0 && (
-                <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">Nenhum registro de auditoria</td></tr>
+                <tr><td colSpan={4}><EstadoVazio icone={History} titulo="Nenhum registro de auditoria" descricao="As ações feitas no sistema aparecem aqui." /></td></tr>
               )}
             </tbody>
           </table>
@@ -130,15 +134,15 @@ export default function Auditoria() {
         <button
           onClick={() => carregar(pagina - 1)}
           disabled={pagina === 0 || loading}
-          className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50 hover:bg-gray-50"
+          className="flex items-center gap-1 px-3 py-2 rounded-lg border border-input disabled:opacity-50 hover:bg-accent"
         >
           <ChevronLeft className="h-4 w-4" /> Anterior
         </button>
-        <span className="text-sm text-gray-500">Página {pagina + 1}</span>
+        <span className="text-sm text-muted-foreground">Página {pagina + 1}</span>
         <button
           onClick={() => carregar(pagina + 1)}
           disabled={!temMais || loading}
-          className="flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50 hover:bg-gray-50"
+          className="flex items-center gap-1 px-3 py-2 rounded-lg border border-input disabled:opacity-50 hover:bg-accent"
         >
           Próxima <ChevronRight className="h-4 w-4" />
         </button>

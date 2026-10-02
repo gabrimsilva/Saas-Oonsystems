@@ -185,7 +185,7 @@ export default function CarrinhoCatalogoSheet({
               <button
                 type="button"
                 onClick={() => setEtapa("carrinho")}
-                className="p-1 -ml-1 rounded-full hover:bg-gray-100 cursor-pointer"
+                className="p-1 -ml-1 rounded-full hover:bg-accent cursor-pointer"
                 aria-label="Voltar ao carrinho"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -193,7 +193,7 @@ export default function CarrinhoCatalogoSheet({
             )}
             {etapa === "carrinho" ? "Seu carrinho" : "Finalizar pedido"}
             {modo === "atacado" && (
-              <span className="ml-auto text-xs font-semibold uppercase tracking-wide text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+              <span className="ml-auto text-xs font-semibold uppercase tracking-wide text-primary bg-primary/5 px-2 py-0.5 rounded-full">
                 Atacado
               </span>
             )}
@@ -211,13 +211,13 @@ export default function CarrinhoCatalogoSheet({
           <>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {linhas.length === 0 && (
-                <div className="text-center py-16 text-gray-500">
+                <div className="text-center py-16 text-muted-foreground">
                   <ShoppingBag className="h-10 w-10 mx-auto mb-3 text-gray-300" />
                   <p>Seu carrinho está vazio.</p>
                 </div>
               )}
               {linhas.map(l => (
-                <div key={l.chave} className="flex gap-3 border border-gray-200 rounded-xl p-3">
+                <div key={l.chave} className="flex gap-3 border border-border rounded-xl p-3">
                   <img
                     src={l.produto.urlImagem}
                     alt=""
@@ -225,16 +225,16 @@ export default function CarrinhoCatalogoSheet({
                     onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder-food.svg" }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-900 leading-tight">{l.produto.nome}</p>
-                    {l.item.varianteNome && <p className="text-xs text-gray-500">{l.item.varianteNome}</p>}
-                    <p className="text-xs text-gray-500 mt-0.5">{formatarReais(l.unitario)} / un.</p>
+                    <p className="font-semibold text-sm text-foreground leading-tight">{l.produto.nome}</p>
+                    {l.item.varianteNome && <p className="text-xs text-muted-foreground">{l.item.varianteNome}</p>}
+                    <p className="text-xs text-muted-foreground mt-0.5">{formatarReais(l.unitario)} / un.</p>
                     {l.unitario <= 0 && (
-                      <p className="text-xs text-red-600 font-medium mt-1" role="alert">
+                      <p className="text-xs text-destructive font-medium mt-1" role="alert">
                         Indisponível para pedido online. Remova este item.
                       </p>
                     )}
                     {l.disponivel !== null && l.item.quantidade > l.disponivel && (
-                      <p className="text-xs text-red-600 font-medium mt-1" role="alert">
+                      <p className="text-xs text-destructive font-medium mt-1" role="alert">
                         {l.disponivel > 0 ? `Só temos ${l.disponivel} em estoque.` : "Esgotado. Remova este item."}
                       </p>
                     )}
@@ -265,13 +265,13 @@ export default function CarrinhoCatalogoSheet({
                         <button
                           type="button"
                           onClick={() => onRemover(l.chave)}
-                          className="ml-1 p-1.5 text-gray-400 hover:text-red-600 rounded-full cursor-pointer"
+                          className="ml-1 p-1.5 text-muted-foreground/70 hover:text-destructive rounded-full cursor-pointer"
                           aria-label={`Remover ${l.produto.nome}`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <span className="font-bold text-sm text-gray-900 tabular-nums">{formatarReais(l.total)}</span>
+                      <span className="font-bold text-sm text-foreground tabular-nums">{formatarReais(l.total)}</span>
                     </div>
                   </div>
                 </div>
@@ -279,21 +279,21 @@ export default function CarrinhoCatalogoSheet({
             </div>
 
             {linhas.length > 0 && (
-              <SheetFooter className="border-t bg-gray-50">
+              <SheetFooter className="border-t bg-muted/50">
                 {faltaAtacado > 0 && (
-                  <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5" role="status">
+                  <p className="text-sm text-warning-foreground bg-warning/10 border border-warning/30 rounded-lg p-2.5" role="status">
                     Pedido mínimo no atacado: {formatarReais(config.atacado_pedido_minimo)}. Faltam{" "}
                     <strong>{formatarReais(faltaAtacado)}</strong>.
                   </p>
                 )}
                 <div className="flex justify-between items-baseline">
-                  <span className="text-gray-600">Total</span>
-                  <span className="text-2xl font-bold text-gray-900 tabular-nums">{formatarReais(total)}</span>
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="text-2xl font-bold text-foreground tabular-nums">{formatarReais(total)}</span>
                 </div>
                 <Button
                   onClick={() => setEtapa("dados")}
                   disabled={!podeAvancar}
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white cursor-pointer"
+                  className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary-hover text-white cursor-pointer"
                 >
                   Continuar
                 </Button>
@@ -340,7 +340,7 @@ export default function CarrinhoCatalogoSheet({
                   required={pagamentoOnline}
                 />
                 {pagamentoOnline && (
-                  <p className="text-xs text-gray-500">O comprovante do pagamento é enviado para este e-mail.</p>
+                  <p className="text-xs text-muted-foreground">O comprovante do pagamento é enviado para este e-mail.</p>
                 )}
               </div>
               <div className="space-y-1.5">
@@ -365,7 +365,7 @@ export default function CarrinhoCatalogoSheet({
                     <label
                       key={f.id}
                       className={`flex items-center gap-3 border rounded-xl p-3 cursor-pointer transition-colors ${
-                        forma === f.id ? "border-purple-600 bg-purple-50" : "border-gray-200 hover:border-purple-300"
+                        forma === f.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
                       }`}
                     >
                       <input
@@ -374,12 +374,12 @@ export default function CarrinhoCatalogoSheet({
                         value={f.id}
                         checked={forma === f.id}
                         onChange={() => setForma(f.id)}
-                        className="accent-purple-600"
+                        className="accent-primary"
                       />
-                      <Icone className="h-5 w-5 text-purple-700" aria-hidden="true" />
+                      <Icone className="h-5 w-5 text-primary" aria-hidden="true" />
                       <span className="flex-1">
-                        <span className="block text-sm font-medium text-gray-900">{f.titulo}</span>
-                        {f.detalhe && <span className="block text-xs text-gray-500">{f.detalhe}</span>}
+                        <span className="block text-sm font-medium text-foreground">{f.titulo}</span>
+                        {f.detalhe && <span className="block text-xs text-muted-foreground">{f.detalhe}</span>}
                       </span>
                     </label>
                   )
@@ -387,20 +387,20 @@ export default function CarrinhoCatalogoSheet({
               </fieldset>
             </div>
 
-            <SheetFooter className="border-t bg-gray-50">
+            <SheetFooter className="border-t bg-muted/50">
               {erro && (
-                <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-2.5" role="alert">
+                <p className="text-sm text-destructive bg-destructive/5 border border-destructive/30 rounded-lg p-2.5" role="alert">
                   {erro}
                 </p>
               )}
               <div className="flex justify-between items-baseline">
-                <span className="text-gray-600">Total</span>
-                <span className="text-2xl font-bold text-gray-900 tabular-nums">{formatarReais(total)}</span>
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-2xl font-bold text-foreground tabular-nums">{formatarReais(total)}</span>
               </div>
               <Button
                 type="submit"
                 disabled={!dadosValidos || enviando}
-                className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white cursor-pointer"
+                className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary-hover text-white cursor-pointer"
               >
                 {enviando ? (
                   <>
@@ -412,7 +412,7 @@ export default function CarrinhoCatalogoSheet({
                   "Enviar pedido"
                 )}
               </Button>
-              <p className="text-xs text-center text-gray-500">
+              <p className="text-xs text-center text-muted-foreground">
                 {pagamentoOnline
                   ? "Você será levado ao ambiente seguro do Mercado Pago."
                   : "Nada é cobrado agora. O pedido também é enviado para o WhatsApp da loja."}

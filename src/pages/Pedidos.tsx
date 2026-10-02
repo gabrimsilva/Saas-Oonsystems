@@ -26,29 +26,29 @@ const STATUS_COLUMNS: ColunaConfig[] = [
     id: 'Pedido criado',
     title: 'Novos Pedidos',
     icon: Package,
-    color: 'bg-indigo-50 border-indigo-200',
-    badgeColor: 'bg-indigo-100 text-indigo-800'
+    color: 'bg-primary/5 border-primary/15',
+    badgeColor: 'bg-primary/10 text-primary'
   },
   {
     id: 'Preparando',
     title: 'Em Separação',
     icon: ChefHat,
-    color: 'bg-yellow-50 border-yellow-200',
-    badgeColor: 'bg-yellow-100 text-yellow-800'
+    color: 'bg-warning/5 border-warning/30',
+    badgeColor: 'bg-warning/15 text-warning-foreground'
   },
   {
     id: 'Liberado',
     title: 'Prontos p/ Entrega',
     icon: CheckCircle,
-    color: 'bg-green-50 border-green-200',
-    badgeColor: 'bg-green-100 text-green-800'
+    color: 'bg-success/5 border-success/30',
+    badgeColor: 'bg-success/10 text-success'
   },
   {
     id: 'Finalizado',
     title: 'Entregues',
     icon: Truck,
-    color: 'bg-purple-50 border-purple-200',
-    badgeColor: 'bg-purple-100 text-purple-800'
+    color: 'bg-muted/50 border-border',
+    badgeColor: 'bg-muted text-foreground/80'
   }
 ]
 
@@ -329,8 +329,8 @@ export default function Pedidos() {
     return (
       <div className="p-6 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Carregando pedidos...</p>
+          <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Carregando pedidos...</p>
         </div>
       </div>
     )

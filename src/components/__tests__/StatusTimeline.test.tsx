@@ -285,7 +285,7 @@ describe('StatusTimeline Component', () => {
     )
 
     // Verificar que os badges de status com cores estão presentes
-    const statusBadges = container.querySelectorAll('[class*="bg-indigo-500"], [class*="bg-orange-500"], [class*="bg-green-500"], [class*="bg-purple-500"], [class*="bg-green-600"]')
+    const statusBadges = container.querySelectorAll('[class*="bg-primary"], [class*="bg-warning"], [class*="bg-success"], [class*="bg-teal-600"], [class*="bg-destructive"]')
     expect(statusBadges.length).toBeGreaterThanOrEqual(mockHistorico.length)
   })
 

@@ -56,7 +56,7 @@ export function ConfiguracoesVisuais({
             placeholder="Clique para fazer upload do banner"
             maxSizeMB={5}
           />
-          <p className="text-xs text-gray-500">Banner principal do header (recomendado: 1400x200px)</p>
+          <p className="text-xs text-muted-foreground">Banner principal do header (recomendado: 1400x200px)</p>
         </div>
       </CardContent>
     </Card>

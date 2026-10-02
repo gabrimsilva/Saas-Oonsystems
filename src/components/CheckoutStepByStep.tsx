@@ -98,10 +98,10 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
 
   if (carregandoCarrinho) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando checkout...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-warning mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando checkout...</p>
         </div>
       </div>
     )
@@ -113,9 +113,9 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
 
   if (!configuracoes) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">Erro ao carregar configurações...</p>
+          <p className="text-muted-foreground">Erro ao carregar configurações...</p>
         </div>
       </div>
     )
@@ -134,7 +134,7 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
       <div className="max-w-4xl mx-auto p-4">
         {/* Título da página */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 text-center">Finalizar Pedido</h1>
+          <h1 className="text-2xl font-semibold text-foreground text-center">Finalizar Pedido</h1>
         </div>
 
         {/* Stepper */}
@@ -142,21 +142,21 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
           {/* Desktop - Horizontal */}
           <div className="hidden md:flex items-center justify-center">
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium ${etapaAtual >= 1 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500'
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium ${etapaAtual >= 1 ? 'bg-success text-white' : 'bg-gray-300 text-muted-foreground'
                 }`}>
                 1
               </div>
-              <span className={`ml-3 text-sm font-medium ${etapaAtual >= 1 ? 'text-green-600' : 'text-gray-500'
+              <span className={`ml-3 text-sm font-medium ${etapaAtual >= 1 ? 'text-success' : 'text-muted-foreground'
                 }`}>Seus Dados</span>
             </div>
-            <div className={`w-24 h-0.5 mx-4 ${etapaAtual >= 2 ? 'bg-green-500' : 'bg-gray-300'
+            <div className={`w-24 h-0.5 mx-4 ${etapaAtual >= 2 ? 'bg-success' : 'bg-gray-300'
               }`}></div>
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium ${etapaAtual >= 2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500'
+              <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium ${etapaAtual >= 2 ? 'bg-success text-white' : 'bg-gray-300 text-muted-foreground'
                 }`}>
                 2
               </div>
-              <span className={`ml-3 text-sm font-medium ${etapaAtual >= 2 ? 'text-green-600' : 'text-gray-500'
+              <span className={`ml-3 text-sm font-medium ${etapaAtual >= 2 ? 'text-success' : 'text-muted-foreground'
                 }`}>Pagamento</span>
             </div>
           </div>
@@ -164,23 +164,23 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
           {/* Mobile - Horizontal */}
           <div className="md:hidden flex items-center justify-center">
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full text-base font-bold ${etapaAtual >= 1 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500'
+              <div className={`flex items-center justify-center w-12 h-12 rounded-full text-base font-bold ${etapaAtual >= 1 ? 'bg-success text-white' : 'bg-gray-300 text-muted-foreground'
                 }`}>
                 1
               </div>
-              <span className={`ml-2 text-sm font-medium ${etapaAtual >= 1 ? 'text-green-500' : 'text-gray-400'
+              <span className={`ml-2 text-sm font-medium ${etapaAtual >= 1 ? 'text-success' : 'text-muted-foreground/70'
                 }`}>Dados</span>
             </div>
 
-            <div className={`w-8 h-0.5 mx-2 ${etapaAtual >= 2 ? 'bg-green-500' : 'bg-gray-300'
+            <div className={`w-8 h-0.5 mx-2 ${etapaAtual >= 2 ? 'bg-success' : 'bg-gray-300'
               }`}></div>
 
             <div className="flex items-center">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full text-base font-bold ${etapaAtual >= 2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-500'
+              <div className={`flex items-center justify-center w-12 h-12 rounded-full text-base font-bold ${etapaAtual >= 2 ? 'bg-success text-white' : 'bg-gray-300 text-muted-foreground'
                 }`}>
                 2
               </div>
-              <span className={`ml-2 text-sm font-medium ${etapaAtual >= 2 ? 'text-green-500' : 'text-gray-400'
+              <span className={`ml-2 text-sm font-medium ${etapaAtual >= 2 ? 'text-success' : 'text-muted-foreground/70'
                 }`}>Pagamento</span>
             </div>
           </div>
@@ -210,7 +210,7 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
 
               <Button
                 onClick={prosseguirParaPagamento}
-                className="flex items-center gap-2 cursor-pointer bg-red-600 hover:bg-red-700"
+                className="flex items-center gap-2 cursor-pointer bg-primary hover:bg-primary-hover"
               >
                 Continuar
                 <ArrowRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
               <Button
                 onClick={handleFinalizarPedido}
                 disabled={processandoPedido}
-                className="flex items-center gap-2 cursor-pointer bg-red-600 hover:bg-red-700"
+                className="flex items-center gap-2 cursor-pointer bg-primary hover:bg-primary-hover"
               >
                 {processandoPedido ? (
                   <>

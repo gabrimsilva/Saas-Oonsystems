@@ -25,9 +25,9 @@ export default function Header({
   
   return (
     <div
-      className={`relative shadow-sm border-b overflow-hidden ${temBanner ? 'min-h-[200px]' : 'bg-white'}`}
+      className={`relative shadow-sm border-b overflow-hidden ${temBanner ? 'min-h-[200px]' : 'bg-card'}`}
       style={!temBanner ? {} : {
-        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 30%, #90caf9 70%, #64b5f6 100%)'
+        background: 'var(--muted)'
       }}
     >
       {/* Banner como fundo - usa o configurado ou o fallback */}
@@ -53,7 +53,7 @@ export default function Header({
         {showBackButton && onBack && (
           <button
             onClick={onBack}
-            className="absolute top-4 left-4 flex items-center gap-2 text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 px-3 py-2 rounded-xl transition-all cursor-pointer shadow-md"
+            className="absolute top-4 left-4 flex items-center gap-2 text-white bg-primary hover:bg-primary-hover px-3 py-2 rounded-xl transition-all cursor-pointer shadow-md"
             title="Voltar"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -63,12 +63,12 @@ export default function Header({
 
         {/* Badge de status da loja */}
         <div className="absolute top-4 right-4">
-          <LojaStatusBadge className="bg-white bg-opacity-95 shadow-sm" />
+          <LojaStatusBadge className="bg-card bg-opacity-95 shadow-sm" />
         </div>
 
         {/* Logo */}
         <div className="flex items-center justify-center mb-3">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-4 ring-opacity-50 ${temBanner ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 ring-white' : 'bg-white ring-gray-200'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center overflow-hidden shadow-lg ring-4 ring-opacity-50 ${temBanner ? 'bg-primary ring-white' : 'bg-card ring-gray-200'}`}>
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -92,18 +92,18 @@ export default function Header({
         </div>
 
         {/* Nome do estabelecimento */}
-        <div className={`inline-block px-6 py-2 rounded-2xl shadow-md mb-3 ${temBanner ? 'bg-white bg-opacity-95' : 'bg-gray-50'}`}>
-          <h1 className={`text-2xl font-bold text-center ${temBanner ? 'text-indigo-700' : 'text-gray-800'}`}>
+        <div className={`inline-block px-6 py-2 rounded-xl shadow-md mb-3 ${temBanner ? 'bg-card bg-opacity-95' : 'bg-muted/50'}`}>
+          <h1 className={`text-2xl font-bold text-center ${temBanner ? 'text-primary' : 'text-foreground'}`}>
             {nomeEstabelecimento}
           </h1>
         </div>
 
         {/* Botão "Mais informações" com fundo branco semi-transparente */}
         {showInfoButton && (
-          <div className={`inline-block px-6 py-3 rounded-2xl shadow-md ${temBanner ? 'bg-white bg-opacity-95' : 'bg-gray-50'}`}>
+          <div className={`inline-block px-6 py-3 rounded-xl shadow-md ${temBanner ? 'bg-card bg-opacity-95' : 'bg-muted/50'}`}>
             <button
               onClick={onMaisInformacoes}
-              className={`flex items-center gap-2 font-medium transition-colors cursor-pointer text-sm ${temBanner ? 'text-indigo-600 hover:text-indigo-700' : 'text-purple-600 hover:text-purple-700'}`}
+              className={`flex items-center gap-2 font-medium transition-colors cursor-pointer text-sm ${temBanner ? 'text-primary hover:text-primary-hover' : 'text-primary hover:text-primary-hover'}`}
             >
               <Info className="h-4 w-4" />
               <span>Mais informações</span>

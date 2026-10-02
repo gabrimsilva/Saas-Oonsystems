@@ -6,7 +6,7 @@ Repositório: https://github.com/gabrimsilva/Saas-Oonsystems
 
 ## Como o SaaS é organizado
 
-- **Plataforma** (`/plataforma`): administração da OonSystems — clientes, período de teste e módulos de cada cliente.
+- **Plataforma** (`/plataforma`): administração da OonSystems — clientes (plano, vigência, teste, bloqueio, usuários), financeiro (MRR e renovações), alertas, planos e auditoria.
 - **Cliente (tenant)**: identificado por CPF/CNPJ. Tem um ou mais **estabelecimentos**; todos os dados do sistema pertencem a um estabelecimento.
 - **Isolamento**: garantido no banco por RLS (`fn_estabelecimentos_do_usuario()`); um cliente suspenso perde o acesso.
 - **Módulos por cliente**: a plataforma liga/desliga módulos (ex.: "Pedidos online") e o banco bloqueia o que não está contratado.
@@ -55,7 +55,7 @@ Ficam em [`supabase/functions/`](./supabase/functions/). Deploy:
 npx supabase functions deploy <nome> --project-ref gagphstrakwfeofghiop --use-api
 ```
 
-Principais: `catalogo-pedidos` (checkout do catálogo e webhook do Mercado Pago), `cadastro-cliente` (autocadastro), `plataforma-criar-cliente`, `criar-usuario`, `resetar-senha-usuario`, `cancelar-pedidos-expirados`.
+Principais: `catalogo-pedidos` (checkout do catálogo e webhook do Mercado Pago), `cadastro-cliente` (autocadastro), `plataforma-criar-cliente`, `plataforma-clientes` (excluir cliente, senha e acesso de usuários), `criar-usuario`, `resetar-senha-usuario`, `cancelar-pedidos-expirados`.
 
 ## Scripts
 

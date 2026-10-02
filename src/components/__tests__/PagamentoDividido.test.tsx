@@ -1,172 +1,66 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { useState } from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import PagamentoDividido from '../PagamentoDividido'
+import { DIVISAO_INICIAL, type DivisaoPagamento } from '@/utils/pagamentoDividido'
 
-describe('PagamentoDividido Component', () => {
-  const defaultProps = {
-    totalPedido: 150,
-    onConfirm: vi.fn(),
-    onCancel: vi.fn(),
-    formasPagamento: ['PIX', 'Dinheiro', 'Débito', 'Crédito']
-  }
+/** Componente controlado: o teste guarda o estado como a tela faria */
+function Cenario({ total = 100, inicial = DIVISAO_INICIAL }: { total?: number; inicial?: DivisaoPagamento }) {
+  const [valor, setValor] = useState(inicial)
+  return <PagamentoDividido total={total} valor={valor} onChange={setValor} />
+}
 
-  it('should render component with correct structure', () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    // Verificar título informativo
-    expect(screen.getByText(/Configure as duas formas de pagamento/i)).toBeInTheDocument()
-    expect(screen.getAllByText(/R\$\s*150,00/)).toHaveLength(2) // Aparece no título e no resumo
-    
-    // Verificar campos de pagamento 1
-    expect(screen.getByText('Pagamento 1')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento1Tipo' })).toBeInTheDocument()
-    
-    // Verificar campos de pagamento 2
-    expect(screen.getByText('Pagamento 2')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento2Tipo' })).toBeInTheDocument()
-    
-    // Verificar botões
-    expect(screen.getByRole('button', { name: /Cancelar/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Confirmar Pagamento Dividido/i })).toBeInTheDocument()
+const campo = (id: string) => document.getElementById(id) as HTMLInputElement | HTMLSelectElement
+
+describe('PagamentoDividido', () => {
+  it('mostra o total a dividir e as duas formas (PIX e Dinheiro por padrão)', () => {
+    render(<Cenario total={150} />)
+    expect(screen.getByText(/Total a dividir/i)).toHaveTextContent('R$ 150,00')
+    expect(campo('divisao-forma-1').value).toBe('pix')
+    expect(campo('divisao-forma-2').value).toBe('dinheiro')
   })
 
-  it('should disable confirm button initially', () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const confirmButton = screen.getByRole('button', { name: /Confirmar Pagamento Dividido/i })
-    expect(confirmButton).toBeDisabled()
+  it('preenche a outra parte com o restante ao digitar um valor', () => {
+    render(<Cenario total={100} />)
+    fireEvent.change(campo('divisao-valor-1'), { target: { value: '60' } })
+    expect(campo('divisao-valor-2').value).toBe('40,00')
+    expect(screen.getByRole('status')).toHaveTextContent('Valores conferem com o total.')
   })
 
-  it('should show error when selecting duplicate payment types', async () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const select1 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento1Tipo' })
-    const select2 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento2Tipo' })
-    
-    fireEvent.change(select1, { target: { value: 'PIX' } })
-    fireEvent.change(select2, { target: { value: 'PIX' } })
-    
-    await waitFor(() => {
-      expect(screen.getByText(/As formas de pagamento devem ser diferentes/i)).toBeInTheDocument()
-    })
+  it('aceita vírgula como separador decimal', () => {
+    render(<Cenario total={100} />)
+    fireEvent.change(campo('divisao-valor-2'), { target: { value: '33,33' } })
+    expect(campo('divisao-valor-1').value).toBe('66,67')
   })
 
-  it('should show error when sum is incorrect', async () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const select1 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento1Tipo' })
-    const select2 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento2Tipo' })
-    const input1 = screen.getByLabelText(/Valor/i, { selector: '#pagamento1Valor' })
-    const input2 = screen.getByLabelText(/Valor/i, { selector: '#pagamento2Valor' })
-    
-    fireEvent.change(select1, { target: { value: 'PIX' } })
-    fireEvent.change(select2, { target: { value: 'Dinheiro' } })
-    fireEvent.change(input1, { target: { value: '50' } })
-    fireEvent.change(input2, { target: { value: '50' } })
-    
-    await waitFor(() => {
-      expect(screen.getByText(/A soma dos valores.*deve ser igual ao total do pedido/i)).toBeInTheDocument()
-    })
+  it('"Metade" divide o total ao meio, com o centavo ímpar na 1ª parte', () => {
+    render(<Cenario total={100.01} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Metade' }))
+    expect(campo('divisao-valor-1').value).toBe('50,01')
+    expect(campo('divisao-valor-2').value).toBe('50,00')
   })
 
-  it('should show error when values are empty or zero', async () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const select1 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento1Tipo' })
-    const input1 = screen.getByLabelText(/Valor/i, { selector: '#pagamento1Valor' })
-    
-    fireEvent.change(select1, { target: { value: 'PIX' } })
-    fireEvent.change(input1, { target: { value: '0' } })
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Todos os campos devem ser preenchidos com valores maiores que zero/i)).toBeInTheDocument()
-    })
+  it('escolher a mesma forma da outra parte troca as duas de lugar', () => {
+    render(<Cenario />)
+    fireEvent.change(campo('divisao-forma-1'), { target: { value: 'dinheiro' } })
+    expect(campo('divisao-forma-1').value).toBe('dinheiro')
+    expect(campo('divisao-forma-2').value).toBe('pix')
   })
 
-  it('should enable confirm button when configuration is valid', async () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const select1 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento1Tipo' })
-    const select2 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento2Tipo' })
-    const input1 = screen.getByLabelText(/Valor/i, { selector: '#pagamento1Valor' })
-    const input2 = screen.getByLabelText(/Valor/i, { selector: '#pagamento2Valor' })
-    
-    fireEvent.change(select1, { target: { value: 'PIX' } })
-    fireEvent.change(select2, { target: { value: 'Dinheiro' } })
-    fireEvent.change(input1, { target: { value: '50' } })
-    fireEvent.change(input2, { target: { value: '100' } })
-    
-    await waitFor(() => {
-      const confirmButton = screen.getByRole('button', { name: /Confirmar Pagamento Dividido/i })
-      expect(confirmButton).not.toBeDisabled()
-    })
+  it('avisa quando a soma não fecha com o total', () => {
+    render(<Cenario total={100} inicial={{ ...DIVISAO_INICIAL, valor1: '50,00', valor2: '30,00' }} />)
+    expect(screen.getByRole('status')).toHaveTextContent('Faltam R$ 20,00 para completar o total.')
   })
 
-  it('should call onConfirm with correct data when confirmed', async () => {
-    const onConfirm = vi.fn()
-    render(<PagamentoDividido {...defaultProps} onConfirm={onConfirm} />)
-    
-    const select1 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento1Tipo' })
-    const select2 = screen.getByLabelText(/Forma de Pagamento/i, { selector: '#pagamento2Tipo' })
-    const input1 = screen.getByLabelText(/Valor/i, { selector: '#pagamento1Valor' })
-    const input2 = screen.getByLabelText(/Valor/i, { selector: '#pagamento2Valor' })
-    
-    fireEvent.change(select1, { target: { value: 'PIX' } })
-    fireEvent.change(select2, { target: { value: 'Dinheiro' } })
-    fireEvent.change(input1, { target: { value: '50' } })
-    fireEvent.change(input2, { target: { value: '100' } })
-    
-    await waitFor(() => {
-      const confirmButton = screen.getByRole('button', { name: /Confirmar Pagamento Dividido/i })
-      expect(confirmButton).not.toBeDisabled()
-    })
-    
-    const confirmButton = screen.getByRole('button', { name: /Confirmar Pagamento Dividido/i })
-    fireEvent.click(confirmButton)
-    
-    expect(onConfirm).toHaveBeenCalledWith({
-      formaPagamentoDividido: true,
-      pagamento1Tipo: 'PIX',
-      pagamento1Valor: 50,
-      pagamento2Tipo: 'Dinheiro',
-      pagamento2Valor: 100
-    })
+  it('com parte em dinheiro, calcula o troco sobre essa parte', () => {
+    render(<Cenario total={100} />)
+    fireEvent.change(campo('divisao-valor-1'), { target: { value: '60' } })
+    fireEvent.change(campo('divisao-recebido'), { target: { value: '50' } })
+    expect(screen.getByRole('status')).toHaveTextContent('Troco: R$ 10,00')
   })
 
-  it('should call onCancel when cancel button is clicked', () => {
-    const onCancel = vi.fn()
-    render(<PagamentoDividido {...defaultProps} onCancel={onCancel} />)
-    
-    const cancelButton = screen.getByRole('button', { name: /Cancelar/i })
-    fireEvent.click(cancelButton)
-    
-    expect(onCancel).toHaveBeenCalled()
-  })
-
-  it('should display real-time calculation of total and difference', async () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const input1 = screen.getByLabelText(/Valor/i, { selector: '#pagamento1Valor' })
-    const input2 = screen.getByLabelText(/Valor/i, { selector: '#pagamento2Valor' })
-    
-    fireEvent.change(input1, { target: { value: '30' } })
-    fireEvent.change(input2, { target: { value: '40' } })
-    
-    await waitFor(() => {
-      expect(screen.getByText(/Total configurado:/i)).toBeInTheDocument()
-      expect(screen.getByText(/Faltam R\$\s*80,00/i)).toBeInTheDocument()
-    })
-  })
-
-  it('should format currency values correctly', async () => {
-    render(<PagamentoDividido {...defaultProps} />)
-    
-    const input1 = screen.getByLabelText(/Valor/i, { selector: '#pagamento1Valor' })
-    
-    fireEvent.change(input1, { target: { value: '50.50' } })
-    
-    await waitFor(() => {
-      expect(screen.getAllByText(/R\$\s*50,50/i).length).toBeGreaterThan(0) // Aparece no preview e no resumo
-    })
+  it('sem parte em dinheiro, não pede o valor recebido', () => {
+    render(<Cenario inicial={{ ...DIVISAO_INICIAL, forma2: 'cartaoCredito' }} />)
+    expect(campo('divisao-recebido')).toBeNull()
   })
 })

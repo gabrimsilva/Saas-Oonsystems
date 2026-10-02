@@ -50,18 +50,20 @@ export const Switch = ({
       onClick={() => !disabled && onChange(!checked)}
       disabled={disabled}
       className={`
-        relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-        ${checked ? 'bg-indigo-600' : 'bg-gray-400'}
+        relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full border border-transparent
+        transition-colors duration-200 outline-none
+        focus-visible:ring-[3px] focus-visible:ring-ring/25
+        ${checked ? 'bg-primary hover:bg-primary-hover' : 'bg-border-strong hover:bg-muted-foreground/40'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       `}
       role="switch"
       aria-checked={checked}
-      aria-label={label || 'Toggle switch'}
+      aria-label={label || 'Alternar'}
     >
       <span
         className={`
-          inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-sm
-          ${checked ? 'translate-x-6' : 'translate-x-1'}
+          inline-block size-4 transform rounded-full bg-white shadow-sm transition-transform duration-200
+          ${checked ? 'translate-x-4' : 'translate-x-0.5'}
         `}
       />
     </button>
@@ -75,15 +77,18 @@ export const Switch = ({
   // Return switch with label and description
   return (
     <div className={`flex items-start gap-3 ${className}`}>
-      {switchButton}
+      <div className="pt-0.5">{switchButton}</div>
       <div className="flex-1">
         {label && (
-          <label className={`text-sm font-medium ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>
+          <label
+            htmlFor={id}
+            className={`text-sm font-medium ${disabled ? 'text-muted-foreground' : 'text-foreground'}`}
+          >
             {label}
           </label>
         )}
         {description && (
-          <p className={`text-sm ${disabled ? 'text-gray-300' : 'text-gray-500'}`}>
+          <p className="text-sm text-muted-foreground">
             {description}
           </p>
         )}

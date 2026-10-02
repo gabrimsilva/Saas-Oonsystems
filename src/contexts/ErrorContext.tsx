@@ -185,8 +185,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
           ...toastOptions,
           icon: options?.icon ?? '⚠️',
           style: {
-            background: '#FEF3C7',
-            color: '#92400E'
+            borderLeft: '3px solid var(--warning)'
           }
         })
         break
@@ -195,8 +194,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
           ...toastOptions,
           icon: options?.icon ?? 'ℹ️',
           style: {
-            background: '#DBEAFE',
-            color: '#1E40AF'
+            borderLeft: '3px solid var(--info)'
           }
         })
         break
@@ -226,8 +224,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
       duration: options?.duration ?? 3000,
       icon: options?.icon ?? 'ℹ️',
       style: {
-        background: '#DBEAFE',
-        color: '#1E40AF'
+        borderLeft: '3px solid var(--info)'
       }
     })
   }
@@ -240,8 +237,7 @@ export function ErrorProvider({ children }: { children: ReactNode }) {
       duration: options?.duration ?? 4000,
       icon: options?.icon ?? '⚠️',
       style: {
-        background: '#FEF3C7',
-        color: '#92400E'
+        borderLeft: '3px solid var(--warning)'
       }
     })
   }

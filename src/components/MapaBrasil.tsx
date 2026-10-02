@@ -192,15 +192,15 @@ export default function MapaBrasil({ locations }: MapaBrasilProps) {
   return (
     <div className="space-y-6">
       {/* Mapa SVG */}
-      <div className="flex justify-center bg-gray-50 rounded-lg p-4 min-h-[400px]">
+      <div className="flex justify-center bg-muted/50 rounded-lg p-4 min-h-[400px]">
         {loading && (
           <div className="flex items-center justify-center w-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         )}
 
         {error && (
-          <div className="flex items-center justify-center w-full text-red-500">
+          <div className="flex items-center justify-center w-full text-destructive">
             {error}
           </div>
         )}
@@ -212,26 +212,26 @@ export default function MapaBrasil({ locations }: MapaBrasilProps) {
 
       {/* Tooltip */}
       {hoveredState && (
-        <div className="text-center py-2 bg-white border border-gray-200 rounded-lg shadow-sm">
-          <span className="font-semibold text-gray-800">{nomeEstados[hoveredState]}</span>
-          <span className="text-gray-500"> ({hoveredState}): </span>
-          <span className="font-bold text-indigo-600">
+        <div className="text-center py-2 bg-card border border-border rounded-lg shadow-sm">
+          <span className="font-semibold text-foreground">{nomeEstados[hoveredState]}</span>
+          <span className="text-muted-foreground"> ({hoveredState}): </span>
+          <span className="font-bold text-primary">
             {(dadosPorEstado[hoveredState] || 0).toLocaleString()} usuários
           </span>
         </div>
       )}
 
       {/* Legenda */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Legenda</h4>
+      <div className="bg-muted/50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-foreground/80 mb-3">Legenda</h4>
         <div className="flex flex-wrap gap-4 justify-center">
           {legendaItems.map((item, index) => (
             <div key={index} className="flex items-center gap-2">
               <div 
-                className="w-5 h-5 rounded border border-gray-300" 
+                className="w-5 h-5 rounded border border-input" 
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-xs text-gray-600">{item.label}</span>
+              <span className="text-xs text-muted-foreground">{item.label}</span>
             </div>
           ))}
         </div>
@@ -239,8 +239,8 @@ export default function MapaBrasil({ locations }: MapaBrasilProps) {
 
       {/* Top Estados */}
       {Object.keys(dadosPorEstado).length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Top Estados</h4>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <h4 className="text-sm font-semibold text-foreground/80 mb-3">Top Estados</h4>
           <div className="space-y-2">
             {Object.entries(dadosPorEstado)
               .sort(([, a], [, b]) => b - a)
@@ -248,14 +248,14 @@ export default function MapaBrasil({ locations }: MapaBrasilProps) {
               .map(([sigla, users], index) => (
                 <div key={sigla} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold">
+                    <span className="w-6 h-6 flex items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">
                       {index + 1}
                     </span>
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-medium text-foreground/80">
                       {nomeEstados[sigla]}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     {users.toLocaleString()} usuários
                   </span>
                 </div>

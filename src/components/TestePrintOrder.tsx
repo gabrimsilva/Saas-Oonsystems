@@ -101,7 +101,7 @@ export default function TestePrintOrder({ fontSizes: propFontSizes }: {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Use este botão para testar a funcionalidade de impressão com um pedido de exemplo.
         </p>
         
@@ -125,7 +125,7 @@ export default function TestePrintOrder({ fontSizes: propFontSizes }: {
           <div className="mt-6">
             <h4 className="font-medium mb-4 text-center">Preview da Impressão Térmica</h4>
             <PrintOrderPreview pedido={pedidoTeste} fontSizes={fontSizes} />
-            <p className="text-xs text-gray-500 text-center mt-2">
+            <p className="text-xs text-muted-foreground text-center mt-2">
               O preview atualiza em tempo real conforme você altera os tamanhos de fonte
             </p>
           </div>

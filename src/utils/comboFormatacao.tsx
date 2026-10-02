@@ -20,10 +20,10 @@ export const renderizarDetalhesCombo = (item: any) => {
   // Se tem produtosCombo (estrutura de comandas/PDV)
   if (item.produtosCombo && Array.isArray(item.produtosCombo)) {
     return (
-      <div className="text-sm text-gray-600 space-y-2 mt-2">
+      <div className="text-sm text-muted-foreground space-y-2 mt-2">
         {item.produtosCombo.map((produtoCombo: any, idx: number) => (
-          <div key={idx} className="ml-2 border-l-2 border-gray-300 pl-3">
-            <div className="font-medium text-gray-700">
+          <div key={idx} className="ml-2 border-l-2 border-input pl-3">
+            <div className="font-medium text-foreground/80">
               {idx + 1}° item: {produtoCombo.nome}
             </div>
             {produtoCombo.tamanhoSelecionado && (
@@ -44,7 +44,7 @@ export const renderizarDetalhesCombo = (item: any) => {
           </div>
         ))}
         {item.observacoes && (
-          <p className="text-xs text-gray-700 italic ml-2 mt-2 bg-yellow-50 p-2 rounded border border-yellow-200">
+          <p className="text-xs text-foreground/80 italic ml-2 mt-2 bg-warning/10 p-2 rounded border border-warning/30">
             <MessageSquare className="inline h-3 w-3 mr-1" />
             <span className="font-medium">Obs:</span> {item.observacoes}
           </p>

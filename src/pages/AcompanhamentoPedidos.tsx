@@ -155,11 +155,11 @@ export default function AcompanhamentoPedidos() {
   // Função para obter cor do status
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Pedido criado': return 'bg-indigo-100 text-indigo-800'
-      case 'Preparando': return 'bg-yellow-100 text-yellow-800'
-      case 'Liberado': return 'bg-green-100 text-green-800'
-      case 'Finalizado': return 'bg-purple-100 text-purple-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'Pedido criado': return 'bg-primary/10 text-primary'
+      case 'Preparando': return 'bg-warning/15 text-warning-foreground'
+      case 'Liberado': return 'bg-success/10 text-success'
+      case 'Finalizado': return 'bg-primary/10 text-primary'
+      default: return 'bg-muted text-foreground'
     }
   }
 
@@ -228,7 +228,7 @@ export default function AcompanhamentoPedidos() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Acompanhamento de Pedidos</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Acompanhamento de Pedidos</h1>
         <p className="text-muted-foreground">
           Visualize e gerencie todos os pedidos delivery
         </p>
@@ -249,7 +249,7 @@ export default function AcompanhamentoPedidos() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Novos Pedidos</CardTitle>
-            <Package className="h-4 w-4 text-indigo-600" />
+            <Package className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{estatisticas.recebidos}</div>
@@ -259,7 +259,7 @@ export default function AcompanhamentoPedidos() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Em Separação</CardTitle>
-            <ChefHat className="h-4 w-4 text-yellow-600" />
+            <ChefHat className="h-4 w-4 text-warning-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{estatisticas.preparando}</div>
@@ -269,7 +269,7 @@ export default function AcompanhamentoPedidos() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Prontos p/ Entrega</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{estatisticas.liberados}</div>
@@ -279,7 +279,7 @@ export default function AcompanhamentoPedidos() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Entregues</CardTitle>
-            <Truck className="h-4 w-4 text-purple-600" />
+            <Truck className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{estatisticas.finalizados}</div>
@@ -289,7 +289,7 @@ export default function AcompanhamentoPedidos() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Faturamento</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
+            <DollarSign className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -458,7 +458,7 @@ export default function AcompanhamentoPedidos() {
                           )}
                           <div className="flex justify-between font-bold">
                             <span>Total:</span>
-                            <span className="text-green-600">
+                            <span className="text-success">
                               R$ {pedido.total?.toFixed(2).replace('.', ',')}
                             </span>
                           </div>

@@ -63,43 +63,20 @@ describe('Cálculos do Sistema', () => {
   })
 
   describe('calcularTotal', () => {
-    it('deve calcular total com entrega', () => {
-      const carrinho = [
-        {
-          produto: { preco: 25.00 },
-          quantidade: 2,
-          precoFinal: 25.00
-        }
-      ]
+    const carrinho = [
+      {
+        produto: { preco: 25.00 },
+        quantidade: 2,
+        precoFinal: 25.00
+      }
+    ]
 
-      const result = calcularTotal(carrinho, true, '5.00')
-      expect(result).toBe(55.00) // 50 + 5
+    it('deve calcular total sem desconto', () => {
+      expect(calcularTotal(carrinho)).toBe(50.00)
     })
 
-    it('deve calcular total sem entrega', () => {
-      const carrinho = [
-        {
-          produto: { preco: 25.00 },
-          quantidade: 2,
-          precoFinal: 25.00
-        }
-      ]
-
-      const result = calcularTotal(carrinho, false, '5.00')
-      expect(result).toBe(50.00)
-    })
-
-    it('deve tratar valor de entrega como string', () => {
-      const carrinho = [
-        {
-          produto: { preco: 25.00 },
-          quantidade: 1,
-          precoFinal: 25.00
-        }
-      ]
-
-      const result = calcularTotal(carrinho, true, '10.50')
-      expect(result).toBe(35.50)
+    it('deve subtrair o desconto do subtotal', () => {
+      expect(calcularTotal(carrinho, 7.5)).toBe(42.50)
     })
   })
 

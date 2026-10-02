@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { ActionButton } from "@/components/ui/action-button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Package, Plus, Search, Edit, Trash2, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
+import { Package, Plus, Search, Edit, Trash2, Eye, EyeOff, AlertCircle } from "lucide-react"
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import { categoriaService, type CategoriaSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CarregandoPagina } from '@/components/ui/feedback'
+import { avisoComDesfazer } from '@/components/ui/desfazer'
 
 type Categoria = CategoriaSupabase
 
@@ -67,11 +69,13 @@ export default function Categorias() {
     }
   }
 
-  const handleToggleAtiva = async (categoria: Categoria) => {
+  const handleToggleAtiva = async (categoria: Categoria, desfazendo = false) => {
     try {
       setSaving(true)
       setError(null)
       await categoriaService.toggleAtiva(categoria.id)
+      const mensagem = categoria.ativa ? 'Categoria desativada' : 'Categoria ativada'
+      if (!desfazendo) avisoComDesfazer(mensagem, () => handleToggleAtiva({ ...categoria, ativa: !categoria.ativa }, true))
       await carregarCategorias()
     } catch (err) {
       console.error('Erro ao alterar status da categoria:', err)
@@ -90,18 +94,11 @@ export default function Categorias() {
   ).sort((a, b) => a.ordem - b.ordem)
 
   const getStatusColor = (ativa: boolean) => {
-    return ativa ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+    return ativa ? 'bg-success/10 text-success' : 'bg-muted text-foreground'
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando categorias...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
@@ -109,7 +106,7 @@ export default function Categorias() {
       {/* Header Desktop */}
       <div className="hidden md:flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Package className="h-6 w-6" />
             Categorias
           </h1>
@@ -127,7 +124,7 @@ export default function Categorias() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Package className="h-6 w-6" />
             Categorias
           </h1>
@@ -144,7 +141,7 @@ export default function Categorias() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 mb-6">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive mb-6">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -152,7 +149,7 @@ export default function Categorias() {
 
       {/* Barra de busca */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
         <Input
           id="buscar-categorias"
           name="buscar-categorias"
@@ -167,11 +164,11 @@ export default function Categorias() {
       {categoriasFiltradas.length === 0 ? (
         <Card>
           <CardContent className="text-center py-12">
-            <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <Package className="h-12 w-12 mx-auto text-muted-foreground/70 mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               {termoBusca ? "Nenhuma categoria encontrada" : "Nenhuma categoria cadastrada"}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               {termoBusca
                 ? "Tente buscar com outros termos"
                 : "Comece criando sua primeira categoria de produtos"
@@ -195,7 +192,7 @@ export default function Categorias() {
               <CardContent className="px-4 py-4">
                 {/* Nome da categoria */}
                 <div className="mb-3">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">{categoria.nome}</h3>
+                  <h3 className="font-semibold text-lg text-foreground mb-2">{categoria.nome}</h3>
                   
                   {/* Badges - Desktop: inline, Mobile: wrap */}
                   <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -203,22 +200,22 @@ export default function Categorias() {
                       {categoria.ativa ? 'Ativa' : 'Inativa'}
                     </span>
                     {(categoria as any).tem_sabores && (
-                      <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                         Sabores
                       </span>
                     )}
                     {(categoria as any).tem_borda && (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-warning/15 text-warning-foreground px-2 py-1 rounded">
                         Borda
                       </span>
                     )}
                     {(categoria as any).tem_tamanhos && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-success/10 text-success px-2 py-1 rounded">
                         Tamanhos
                       </span>
                     )}
                     {(categoria as any).tem_adicionais && (
-                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                         Adicionais
                       </span>
                     )}
@@ -226,10 +223,10 @@ export default function Categorias() {
                 </div>
 
                 {/* Descrição */}
-                <p className="text-gray-600 text-sm mb-2">{categoria.descricao}</p>
+                <p className="text-muted-foreground text-sm mb-2">{categoria.descricao}</p>
 
                 {/* Ordem */}
-                <p className="text-xs text-gray-500 mb-4">Ordem: {categoria.ordem}</p>
+                <p className="text-xs text-muted-foreground mb-4">Ordem: {categoria.ordem}</p>
 
                 {/* Botões Desktop */}
                 <div className="hidden md:flex items-center gap-2">
@@ -319,7 +316,7 @@ export default function Categorias() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
                         disabled={saving}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />

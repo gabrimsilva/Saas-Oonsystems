@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button"
 import { ActionButton } from "@/components/ui/action-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Edit, Trash2, Loader2, AlertCircle } from "lucide-react"
+import { Plus, Search, Edit, Trash2, AlertCircle } from "lucide-react"
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import CategoriaTabs from "@/components/CategoriaTabs"
 import { categoriaService, adicionalService, type CategoriaSupabase, type AdicionalSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 type Categoria = CategoriaSupabase
 
@@ -90,14 +91,7 @@ export default function Adicionais() {
   const categoriasComAdicionais = categorias.filter(cat => (cat as any).tem_adicionais)
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando adicionais...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="cartoes" />
   }
 
   return (
@@ -105,7 +99,7 @@ export default function Adicionais() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Plus className="h-6 w-6" />
             Adicionais
           </h1>
@@ -122,7 +116,7 @@ export default function Adicionais() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Plus className="h-6 w-6" />
             Adicionais
           </h1>
@@ -137,7 +131,7 @@ export default function Adicionais() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -209,8 +203,8 @@ export default function Adicionais() {
                         {/* Desktop */}
                         <div className="hidden md:flex items-start justify-between mb-2">
                           <div>
-                            <h3 className="font-medium text-gray-900">{adicional.nome}</h3>
-                            <p className="text-sm text-gray-600 font-medium mt-1">
+                            <h3 className="font-medium text-foreground">{adicional.nome}</h3>
+                            <p className="text-sm text-muted-foreground font-medium mt-1">
                               +R$ {adicional.valor.toFixed(2).replace('.', ',')}
                             </p>
                           </div>
@@ -245,15 +239,15 @@ export default function Adicionais() {
 
                         {/* Mobile */}
                         <div className="md:hidden mb-3">
-                          <h3 className="font-medium text-gray-900">{adicional.nome}</h3>
-                          <p className="text-sm text-gray-600 font-medium mt-1">
+                          <h3 className="font-medium text-foreground">{adicional.nome}</h3>
+                          <p className="text-sm text-muted-foreground font-medium mt-1">
                             +R$ {adicional.valor.toFixed(2).replace('.', ',')}
                           </p>
                         </div>
 
                         <div className="flex items-center space-x-2 mb-3 md:mb-0">
                           <span className={`text-xs font-medium px-2 py-1 rounded ${
-                            adicional.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                            adicional.ativo ? 'bg-success/10 text-success' : 'bg-muted text-foreground'
                           }`}>
                             {adicional.ativo ? 'Ativo' : 'Inativo'}
                           </span>
@@ -277,7 +271,7 @@ export default function Adicionais() {
                                 variant="outline"
                                 size="sm"
                                 disabled={saving}
-                                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Remover Adicional

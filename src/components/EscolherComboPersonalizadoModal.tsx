@@ -454,19 +454,19 @@ export default function EscolherComboPersonalizadoModal({
           {/* Botão fechar mobile */}
           <button
             onClick={onClose}
-            className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-white p-2 hover:bg-gray-100 transition-colors shadow-md cursor-pointer"
+            className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-card p-2 hover:bg-accent transition-colors shadow-md cursor-pointer"
             aria-label="Fechar"
           >
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-5 w-5 text-muted-foreground" />
           </button>
 
-        <AlertDialogHeader className="w-full overflow-hidden max-md:p-4 max-md:pb-2 max-md:bg-white max-md:border-b max-md:flex-shrink-0">
+        <AlertDialogHeader className="w-full overflow-hidden max-md:p-4 max-md:pb-2 max-md:bg-card max-md:border-b max-md:flex-shrink-0">
           <div className="flex items-start justify-between w-full gap-2">
             <div className="flex-1 min-w-0 max-md:pr-10">
               <AlertDialogTitle className="text-xl font-bold leading-tight">
                 Personalizar Combo:
               </AlertDialogTitle>
-              <div className="text-xl font-semibold text-gray-700 mt-1 break-words">
+              <div className="text-xl font-semibold text-foreground/80 mt-1 break-words">
                 {combo.nome}
               </div>
             </div>
@@ -493,7 +493,7 @@ export default function EscolherComboPersonalizadoModal({
             )}
           </AlertDialogDescription>
           {!initialLoading && produtosCombo.length > 0 && !todosProdutosConfigurados && (
-            <div className="mt-2 text-orange-600 text-sm">
+            <div className="mt-2 text-warning-foreground text-sm">
               ⚠️ Configure todos os produtos antes de adicionar ao carrinho
             </div>
           )}
@@ -502,8 +502,8 @@ export default function EscolherComboPersonalizadoModal({
         <div className="space-y-6 overflow-x-hidden min-h-[400px] w-full max-w-full max-md:overflow-y-auto max-md:p-4 max-md:flex-shrink-1">
           {initialLoading || (loading && produtosCombo.length === 0) ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando opções...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-destructive mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Carregando opções...</p>
             </div>
           ) : produtosCombo.length > 0 ? (
             <>
@@ -514,7 +514,7 @@ export default function EscolherComboPersonalizadoModal({
                     <img
                       src={produtoAtualObj.imagem_path || '/placeholder-food.svg'}
                       alt={produtoAtualObj.nome}
-                      className="w-20 h-20 md:w-28 md:h-28 object-contain rounded-lg flex-shrink-0 bg-gray-50 p-2"
+                      className="w-20 h-20 md:w-28 md:h-28 object-contain rounded-lg flex-shrink-0 bg-muted/50 p-2"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder-food.svg';
@@ -523,13 +523,13 @@ export default function EscolherComboPersonalizadoModal({
                     <div className="flex-1 min-w-0">
                       <h4 className="font-bold text-lg md:text-xl mb-1">{produtoAtualObj.nome}</h4>
                       {produtoAtualObj.descricao && (
-                        <p className="text-sm md:text-base text-gray-600">{produtoAtualObj.descricao}</p>
+                        <p className="text-sm md:text-base text-muted-foreground">{produtoAtualObj.descricao}</p>
                       )}
                     </div>
                   </div>
 
                   {!temPersonalizacoes && (
-                    <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
+                    <div className="text-center py-4 text-muted-foreground bg-muted/50 rounded-lg">
                       <p className="text-sm">Este produto não possui opções de personalização.</p>
                       <p className="text-xs mt-1">Será adicionado com as configurações padrão.</p>
                     </div>
@@ -546,8 +546,8 @@ export default function EscolherComboPersonalizadoModal({
                       <div
                         key={tamanho.id}
                         className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between gap-2 ${tamanhoSelecionado?.id === tamanho.id
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:bg-gray-50'
+                            ? 'border-destructive bg-destructive/5'
+                            : 'border-border hover:bg-accent'
                           }`}
                         onClick={() => setTamanhoSelecionado(tamanho)}
                       >
@@ -557,10 +557,10 @@ export default function EscolherComboPersonalizadoModal({
                             {tamanho.tamanho}
                           </Badge>
                           {tamanhoSelecionado?.id === tamanho.id && (
-                            <Check className="h-4 w-4 text-red-500" />
+                            <Check className="h-4 w-4 text-destructive" />
                           )}
                         </div>
-                        <span className="text-sm font-bold text-red-600 shrink-0">
+                        <span className="text-sm font-bold text-destructive shrink-0">
                           R$ {tamanho.valor.toFixed(2).replace('.', ',')}
                         </span>
                       </div>
@@ -583,8 +583,8 @@ export default function EscolherComboPersonalizadoModal({
                         .filter(categoria => saboresAgrupados[categoria] && saboresAgrupados[categoria].length > 0)
                         .map(categoria => (
                           <div key={categoria} className="space-y-3">
-                            <div className="border-b border-gray-200 pb-2">
-                              <h4 className="text-md font-semibold text-gray-800">
+                            <div className="border-b border-border pb-2">
+                              <h4 className="text-md font-semibold text-foreground">
                                 {obterNomeCategoriaSabor(categoria)}
                               </h4>
                             </div>
@@ -598,10 +598,10 @@ export default function EscolherComboPersonalizadoModal({
                                   <div
                                     key={sabor.id}
                                     className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between gap-2 ${isSelected
-                                        ? 'border-red-500 bg-red-50'
+                                        ? 'border-destructive bg-destructive/5'
                                         : canSelect
-                                          ? 'border-gray-200 hover:bg-gray-50'
-                                          : 'border-gray-200 opacity-50 cursor-not-allowed'
+                                          ? 'border-border hover:bg-accent'
+                                          : 'border-border opacity-50 cursor-not-allowed'
                                       }`}
                                     onClick={() => (isSelected || canSelect) && toggleSabor(sabor)}
                                   >
@@ -609,7 +609,7 @@ export default function EscolherComboPersonalizadoModal({
                                       <div className="flex items-center gap-2 mb-1">
                                         <h4 className="font-medium text-sm">{sabor.nome}</h4>
                                         {isSelected && (
-                                          <Check className="h-4 w-4 text-red-500" />
+                                          <Check className="h-4 w-4 text-destructive" />
                                         )}
                                         {/* Não mostrar badge para refrigerantes */}
                                         {sabor.categoria_sabor !== 'refrigerante' && (
@@ -618,9 +618,9 @@ export default function EscolherComboPersonalizadoModal({
                                           </Badge>
                                         )}
                                       </div>
-                                      <p className="text-xs text-gray-600">{sabor.descricao}</p>
+                                      <p className="text-xs text-muted-foreground">{sabor.descricao}</p>
                                     </div>
-                                    <span className="text-sm font-bold text-red-600 shrink-0">
+                                    <span className="text-sm font-bold text-destructive shrink-0">
                                       +R$ {(sabor.preco || 0).toFixed(2).replace('.', ',')}
                                     </span>
                                   </div>
@@ -643,18 +643,18 @@ export default function EscolherComboPersonalizadoModal({
                       <div
                         key={borda.id}
                         className={`p-3 border rounded-lg cursor-pointer transition-all flex items-center justify-between gap-2 ${bordaSelecionada?.id === borda.id
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:bg-gray-50'
+                            ? 'border-destructive bg-destructive/5'
+                            : 'border-border hover:bg-accent'
                           }`}
                         onClick={() => setBordaSelecionada(borda)}
                       >
                         <div className="flex items-center gap-2">
                           <h4 className="font-medium text-sm">{borda.nome}</h4>
                           {bordaSelecionada?.id === borda.id && (
-                            <Check className="h-4 w-4 text-red-500" />
+                            <Check className="h-4 w-4 text-destructive" />
                           )}
                         </div>
-                        <span className="text-sm text-red-600 font-semibold shrink-0">
+                        <span className="text-sm text-destructive font-semibold shrink-0">
                           {borda.preco === 0 ? 'Grátis' : `+R$ ${borda.preco.toFixed(2).replace('.', ',')}`}
                         </span>
                       </div>
@@ -665,7 +665,7 @@ export default function EscolherComboPersonalizadoModal({
 
               {/* Navegação entre produtos */}
               {produtosCombo.length > 1 && (
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                   <Button
                     variant="outline"
                     onClick={produtoAnterior}
@@ -699,9 +699,9 @@ export default function EscolherComboPersonalizadoModal({
                         <div
                           key={index}
                           className={`w-3 h-3 rounded-full ${index === produtoAtual
-                              ? 'bg-red-500'
+                              ? 'bg-destructive'
                               : estaConfigurado
-                                ? 'bg-green-500'
+                                ? 'bg-success'
                                 : 'bg-gray-300'
                             }`}
                           title={`Produto ${index + 1}: ${estaConfigurado ? 'Configurado' : 'Pendente'}`}
@@ -749,8 +749,8 @@ export default function EscolherComboPersonalizadoModal({
                 </div>
 
                 <div className="text-right">
-                  <p className="text-sm text-gray-600 mb-1">Total</p>
-                  <p className="text-2xl font-bold text-red-600 whitespace-nowrap">
+                  <p className="text-sm text-muted-foreground mb-1">Total</p>
+                  <p className="text-2xl font-bold text-destructive whitespace-nowrap">
                     R$ {calcularPrecoTotal().toFixed(2).replace('.', ',')}
                   </p>
                 </div>
@@ -758,12 +758,12 @@ export default function EscolherComboPersonalizadoModal({
             </>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-600">Nenhum produto encontrado para este combo.</p>
+              <p className="text-muted-foreground">Nenhum produto encontrado para este combo.</p>
             </div>
           )}
         </div>
 
-        <AlertDialogFooter className="pt-6 max-md:p-4 max-md:border-t max-md:bg-white max-md:flex-shrink-0">
+        <AlertDialogFooter className="pt-6 max-md:p-4 max-md:border-t max-md:bg-card max-md:flex-shrink-0">
           <div className="flex gap-3 w-full">
             <Button
               variant="outline"
@@ -775,7 +775,7 @@ export default function EscolherComboPersonalizadoModal({
             <Button
               onClick={handleConfirmar}
               disabled={loading || !todosProdutosConfigurados}
-              className={variant === 'delivery' ? 'bg-red-600 hover:bg-red-700 flex-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer' : 'flex-1 disabled:opacity-50 disabled:cursor-not-allowed'}
+              className={variant === 'delivery' ? 'bg-primary hover:bg-primary-hover flex-1 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer' : 'flex-1 disabled:opacity-50 disabled:cursor-not-allowed'}
             >
               {todosProdutosConfigurados
                 ? 'Adicionar ao Carrinho'

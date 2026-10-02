@@ -468,7 +468,7 @@ describe('EscolherObservacoesModal', () => {
       )
 
       const confirmarButton = screen.getByRole('button', { name: /confirmar/i })
-      expect(confirmarButton).toHaveClass('bg-red-600')
+      expect(confirmarButton).toHaveClass('bg-primary')
     })
 
     it('deve usar estilo padrão quando variant="default"', () => {

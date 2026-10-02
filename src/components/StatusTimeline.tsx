@@ -75,12 +75,12 @@ export default function StatusTimeline({
     const statusExibicao = getStatusExibicao(status)
     const statusLower = statusExibicao.toLowerCase()
     
-    if (statusLower.includes('criado') || statusLower.includes('recebido')) return 'bg-indigo-500'
-    if (statusLower.includes('preparando') || statusLower.includes('cozinha')) return 'bg-orange-500'
-    if (statusLower.includes('pronto') || statusLower.includes('liberado')) return 'bg-green-500'
-    if (statusLower.includes('entrega') || statusLower.includes('saiu')) return 'bg-purple-500'
-    if (statusLower.includes('finalizado') || statusLower.includes('entregue') || statusLower.includes('concluído')) return 'bg-green-600'
-    if (statusLower.includes('cancelado')) return 'bg-red-500'
+    if (statusLower.includes('criado') || statusLower.includes('recebido')) return 'bg-primary'
+    if (statusLower.includes('preparando') || statusLower.includes('cozinha')) return 'bg-warning'
+    if (statusLower.includes('pronto') || statusLower.includes('liberado')) return 'bg-success'
+    if (statusLower.includes('entrega') || statusLower.includes('saiu')) return 'bg-teal-600'
+    if (statusLower.includes('finalizado') || statusLower.includes('entregue') || statusLower.includes('concluído')) return 'bg-success'
+    if (statusLower.includes('cancelado')) return 'bg-destructive'
     
     return 'bg-gray-500'
   }
@@ -107,11 +107,11 @@ export default function StatusTimeline({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Package className="w-5 h-5 text-red-600" />
+            <Package className="w-5 h-5 text-destructive" />
             Acompanhe seu Pedido
           </CardTitle>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <div className={`w-2 h-2 rounded-full ${atualizandoRealtime ? 'bg-indigo-500 animate-pulse' : 'bg-green-500'}`}></div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className={`w-2 h-2 rounded-full ${atualizandoRealtime ? 'bg-primary animate-pulse' : 'bg-success'}`}></div>
             <span>
               {atualizandoRealtime ? 'Atualizando...' : `Atualizado ${ultimaAtualizacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`}
             </span>
@@ -120,7 +120,7 @@ export default function StatusTimeline({
       </CardHeader>
       <CardContent>
         {historico.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Package className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>Nenhuma atualização de status ainda</p>
           </div>
@@ -133,11 +133,11 @@ export default function StatusTimeline({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-semibold text-gray-900">{getStatusExibicao(item.status)}</h3>
-                    <span className="text-sm text-gray-500 flex-shrink-0">{formatarHora(item.criado_em)}</span>
+                    <h3 className="font-semibold text-foreground">{getStatusExibicao(item.status)}</h3>
+                    <span className="text-sm text-muted-foreground flex-shrink-0">{formatarHora(item.criado_em)}</span>
                   </div>
                   {item.observacao && (
-                    <p className="text-sm text-gray-600 mt-1">{item.observacao}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{item.observacao}</p>
                   )}
                 </div>
               </div>

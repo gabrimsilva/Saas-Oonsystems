@@ -34,11 +34,11 @@ function GridCombos({ combos, onAdicionarCombo }: GridCombosProps) {
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Combos Disponíveis</h3>
+      <h3 className="text-lg font-semibold mb-4 text-foreground">Combos Disponíveis</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
         {combos.map((combo) => (
           <Card key={combo.id} className="overflow-hidden hover:shadow-md transition-shadow py-0">
-            <div className="aspect-square bg-gray-100 relative h-24 md:h-32">
+            <div className="aspect-square bg-muted relative h-24 md:h-32">
               <img
                 src={combo.url_imagem || '/placeholder-food.svg'}
                 alt={combo.nome}
@@ -48,20 +48,20 @@ function GridCombos({ combos, onAdicionarCombo }: GridCombosProps) {
                   target.src = '/placeholder-food.svg';
                 }}
               />
-              <Badge className="absolute top-2 left-2 bg-orange-500">
+              <Badge variant="solid" className="absolute top-2 left-2">
                 -{combo.desconto.toFixed(0)}%
               </Badge>
             </div>
             <CardContent className="px-2 md:px-3 py-1 md:py-2">
               <h3 className="font-semibold text-xs mb-1 line-clamp-2">{combo.nome}</h3>
-              <p className="text-xs text-gray-600 mb-1 md:mb-2 line-clamp-1 hidden sm:block">{combo.descricao}</p>
+              <p className="text-xs text-muted-foreground mb-1 md:mb-2 line-clamp-1 hidden sm:block">{combo.descricao}</p>
               
               <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="font-bold text-[color:var(--price-color)] text-sm">
                     R$ {combo.preco_combo.toFixed(2).replace('.', ',')}
                   </span>
-                  <span className="text-xs text-gray-400 line-through">
+                  <span className="text-xs text-muted-foreground/70 line-through">
                     R$ {combo.preco_original.toFixed(2).replace('.', ',')}
                   </span>
                 </div>

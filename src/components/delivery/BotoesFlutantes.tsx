@@ -79,7 +79,7 @@ export default function BotoesFlutantes({ limiteScroll = 300 }: BotoesFlutantesP
           onClick={abrirWhatsApp}
           className={`
             fixed z-50 rounded-full w-12 h-12 p-0 shadow-lg 
-            bg-green-500 hover:bg-green-600
+            bg-success hover:bg-success/90
             transition-all duration-300
             ${mostrarBotaoTopo
               ? 'bottom-20 right-2 md:bottom-4 md:right-16' // Mobile: acima do botão | Desktop: ao lado
@@ -101,7 +101,7 @@ export default function BotoesFlutantes({ limiteScroll = 300 }: BotoesFlutantesP
       {mostrarBotaoTopo && (
         <Button
           onClick={voltarAoTopo}
-          className="fixed bottom-4 right-2 z-50 rounded-full w-12 h-12 p-0 shadow-lg bg-red-600 hover:bg-red-700 md:bottom-4"
+          className="fixed bottom-4 right-2 z-50 rounded-full w-12 h-12 p-0 shadow-lg bg-primary hover:bg-primary-hover md:bottom-4"
           aria-label="Voltar ao topo"
           title="Voltar ao topo"
         >

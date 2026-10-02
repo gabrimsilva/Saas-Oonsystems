@@ -126,7 +126,7 @@ export default function NovoAdicionalModal({
               id="ativo"
               checked={ativo}
               onChange={(e) => setAtivo(e.target.checked)}
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30"
             />
             <Label htmlFor="ativo">Adicional ativo</Label>
           </div>

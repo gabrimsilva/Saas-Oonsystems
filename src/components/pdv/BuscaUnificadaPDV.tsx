@@ -169,9 +169,9 @@ export default function BuscaUnificadaPDV({
   return (
     <div className="space-y-3">
       <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/70 z-10">
           {isScanning ? (
-            <Scan className="h-5 w-5 text-indigo-500 animate-pulse" />
+            <Scan className="h-5 w-5 text-primary animate-pulse" />
           ) : (
             <Search className="h-5 w-5" />
           )}
@@ -179,12 +179,14 @@ export default function BuscaUnificadaPDV({
         
         <Input
           ref={inputRef}
+          id="busca-pdv"
+          aria-keyshortcuts="F2"
           type="text"
           value={valor}
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          className={`pl-10 pr-10 ${isScanning ? 'border-indigo-500 ring-2 ring-indigo-200' : ''}`}
+          className={`pl-10 pr-10 ${isScanning ? 'border-primary ring-2 ring-primary/20' : ''}`}
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
@@ -205,7 +207,7 @@ export default function BuscaUnificadaPDV({
       </div>
       
       {isScanning && (
-        <div className="text-xs text-indigo-600 animate-pulse flex items-center gap-1">
+        <div className="text-xs text-primary animate-pulse flex items-center gap-1">
           <Scan className="h-3 w-3" />
           <span>Lendo código de barras...</span>
         </div>

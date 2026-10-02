@@ -431,8 +431,8 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando checkout...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-warning mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando checkout...</p>
         </div>
       </div>
     )
@@ -457,8 +457,8 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
       <div className="max-w-4xl mx-auto p-4">
         {/* Título da página */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 text-center">Finalizar Pedido</h1>
-          <p className="text-center text-gray-600 mt-2">Modo Cardápio - Retirada no Local</p>
+          <h1 className="text-2xl font-semibold text-foreground text-center">Finalizar Pedido</h1>
+          <p className="text-center text-muted-foreground mt-2">Modo Cardápio - Retirada no Local</p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
@@ -483,8 +483,8 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
                   maxLength={16}
                 />
                 {clienteExistente && (
-                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-                    <p className="text-sm text-green-700">
+                  <div className="mt-2 p-2 bg-success/5 border border-success/30 rounded-md">
+                    <p className="text-sm text-success">
                       ✅ Cliente encontrado! Nome preenchido automaticamente.
                       <br />
                       <span className="text-xs">
@@ -506,10 +506,10 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
                 />
               </div>
 
-              <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+              <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <div className="text-indigo-600 mt-0.5">ℹ️</div>
-                  <div className="text-sm text-indigo-700">
+                  <div className="text-primary mt-0.5">ℹ️</div>
+                  <div className="text-sm text-primary">
                     <p className="font-medium mb-1">Modo Cardápio Ativo</p>
                     <p>Seu pedido será enviado diretamente para o WhatsApp da loja para retirada no local.</p>
                   </div>
@@ -530,30 +530,30 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
               {/* Itens do carrinho */}
               <div className="space-y-3">
                 {carrinho.map((item, index) => (
-                  <div key={index} className="flex justify-between items-start p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex justify-between items-start p-3 bg-muted/50 rounded-lg">
                     <div className="flex-1">
                       <h4 className="font-medium">{item.produto.nome}</h4>
                       {item.tamanhoSelecionado && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
                         </p>
                       )}
                       {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           Sabores: {item.saboresSelecionados.map(s => s.nome).join(', ')}
                         </p>
                       )}
                       {item.bordaSelecionada && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           Borda: {item.bordaSelecionada.nome}
                         </p>
                       )}
                       {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           Adicionais: {item.adicionaisSelecionados.map(a => `${a.quantidade}x ${a.nome}`).join(', ')}
                         </p>
                       )}
-                      <p className="text-sm text-gray-600">Qtd: {item.quantidade}</p>
+                      <p className="text-sm text-muted-foreground">Qtd: {item.quantidade}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
@@ -573,7 +573,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
                   <span>R$ {calcularTotal().toFixed(2).replace('.', ',')}</span>
                 </div>
 
-                <p className="text-sm text-gray-600 text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   🏪 Retirada no local
                 </p>
               </div>
@@ -596,7 +596,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
           <Button
             onClick={finalizarPedido}
             disabled={processandoPedido || !validarFormulario()}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-success hover:bg-success/90 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {processandoPedido ? (
               <>

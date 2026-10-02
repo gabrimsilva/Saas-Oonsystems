@@ -27,11 +27,11 @@ export function securityHeadersPlugin(): Plugin {
       // Nota: frame-ancestors não funciona em meta tag, apenas em HTTP header
       const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com https://www.googletagmanager.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: blob: https: http:",
-        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://viacep.com.br https://wa.me https://api.openai.com https://www.google-analytics.com https://analytics.google.com ws://localhost:* wss://localhost.qz.io:* http://localhost:*",
+        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://viacep.com.br https://wa.me https://api.openai.com ws://localhost:* wss://localhost.qz.io:* http://localhost:*",
         "frame-src 'self' https://maps.googleapis.com",
         "object-src 'none'",
         "base-uri 'self'",
@@ -65,13 +65,13 @@ export function securityHeadersPlugin(): Plugin {
         // CSP mais permissivo para desenvolvimento (com frame-ancestors que funciona via header)
         const devCsp = [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com https://www.googletagmanager.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com",
           "img-src 'self' data: blob: https: http:",
           // Em dev liberamos ws:// e wss:// genéricos para o HMR funcionar
           // ao acessar via IP da rede local (ex.: ws://10.3.11.80:5173)
-          "connect-src 'self' ws: wss: https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://viacep.com.br https://wa.me https://api.openai.com https://www.google-analytics.com https://analytics.google.com",
+          "connect-src 'self' ws: wss: https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://viacep.com.br https://wa.me https://api.openai.com",
           "frame-src 'self' https://maps.googleapis.com",
           "frame-ancestors 'self'"
         ].join('; ')

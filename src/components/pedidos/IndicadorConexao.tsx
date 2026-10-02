@@ -51,17 +51,17 @@ export function IndicadorConexao({
     return (
       <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
         {conectado ? (
-          <div className="flex items-center gap-1 text-green-600">
+          <div className="flex items-center gap-1 text-success">
             <Wifi className="h-4 w-4" />
             <span>Online</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1 text-orange-600">
+          <div className="flex items-center gap-1 text-warning-foreground">
             <WifiOff className="h-4 w-4" />
             <span>Offline</span>
           </div>
         )}
-        <span className="text-gray-500 text-xs">
+        <span className="text-muted-foreground text-xs">
           {ultimaAtualizacao.toLocaleTimeString()}
         </span>
       </div>
@@ -74,17 +74,17 @@ export function IndicadorConexao({
       {/* Status da Conexão */}
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         {conectado ? (
-          <div className="flex items-center gap-1 text-green-600">
+          <div className="flex items-center gap-1 text-success">
             <Wifi className="h-4 w-4" />
             <span>Online</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1 text-orange-600">
+          <div className="flex items-center gap-1 text-warning-foreground">
             <WifiOff className="h-4 w-4" />
             <span>Offline</span>
           </div>
         )}
-        <span className="text-gray-500">
+        <span className="text-muted-foreground">
           Última atualização: {ultimaAtualizacao.toLocaleTimeString()}
         </span>
       </div>
@@ -96,7 +96,7 @@ export function IndicadorConexao({
           size="sm"
           onClick={onReconectar}
           disabled={carregando}
-          className="flex items-center gap-2 text-orange-600 border-orange-200 hover:bg-orange-50"
+          className="flex items-center gap-2 text-warning-foreground border-warning/30 hover:bg-warning/10"
         >
           <Wifi className="h-4 w-4" />
           Reconectar

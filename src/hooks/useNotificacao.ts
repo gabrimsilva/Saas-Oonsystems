@@ -37,8 +37,8 @@ export const useNotificacao = () => {
     // Criar notificação
     const notification = new Notification(options.titulo, {
       body: options.corpo,
-      icon: options.icone || '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: options.icone || '/icon-192.png',
+      badge: '/favicon.png',
       tag: 'novo-pedido', // Evita múltiplas notificações
       requireInteraction: false,
       silent: !options.som

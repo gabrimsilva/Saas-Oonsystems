@@ -36,7 +36,9 @@ interface EstabelecimentoContextType {
   recarregar: () => Promise<void>
 }
 
-const EstabelecimentoContext = createContext<EstabelecimentoContextType | undefined>(undefined)
+/** Exportado para simulações (vitrine do design system e testes) */
+export const EstabelecimentoContext = createContext<EstabelecimentoContextType | undefined>(undefined)
+export type { EstabelecimentoContextType }
 
 export const useEstabelecimento = () => {
   const ctx = useContext(EstabelecimentoContext)

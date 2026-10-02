@@ -20,7 +20,6 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
 import BotoesFlutantes from "@/components/delivery/BotoesFlutantes"
-import CookieConsent from "@/components/CookieConsent"
 
 interface Avaliacao {
   id: string
@@ -37,14 +36,14 @@ interface AvaliarEstabelecimentoProps {
 
 // Badges pré-definidos com ícones
 const BADGES_DISPONIVEIS = [
-  { id: 'comida-deliciosa', label: 'Comida Deliciosa', icon: Utensils, color: 'bg-orange-100 text-orange-800' },
-  { id: 'atendimento-excelente', label: 'Atendimento Excelente', icon: Users, color: 'bg-indigo-100 text-indigo-800' },
-  { id: 'entrega-rapida', label: 'Entrega Rápida', icon: Clock, color: 'bg-green-100 text-green-800' },
-  { id: 'preco-justo', label: 'Preço Justo', icon: DollarSign, color: 'bg-purple-100 text-purple-800' },
-  { id: 'ambiente-agradavel', label: 'Ambiente Agradável', icon: Heart, color: 'bg-indigo-100 text-indigo-800' },
-  { id: 'localizacao-otima', label: 'Localização Ótima', icon: MapPin, color: 'bg-indigo-100 text-indigo-800' },
-  { id: 'qualidade-premium', label: 'Qualidade Premium', icon: Award, color: 'bg-yellow-100 text-yellow-800' },
-  { id: 'recomendo', label: 'Super Recomendo', icon: ThumbsUp, color: 'bg-emerald-100 text-emerald-800' }
+  { id: 'comida-deliciosa', label: 'Comida Deliciosa', icon: Utensils, color: 'bg-warning/15 text-warning-foreground' },
+  { id: 'atendimento-excelente', label: 'Atendimento Excelente', icon: Users, color: 'bg-primary/10 text-primary' },
+  { id: 'entrega-rapida', label: 'Entrega Rápida', icon: Clock, color: 'bg-success/10 text-success' },
+  { id: 'preco-justo', label: 'Preço Justo', icon: DollarSign, color: 'bg-primary/10 text-primary' },
+  { id: 'ambiente-agradavel', label: 'Ambiente Agradável', icon: Heart, color: 'bg-primary/10 text-primary' },
+  { id: 'localizacao-otima', label: 'Localização Ótima', icon: MapPin, color: 'bg-primary/10 text-primary' },
+  { id: 'qualidade-premium', label: 'Qualidade Premium', icon: Award, color: 'bg-warning/15 text-warning-foreground' },
+  { id: 'recomendo', label: 'Super Recomendo', icon: ThumbsUp, color: 'bg-success/10 text-success' }
 ]
 
 export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecimentoProps) {
@@ -231,13 +230,13 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
       />
 
       {/* Título da página */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
               Avaliar Estabelecimento
             </h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Compartilhe sua experiência conosco e ajude outros clientes a descobrir o que torna nosso estabelecimento especial
             </p>
           </div>
@@ -251,15 +250,15 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{calcularMediaEstrelas()}</div>
+                  <div className="text-3xl font-bold text-foreground">{calcularMediaEstrelas()}</div>
                   <div className="flex justify-center mb-1">
                     {renderEstrelas(Math.round(parseFloat(calcularMediaEstrelas().toString())), 'lg')}
                   </div>
-                  <div className="text-sm text-gray-600">Média geral</div>
+                  <div className="text-sm text-muted-foreground">Média geral</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900">{avaliacoes.length}</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-3xl font-bold text-foreground">{avaliacoes.length}</div>
+                  <div className="text-sm text-muted-foreground">
                     {avaliacoes.length === 1 ? 'Avaliação' : 'Avaliações'}
                   </div>
                 </div>
@@ -272,14 +271,14 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-500" />
+              <Star className="h-5 w-5 text-warning-foreground" />
               Deixe sua Avaliação
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Nome */}
             <div>
-              <label htmlFor="nome-avaliacao" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="nome-avaliacao" className="block text-sm font-medium text-foreground/80 mb-2">
                 Seu Nome
               </label>
               <Input
@@ -295,7 +294,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
 
             {/* Estrelas */}
             <div>
-              <span className="block text-sm font-medium text-gray-700 mb-2">
+              <span className="block text-sm font-medium text-foreground/80 mb-2">
                 Sua Nota
               </span>
               <div className="flex gap-1">
@@ -303,20 +302,20 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                   <button
                     key={nota}
                     onClick={() => handleEstrelaClick(nota)}
-                    className="p-1 hover:scale-110 transition-transform cursor-pointer"
+                    className="p-1 transition-transform cursor-pointer"
                   >
                     <Star
                       className={`h-8 w-8 ${
                         nota <= estrelas 
                           ? 'text-yellow-400 fill-current' 
-                          : 'text-gray-300 hover:text-yellow-200'
+                          : 'text-gray-300 hover:text-warning/60'
                       }`}
                     />
                   </button>
                 ))}
               </div>
               {estrelas > 0 && (
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {estrelas === 1 && "Muito ruim"}
                   {estrelas === 2 && "Ruim"}
                   {estrelas === 3 && "Regular"}
@@ -328,7 +327,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
 
             {/* Badges */}
             <div>
-              <span className="block text-sm font-medium text-gray-700 mb-2">
+              <span className="block text-sm font-medium text-foreground/80 mb-2">
                 O que mais gostou? (Opcional)
               </span>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -343,7 +342,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                       className={`p-2 rounded-lg border text-xs font-medium transition-all flex items-center gap-1 cursor-pointer ${
                         isSelected 
                           ? `${badge.color} border-current` 
-                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                          : 'bg-muted/50 text-muted-foreground border-border hover:bg-accent'
                       }`}
                     >
                       <IconComponent className="h-3 w-3" />
@@ -356,7 +355,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
 
             {/* Descrição */}
             <div>
-              <label htmlFor="comentario-avaliacao" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="comentario-avaliacao" className="block text-sm font-medium text-foreground/80 mb-2">
                 Comentário (Opcional)
               </label>
               <textarea
@@ -366,19 +365,19 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                 value={descricao}
                 onChange={(e) => setDescricao(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-destructive focus:border-transparent resize-none"
               />
             </div>
 
             {/* Mensagens */}
             {erro && (
-              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+              <div className="text-destructive text-sm bg-destructive/5 p-3 rounded-lg">
                 {erro}
               </div>
             )}
 
             {sucesso && (
-              <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg">
+              <div className="text-success text-sm bg-success/5 p-3 rounded-lg">
                 Avaliação enviada com sucesso! Obrigado pelo seu feedback.
               </div>
             )}
@@ -387,7 +386,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
             <Button
               onClick={enviarAvaliacao}
               disabled={enviando}
-              className="w-full bg-red-600 hover:bg-red-700 cursor-pointer"
+              className="w-full bg-primary hover:bg-primary-hover cursor-pointer"
             >
               {enviando ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -401,23 +400,23 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
 
         {/* Lista de Avaliações */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Avaliações dos Clientes
           </h2>
 
           {loading ? (
             <div className="text-center py-8">
-              <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-gray-600">Carregando avaliações...</p>
+              <div className="w-8 h-8 border-2 border-destructive border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Carregando avaliações...</p>
             </div>
           ) : avaliacoes.length === 0 ? (
             <Card>
               <CardContent className="text-center py-12">
                 <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   Seja o primeiro a avaliar!
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Compartilhe sua experiência e ajude outros clientes.
                 </p>
               </CardContent>
@@ -437,24 +436,24 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                     className={`
                       ${isLarge ? 'md:col-span-2' : ''}
                       ${(isTall || hasDescription || hasManyBadges) ? 'md:row-span-2' : ''}
-                      transition-all duration-300 hover:shadow-lg hover:-translate-y-1
+                      transition-all duration-300 hover:shadow-lg
                     `}
                   >
                     <CardContent className="p-4 h-full flex flex-col">
                       {/* Header da avaliação */}
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h3 className="font-medium text-gray-900 truncate">{avaliacao.nome_cliente}</h3>
+                          <h3 className="font-medium text-foreground truncate">{avaliacao.nome_cliente}</h3>
                           <div className="flex items-center gap-2 mt-1">
                             {renderEstrelas(avaliacao.estrelas, 'sm')}
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-muted-foreground">
                               {formatarData(avaliacao.criado_em)}
                             </span>
                           </div>
                         </div>
                         {avaliacao.estrelas === 5 && (
                           <div className="ml-2">
-                            <Award className="h-4 w-4 text-yellow-500" />
+                            <Award className="h-4 w-4 text-warning-foreground" />
                           </div>
                         )}
                       </div>
@@ -483,7 +482,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                                 })}
                                 {avaliacao.badges.length > limite && !isExpandido && (
                                   <Badge 
-                                    className="bg-gray-100 text-gray-600 text-xs cursor-pointer hover:bg-gray-200 transition-colors"
+                                    className="bg-muted text-muted-foreground text-xs cursor-pointer hover:bg-accent transition-colors"
                                     onClick={() => {
                                       const novosExpandidos = new Set(cardsExpandidos)
                                       novosExpandidos.add(avaliacao.id)
@@ -502,7 +501,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                       {/* Descrição */}
                       {avaliacao.descricao && (
                         <div className="flex-1">
-                          <p className={`text-gray-700 text-sm leading-relaxed ${
+                          <p className={`text-foreground/80 text-sm leading-relaxed ${
                             isLarge ? '' : 'line-clamp-3'
                           }`}>
                             {avaliacao.descricao}
@@ -513,7 +512,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
                       {/* Indicador de qualidade */}
                       {avaliacao.estrelas >= 4 && (
                         <div className="mt-auto pt-2">
-                          <div className="flex items-center gap-1 text-xs text-green-600">
+                          <div className="flex items-center gap-1 text-xs text-success">
                             <ThumbsUp className="h-3 w-3" />
                             <span>Recomendado</span>
                           </div>
@@ -539,7 +538,6 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
         onClose={() => setModalInfoAberto(false)}
       />
 
-      <CookieConsent />
     </div>
   )
 }

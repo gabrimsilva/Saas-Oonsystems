@@ -70,8 +70,8 @@ export const Stepper = ({
                 className={`
                   flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium
                   transition-colors
-                  ${isStepComplete(index) ? 'bg-green-500 text-white' : ''}
-                  ${isStepActive(index) ? 'bg-indigo-600 text-white' : ''}
+                  ${isStepComplete(index) ? 'bg-success text-white' : ''}
+                  ${isStepActive(index) ? 'bg-primary text-white' : ''}
                   ${!isStepComplete(index) && !isStepActive(index) ? 'bg-gray-300 text-gray-500' : ''}
                   ${isStepClickable(index) ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}
                 `}
@@ -84,7 +84,7 @@ export const Stepper = ({
                 <div 
                   className={`
                     w-0.5 h-12 my-1
-                    ${isStepComplete(index) ? 'bg-green-500' : 'bg-gray-300'}
+                    ${isStepComplete(index) ? 'bg-success' : 'bg-gray-300'}
                   `}
                 />
               )}
@@ -94,8 +94,8 @@ export const Stepper = ({
             <div className="pb-8">
               <div className={`
                 text-sm font-medium
-                ${isStepActive(index) ? 'text-indigo-600' : ''}
-                ${isStepComplete(index) ? 'text-green-600' : ''}
+                ${isStepActive(index) ? 'text-primary' : ''}
+                ${isStepComplete(index) ? 'text-success' : ''}
                 ${!isStepComplete(index) && !isStepActive(index) ? 'text-gray-500' : ''}
               `}>
                 {step.label}
@@ -125,8 +125,8 @@ export const Stepper = ({
               className={`
                 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-sm sm:text-base font-bold
                 transition-colors flex-shrink-0
-                ${isStepComplete(index) ? 'bg-green-500 text-white' : ''}
-                ${isStepActive(index) ? 'bg-green-500 text-white' : ''}
+                ${isStepComplete(index) ? 'bg-success text-white' : ''}
+                ${isStepActive(index) ? 'bg-success text-white' : ''}
                 ${!isStepComplete(index) && !isStepActive(index) ? 'bg-gray-300 text-gray-500' : ''}
                 ${isStepClickable(index) ? 'cursor-pointer hover:opacity-80' : 'cursor-default'}
               `}
@@ -138,8 +138,8 @@ export const Stepper = ({
             <div className="text-left">
               <div className={`
                 text-sm sm:text-base font-medium whitespace-nowrap
-                ${isStepActive(index) ? 'text-green-500' : ''}
-                ${isStepComplete(index) ? 'text-green-500' : ''}
+                ${isStepActive(index) ? 'text-success' : ''}
+                ${isStepComplete(index) ? 'text-success' : ''}
                 ${!isStepComplete(index) && !isStepActive(index) ? 'text-gray-400' : ''}
               `}>
                 {step.label}
@@ -152,7 +152,7 @@ export const Stepper = ({
             <div 
               className={`
                 w-8 sm:w-16 h-0.5 mx-2 sm:mx-4
-                ${isStepComplete(index) ? 'bg-green-500' : 'bg-gray-300'}
+                ${isStepComplete(index) ? 'bg-success' : 'bg-gray-300'}
               `}
             />
           )}

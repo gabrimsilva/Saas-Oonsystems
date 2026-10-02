@@ -43,7 +43,7 @@ const ResumoPedido = ({
 
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium">{item.produto.nome}</h4>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   {item.tamanhoSelecionado && (
                     <span>Tamanho: {item.tamanhoSelecionado.nome} • </span>
                   )}
@@ -78,9 +78,9 @@ const ResumoPedido = ({
             <span>Subtotal:</span>
             <span>R$ {calcularSubtotal().toFixed(2).replace('.', ',')}</span>
           </div>
-          <div className="flex justify-between text-sm text-gray-600">
+          <div className="flex justify-between text-sm text-muted-foreground">
             <span>Retirada no local:</span>
-            <span className="text-green-600 font-medium">Grátis</span>
+            <span className="text-success font-medium">Grátis</span>
           </div>
           <Separator />
           <div className="flex justify-between text-lg font-bold">

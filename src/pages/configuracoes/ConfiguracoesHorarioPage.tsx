@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { ActionButton } from "@/components/ui/action-button"
-import { Save, Loader2, CheckCircle } from "lucide-react"
+import { Save, CheckCircle } from "lucide-react"
 import { configuracaoService } from "@/services"
 import { HorarioFuncionamento } from "@/components/configuracoes/HorarioFuncionamento"
 import {
@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 interface DiaDaSemana {
   nome: string
@@ -90,11 +91,7 @@ export default function ConfiguracoesHorarioPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
-      </div>
-    )
+    return <CarregandoPagina variante="formulario" />
   }
 
   return (
@@ -124,7 +121,7 @@ export default function ConfiguracoesHorarioPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-success" />
               Sucesso!
             </AlertDialogTitle>
             <AlertDialogDescription>

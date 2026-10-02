@@ -65,7 +65,7 @@ function CatalogoProdutoCard({
 
   return (
     <Card 
-      className={`overflow-hidden transition-all duration-300 border border-purple-100 p-0 rounded-2xl ${
+      className={`overflow-hidden transition-all duration-300 border border-primary/10 p-0 rounded-xl ${
         esgotado ? "grayscale opacity-60" : "hover:shadow-lg"
       }`}
       aria-disabled={esgotado || undefined}
@@ -76,20 +76,20 @@ function CatalogoProdutoCard({
       <div className="flex items-center relative">
         {/* Badge de Sem Estoque — só para produtos com controle de estoque ativado */}
         {produto.requiresStock && produto.quantidadeEstoque === 0 && (
-          <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+          <div className="absolute top-2 left-2 z-10 bg-destructive text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
             SEM ESTOQUE
           </div>
         )}
 
         {/* Badge de Indisponível — só para produtos com controle de estoque ativado */}
         {produto.requiresStock && !produto.estoqueDisponivel && produto.quantidadeEstoque !== 0 && (
-          <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-500 to-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+          <div className="absolute top-2 left-2 z-10 bg-destructive text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
             INDISPONÍVEL
           </div>
         )}
         
         {/* Imagem */}
-        <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 m-3 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+        <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 m-3 bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
           <img
             src={produto.urlImagem}
             alt={produto.nome}
@@ -104,16 +104,16 @@ function CatalogoProdutoCard({
         {/* Conteúdo */}
         <div className="flex-1 p-3 pl-0 flex flex-col justify-center">
           <div className="flex-1">
-            <h3 className="font-bold text-base md:text-lg mb-0.5 text-gray-900 leading-tight">
+            <h3 className="font-bold text-base md:text-lg mb-0.5 text-foreground leading-tight">
               {produto.nome}
             </h3>
 
             {/* Categoria */}
-            <p className="text-xs md:text-sm text-gray-400 mb-1 leading-tight capitalize">
+            <p className="text-xs md:text-sm text-muted-foreground/70 mb-1 leading-tight capitalize">
               {produto.categoria}
             </p>
 
-            <p className="text-gray-500 text-xs md:text-sm mb-2 line-clamp-1 md:line-clamp-2 leading-tight">
+            <p className="text-muted-foreground text-xs md:text-sm mb-2 line-clamp-1 md:line-clamp-2 leading-tight">
               {produto.descricao}
             </p>
           </div>
@@ -123,10 +123,10 @@ function CatalogoProdutoCard({
             {preco !== null ? (
               <div className="flex flex-col leading-tight">
                 {anterior !== null && (
-                  <span className="text-xs text-gray-400 line-through">{formatarReais(anterior)}</span>
+                  <span className="text-xs text-muted-foreground/70 line-through">{formatarReais(anterior)}</span>
                 )}
-                <span className="text-base md:text-lg font-bold text-purple-700">{formatarReais(preco)}</span>
-                {esgotado && <span className="text-xs font-semibold text-gray-600">Esgotado</span>}
+                <span className="text-base md:text-lg font-bold text-primary">{formatarReais(preco)}</span>
+                {esgotado && <span className="text-xs font-semibold text-muted-foreground">Esgotado</span>}
               </div>
             ) : (
               <span />
@@ -138,7 +138,7 @@ function CatalogoProdutoCard({
                 e.stopPropagation()
                 onAbrirDetalhes(produto)
               }}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 h-9 px-4 rounded-full mr-3 cursor-pointer shadow-md text-white flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover h-9 px-4 rounded-full mr-3 cursor-pointer shadow-md text-white flex items-center gap-2"
               aria-label="Ver detalhes"
             >
               <Eye className="h-4 w-4" />

@@ -40,14 +40,6 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock
 })
 
-// Mock do Google Analytics
-vi.mock('@/services/googleAnalyticsService', () => ({
-  googleAnalytics: {
-    trackAddToCart: vi.fn(),
-    trackRemoveFromCart: vi.fn(),
-  }
-}))
-
 // Mock dos cálculos
 vi.mock('@/utils/calculos', () => ({
   calcularSubtotal: vi.fn((carrinho) => {

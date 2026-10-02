@@ -12,6 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { CreditCard } from "lucide-react"
+import PagamentoDividido from "@/components/PagamentoDividido"
+import { DIVISAO_INICIAL, resolverDivisao, type PagamentoDivididoResolvido } from "@/utils/pagamentoDividido"
 import { format, addDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -26,6 +28,8 @@ interface ModalFinalizarPedidoProps {
     prazoDias?: number
     numeroParcelas?: number
     nomeCliente?: string
+    /** Preenchido quando formaPagamento = 'dividido' */
+    pagamentoDividido?: PagamentoDivididoResolvido
   }) => void
   subtotal: number
   taxaEntrega: number
@@ -46,7 +50,8 @@ export default function ModalFinalizarPedido({
   onConfirmar,
   subtotal,
   total,
-  processando
+  processando,
+  carrinhoVazio = false
 }: ModalFinalizarPedidoProps) {
   const [formaPagamento, setFormaPagamento] = useState('pix')
   const [precisaTroco, setPrecisaTroco] = useState(false)
@@ -55,6 +60,7 @@ export default function ModalFinalizarPedido({
   const [prazoDias, setPrazoDias] = useState('7')
   const [numeroParcelas, setNumeroParcelas] = useState('3')
   const [nomeCliente, setNomeCliente] = useState('')
+  const [divisao, setDivisao] = useState(DIVISAO_INICIAL)
 
   // 🐛 DEBUG: Log para verificar remontagem do modal
   useEffect(() => {
@@ -80,9 +86,25 @@ export default function ModalFinalizarPedido({
     setPrazoDias('7')
     setNumeroParcelas('3')
     setNomeCliente('')
+    setDivisao(DIVISAO_INICIAL)
   }, [isOpen])
 
+  const dividido = !consumoInterno && formaPagamento === 'dividido'
+  const pagamentoDividido = dividido ? resolverDivisao(total, divisao) : null
+
   const handleConfirmar = () => {
+    if (dividido) {
+      if (!pagamentoDividido) return
+      onConfirmar({
+        formaPagamento: 'dividido',
+        precisaTroco: pagamentoDividido.trocoPara !== undefined,
+        valorTroco: pagamentoDividido.trocoPara,
+        consumoInterno: false,
+        nomeCliente: nomeCliente.trim() || undefined,
+        pagamentoDividido,
+      })
+      return
+    }
     // Finalizar venda
     onConfirmar({
       formaPagamento: consumoInterno ? 'interno' : formaPagamento,
@@ -104,6 +126,7 @@ export default function ModalFinalizarPedido({
     setPrazoDias('7')
     setNumeroParcelas('3')
     setNomeCliente('')
+    setDivisao(DIVISAO_INICIAL)
     onClose()
   }
 
@@ -127,7 +150,7 @@ export default function ModalFinalizarPedido({
         
         <div className="space-y-4">
           {/* Checkbox Consumo Interno */}
-          <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg">
             <div className="flex items-start space-x-3">
               <input
                 type="checkbox"
@@ -138,15 +161,15 @@ export default function ModalFinalizarPedido({
                 className="mt-1"
               />
               <div className="flex-1">
-                <Label htmlFor="consumoInterno" className="font-semibold text-orange-800 cursor-pointer">
+                <Label htmlFor="consumoInterno" className="font-semibold text-warning-foreground cursor-pointer">
                   Consumo Interno
                 </Label>
-                <p className="text-xs text-orange-700 mt-1">
+                <p className="text-xs text-warning-foreground mt-1">
                   Marcar para registrar como consumo interno (sem cobrança, estoque reduzido normalmente)
                 </p>
                 {consumoInterno && (
-                  <div className="mt-2 p-2 bg-orange-100 rounded border border-orange-300 text-xs text-orange-800">
-                    ⚠️ Consumo interno ativado - Total será R$ 0,00 e estoque será reduzido normalmente
+                  <div className="mt-2 p-2 bg-warning/15 rounded border border-warning/40 text-xs text-warning-foreground">
+                    Consumo interno ativado - Total será R$ 0,00 e estoque será reduzido normalmente
                   </div>
                 )}
               </div>
@@ -161,7 +184,8 @@ export default function ModalFinalizarPedido({
               Forma de Pagamento
             </Label>
             <select 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
+              id="formaPagamento"
+              className="w-full px-3 py-2 border border-input rounded-md bg-card"
               value={formaPagamento} 
               onChange={(e) => setFormaPagamento(e.target.value)}
               disabled={processando}
@@ -171,8 +195,13 @@ export default function ModalFinalizarPedido({
               <option value="cartaoDebito">Cartão de Débito</option>
               <option value="cartaoCredito">Cartão de Crédito</option>
               <option value="aPrazo">A Prazo</option>
+              <option value="dividido">Dividir em duas formas</option>
             </select>
           </div>
+
+          {formaPagamento === 'dividido' && (
+            <PagamentoDividido total={total} valor={divisao} onChange={setDivisao} disabled={processando} idBase="pdv-divisao" />
+          )}
 
           {/* Nome do Cliente - Disponível para todas as formas de pagamento */}
           <div>
@@ -186,13 +215,13 @@ export default function ModalFinalizarPedido({
               disabled={processando}
               maxLength={100}
             />
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Facilita identificar a venda no histórico
             </p>
           </div>
 
           {formaPagamento === 'aPrazo' && (
-            <div className="space-y-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="space-y-3 p-3 bg-warning/10 border border-warning/30 rounded-lg">
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -207,7 +236,7 @@ export default function ModalFinalizarPedido({
                     placeholder="7"
                     disabled={processando}
                   />
-                  <p className="text-xs text-amber-700 mt-1">
+                  <p className="text-xs text-warning-foreground mt-1">
                     Dias até o vencimento da 1ª parcela
                   </p>
                 </div>
@@ -215,7 +244,7 @@ export default function ModalFinalizarPedido({
                   <Label htmlFor="numeroParcelas">Parcelas</Label>
                   <select
                     id="numeroParcelas"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-card"
                     value={numeroParcelas}
                     onChange={(e) => setNumeroParcelas(e.target.value)}
                     disabled={processando}
@@ -224,7 +253,7 @@ export default function ModalFinalizarPedido({
                       <option key={n} value={n}>{n}x</option>
                     ))}
                   </select>
-                  <p className="text-xs text-amber-700 mt-1">
+                  <p className="text-xs text-warning-foreground mt-1">
                     Em quantas vezes será dividido
                   </p>
                 </div>
@@ -232,7 +261,7 @@ export default function ModalFinalizarPedido({
 
               {/* Preview das parcelas */}
               {total > 0 && (
-                <div className="p-3 bg-white rounded border border-amber-300 space-y-2">
+                <div className="p-3 bg-card rounded border border-warning/40 space-y-2">
                   {(() => {
                     const prazo = parseInt(prazoDias) || 7
                     const qtdParcelas = parseInt(numeroParcelas) || 3
@@ -242,7 +271,7 @@ export default function ModalFinalizarPedido({
                     if (qtdParcelas === 1) {
                       const dataVencimento = addDays(hoje, prazo)
                       return (
-                        <div className="text-xs text-amber-800">
+                        <div className="text-xs text-warning-foreground">
                           <span className="font-semibold">Pagamento único</span> de{' '}
                           <span className="font-semibold">R$ {valorParcela.toFixed(2).replace('.', ',')}</span>
                           {' '}em{' '}
@@ -253,7 +282,7 @@ export default function ModalFinalizarPedido({
 
                     return (
                       <>
-                        <div className="text-xs text-amber-800 font-semibold mb-1">
+                        <div className="text-xs text-warning-foreground font-semibold mb-1">
                           {qtdParcelas}x de R$ {valorParcela.toFixed(2).replace('.', ',')}
                         </div>
                         <div className="space-y-1">
@@ -261,7 +290,7 @@ export default function ModalFinalizarPedido({
                             // Cada parcela vence a cada "prazo" dias (ex: 7 dias, 14 dias, 21 dias)
                             const dataVencimento = addDays(hoje, prazo * (i + 1))
                             return (
-                              <div key={i} className="text-xs text-amber-700 flex items-center gap-2">
+                              <div key={i} className="text-xs text-warning-foreground flex items-center gap-2">
                                 <span className="font-medium">{i + 1}ª parcela:</span>
                                 <span>{format(dataVencimento, "dd/MM/yyyy", { locale: ptBR })}</span>
                               </div>
@@ -290,7 +319,7 @@ export default function ModalFinalizarPedido({
               </div>
               
               {precisaTroco && (
-                <div className="space-y-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="space-y-3 p-3 bg-info/5 border border-info/30 rounded-lg">
                   <div>
                     <Label htmlFor="valorTroco">Valor pago (troco para)</Label>
                     <Input
@@ -305,24 +334,24 @@ export default function ModalFinalizarPedido({
                   
                   {/* Exibir troco calculado */}
                   {valorTroco && parseFloat(valorTroco) > 0 && (
-                    <div className="p-3 bg-white rounded border border-blue-300 space-y-1">
+                    <div className="p-3 bg-card rounded border border-info/30 space-y-1">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Total do pedido:</span>
+                        <span className="text-muted-foreground">Total do pedido:</span>
                         <span className="font-semibold">R$ {total.toFixed(2).replace('.', ',')}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Valor pago:</span>
+                        <span className="text-muted-foreground">Valor pago:</span>
                         <span className="font-semibold">R$ {parseFloat(valorTroco).toFixed(2).replace('.', ',')}</span>
                       </div>
                       <div className="border-t pt-2 flex justify-between">
-                        <span className="font-semibold text-green-700">Troco:</span>
-                        <span className="font-bold text-green-700 text-lg">
+                        <span className="font-semibold text-success">Troco:</span>
+                        <span className="font-bold text-success text-lg">
                           R$ {(parseFloat(valorTroco) - total).toFixed(2).replace('.', ',')}
                         </span>
                       </div>
                       {parseFloat(valorTroco) < total && (
-                        <div className="text-xs text-red-600 mt-2">
-                          ⚠️ Valor pago é menor que o total!
+                        <div className="text-xs text-destructive mt-2">
+                          Valor pago é menor que o total!
                         </div>
                       )}
                     </div>
@@ -337,7 +366,7 @@ export default function ModalFinalizarPedido({
           <Separator />
 
           {/* Resumo Simplificado - PDV */}
-          <div className="p-4 rounded-lg space-y-2 bg-gray-50">
+          <div className="p-4 rounded-lg space-y-2 bg-muted/50">
             {!consumoInterno && (
               <>
             <div className="flex justify-between">
@@ -349,12 +378,12 @@ export default function ModalFinalizarPedido({
             )}
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span className={consumoInterno ? "text-orange-600" : "text-green-600"}>
+              <span className={consumoInterno ? "text-warning-foreground" : "text-success"}>
                 R$ {consumoInterno ? '0,00' : total.toFixed(2).replace('.', ',')}
               </span>
             </div>
             {consumoInterno && (
-              <p className="text-xs text-orange-600 mt-1">
+              <p className="text-xs text-warning-foreground mt-1">
                 * Consumo interno - sem valor de cobrança
               </p>
             )}
@@ -371,7 +400,7 @@ export default function ModalFinalizarPedido({
           </Button>
           <Button 
             onClick={handleConfirmar} 
-            disabled={processando}
+            disabled={processando || carrinhoVazio || (dividido && !pagamentoDividido)}
           >
             {processando ? 'Processando...' : 'Confirmar Pedido'}
           </Button>

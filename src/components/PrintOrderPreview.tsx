@@ -123,7 +123,7 @@ export default function PrintOrderPreview({ pedido, fontSizes: propFontSizes }: 
   const idCurto = pedido.codigo_pedido || pedido.pedido_id.split('-').pop()?.slice(-4) || pedido.pedido_id.slice(-4)
 
   return (
-    <div className="w-full max-w-[280px] mx-auto bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full max-w-[280px] mx-auto bg-card border-2 border-input rounded-lg overflow-hidden shadow-lg">
       <style>{`
         .thermal-preview {
           font-family: "Courier New", Courier, monospace;

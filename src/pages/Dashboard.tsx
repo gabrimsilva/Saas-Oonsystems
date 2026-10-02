@@ -22,6 +22,7 @@ import {
   ClipboardList,
   CalendarIcon
 } from "lucide-react"
+import { CartaoIndicador } from '@/components/ui/indicador'
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -306,15 +307,15 @@ export default function Dashboard() {
     return (
       <div className="p-6 space-y-6 bg-gray-50/30">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Carregando dados...</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">Carregando dados...</p>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map(i => (
-            <Card key={i} className="border-0 shadow-md bg-white animate-pulse">
+            <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-muted rounded mb-2"></div>
+                <div className="h-8 bg-muted rounded"></div>
               </CardContent>
             </Card>
           ))}
@@ -327,8 +328,8 @@ export default function Dashboard() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">
             Visão geral das suas vendas e produtos
           </p>
         </div>
@@ -336,8 +337,8 @@ export default function Dashboard() {
 
       {/* Header Mobile */}
       <div className="md:hidden text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 text-sm mt-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           Visão geral das suas vendas e produtos
         </p>
       </div>
@@ -386,98 +387,69 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Cards principais com dados reais */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border border-neutral-200 shadow-sm bg-white/60 backdrop-blur-sm text-neutral-900 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-neutral-900/5 rounded-full -mr-10 -mt-10"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 relative z-10 py-1 px-3">
-            <CardTitle className="text-xs md:text-sm font-medium text-neutral-500">
-              Produtos Vendidos
-            </CardTitle>
-            <ClipboardList className="h-4 w-4 md:h-5 md:w-5 text-neutral-500" />
-          </CardHeader>
-          <CardContent className="relative z-10 py-1 px-3 pt-0">
-            <div className="text-lg md:text-xl font-bold">{stats.unidadesVendidasPDV}</div>
-            <p className="text-xs md:text-sm text-neutral-500">
-              {getPeriodoTexto()}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-neutral-200 shadow-sm bg-white/60 backdrop-blur-sm text-neutral-900 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-neutral-900/5 rounded-full -mr-10 -mt-10"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 relative z-10 py-1 px-3">
-            <CardTitle className="text-xs md:text-sm font-medium text-neutral-500">
-              Produtos Cadastrados
-            </CardTitle>
-            <Package className="h-4 w-4 md:h-5 md:w-5 text-neutral-500" />
-          </CardHeader>
-          <CardContent className="relative z-10 py-1 px-3 pt-0">
-            <div className="text-lg md:text-xl font-bold">{stats.produtosCadastrados}</div>
-            <p className="text-xs md:text-sm text-neutral-500">
-              Produtos ativos
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-neutral-200 shadow-sm bg-white/60 backdrop-blur-sm text-neutral-900 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-neutral-900/5 rounded-full -mr-10 -mt-10"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 relative z-10 py-1 px-3">
-            <CardTitle className="text-xs md:text-sm font-medium text-neutral-500">
-              Avaliação Média
-            </CardTitle>
-            <Star className="h-4 w-4 md:h-5 md:w-5 text-neutral-500" />
-          </CardHeader>
-          <CardContent className="relative z-10 py-1 px-3 pt-0">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="text-lg md:text-xl font-bold">{stats.avaliacaoMedia || '0.0'}</div>
-              <div className="flex">
+      {/* Indicadores principais */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <CartaoIndicador
+          titulo="Produtos vendidos"
+          valor={stats.unidadesVendidasPDV}
+          descricao={getPeriodoTexto()}
+          icone={ClipboardList}
+          tom="primario"
+        />
+        <CartaoIndicador
+          titulo="Produtos cadastrados"
+          valor={stats.produtosCadastrados}
+          descricao="Produtos ativos"
+          icone={Package}
+        />
+        <CartaoIndicador
+          titulo="Avaliação média"
+          valor={
+            <span className="flex items-center gap-2">
+              {stats.avaliacaoMedia || '0.0'}
+              <span className="flex" aria-label={`${Math.round(stats.avaliacaoMedia)} de 5 estrelas`}>
                 {[1, 2, 3, 4, 5].map((estrela) => (
                   <Star
                     key={estrela}
-                    className={`h-3 w-3 md:h-4 md:w-4 ${estrela <= Math.round(stats.avaliacaoMedia)
-                      ? 'text-amber-400 fill-current'
-                      : 'text-neutral-300'
-                      }`}
+                    className={`size-4 ${estrela <= Math.round(stats.avaliacaoMedia) ? 'text-amber-400 fill-current' : 'text-border-strong'}`}
                   />
                 ))}
-              </div>
-            </div>
-            <p className="text-xs md:text-sm text-neutral-500">
-              {stats.avaliacaoMedia > 0
-                ? `${stats.totalAvaliacoes} ${stats.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'}`
-                : 'Sem avaliações ainda'
-              }
-            </p>
-          </CardContent>
-        </Card>
+              </span>
+            </span>
+          }
+          descricao={stats.avaliacaoMedia > 0
+            ? `${stats.totalAvaliacoes} ${stats.totalAvaliacoes === 1 ? 'avaliação' : 'avaliações'}`
+            : 'Sem avaliações ainda'}
+          icone={Star}
+          tom="atencao"
+        />
       </div>
 
       {/* Seção de produtos favoritos */}
       <div className="grid gap-4 lg:grid-cols-1">
-        <Card className="border-0 shadow-lg bg-white">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-xl text-gray-900 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-neutral-700" />
+            <CardTitle className="text-xl text-foreground flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-foreground/80" />
               Produtos Mais Vendidos
             </CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardDescription className="text-muted-foreground">
               Os produtos mais vendidos no período selecionado
             </CardDescription>
           </CardHeader>
           <CardContent>
             {produtosFavoritos.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>Nenhuma venda registrada no período selecionado</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {produtosFavoritos.map((produto, index) => (
-                  <div key={produto.nome} className="flex items-center justify-between p-3 md:p-4 bg-gray-50 rounded-lg">
+                  <div key={produto.nome} className="flex items-center justify-between p-3 md:p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3 md:space-x-4 flex-1 min-w-0">
                       <div className="relative w-12 h-12 md:w-14 md:h-14 flex-shrink-0">
-                        <div className="w-full h-full rounded-full overflow-hidden border-2 border-gray-200">
+                        <div className="w-full h-full rounded-full overflow-hidden border-2 border-border">
                           <img
                             src={produto.imagem || '/placeholder-food.svg'}
                             alt={produto.nome}
@@ -489,26 +461,26 @@ export default function Dashboard() {
                           />
                         </div>
                         <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white shadow-md ${
-                          index === 0 ? 'bg-yellow-500' :
-                          index === 1 ? 'bg-gray-400' :
-                          index === 2 ? 'bg-orange-600' : 'bg-purple-500'
+                          index === 0 ? 'bg-primary' :
+                          index === 1 ? 'bg-slate-500' :
+                          index === 2 ? 'bg-slate-400' : 'bg-slate-300'
                         }`}>
                           {index + 1}
                         </div>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900 text-sm md:text-base truncate">{produto.nome}</p>
-                        <p className="text-xs md:text-sm text-gray-600 capitalize">{produto.categoria}</p>
+                        <p className="font-semibold text-foreground text-sm md:text-base truncate">{produto.nome}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground capitalize">{produto.categoria}</p>
                         {index === 0 && (
-                          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 text-xs mt-1">
-                            🏆 Mais Vendido
+                          <Badge className="mt-1">
+                            Mais Vendido
                           </Badge>
                         )}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-xl md:text-2xl font-bold text-gray-900">{produto.quantidade}</p>
-                      <p className="text-xs md:text-sm text-gray-500">
+                      <p className="text-xl md:text-2xl font-bold text-foreground">{produto.quantidade}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">
                         {produto.quantidade === 1 ? 'venda' : 'vendas'}
                       </p>
                     </div>

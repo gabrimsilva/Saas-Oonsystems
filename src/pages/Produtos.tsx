@@ -144,7 +144,7 @@ export default function Produtos() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Package className="h-6 w-6" />
             Produtos
           </h1>
@@ -161,7 +161,7 @@ export default function Produtos() {
             onClick={handleLimparImagensOrfas} 
             variant="outline" 
             loading={limpandoImagens}
-            className="text-orange-600 border-orange-200 hover:bg-orange-50"
+            className="text-warning-foreground border-warning/30 hover:bg-warning/10"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Limpar Imagens Órfãs
@@ -172,7 +172,7 @@ export default function Produtos() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Package className="h-6 w-6" />
             Produtos
           </h1>
@@ -190,7 +190,7 @@ export default function Produtos() {
             onClick={handleLimparImagensOrfas} 
             variant="outline" 
             loading={limpandoImagens}
-            className="w-full text-orange-600 border-orange-200 hover:bg-orange-50"
+            className="w-full text-warning-foreground border-warning/30 hover:bg-warning/10"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Limpar Imagens Órfãs
@@ -199,7 +199,7 @@ export default function Produtos() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -273,7 +273,7 @@ export default function Produtos() {
           {produtosFiltrados.filter(produto => produto.precoPromocional && produto.precoPromocional > 0).length > 0 && (
             <Card className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm">
               <CardContent>
-                <h2 className="text-xl font-semibold mb-4 text-yellow-700">🔥 Promoções</h2>
+                <h2 className="text-lg font-semibold mb-4 text-foreground">Promoções</h2>
                 <div className="grid gap-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1">
                   {produtosFiltrados.filter(produto => produto.precoPromocional && produto.precoPromocional > 0).map((produto) => (
                     <ProdutoCard

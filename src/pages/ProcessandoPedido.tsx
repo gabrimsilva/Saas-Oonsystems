@@ -22,7 +22,6 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
 import BotoesFlutantes from "@/components/delivery/BotoesFlutantes"
-import CookieConsent from "@/components/CookieConsent"
 import { renderizarDetalhesCombo } from "@/utils/comboFormatacao"
 import StatusTimeline from "@/components/StatusTimeline"
 import { formatarFormaPagamento } from "@/utils/statusFormatacao"
@@ -328,21 +327,21 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
 
   // Gradiente do cabeçalho de acordo com o status atual
   const getHeaderGradiente = () => {
-    if (!pedido) return 'bg-gradient-to-r from-green-500 to-green-600'
+    if (!pedido) return 'bg-success'
 
     const ultimoStatus = getUltimoStatus()
 
-    if (ultimoStatus === 'Cancelado') return 'bg-gradient-to-r from-red-500 to-red-600'
-    if (ultimoStatus === 'Preparando') return 'bg-gradient-to-r from-orange-500 to-orange-600'
+    if (ultimoStatus === 'Cancelado') return 'bg-destructive'
+    if (ultimoStatus === 'Preparando') return 'bg-warning'
     if (ultimoStatus === 'Liberado') {
       return pedido.entrega_domicilio
-        ? 'bg-gradient-to-r from-purple-500 to-purple-600' // A caminho (roxo)
-        : 'bg-gradient-to-r from-indigo-500 to-indigo-600'  // Retirada (azul)
+        ? 'bg-primary' // A caminho (roxo)
+        : 'bg-primary'  // Retirada (azul)
     }
     if (ultimoStatus === 'Finalizado' || ultimoStatus === 'Entregue' || ultimoStatus === 'Retirado') {
-      return 'bg-gradient-to-r from-gray-500 to-gray-600' // Finalizado (cinza)
+      return 'bg-gray-600' // Finalizado (cinza)
     }
-    return 'bg-gradient-to-r from-green-500 to-green-600' // Criado/Confirmado (verde)
+    return 'bg-success' // Criado/Confirmado (verde)
   }
 
   // Ícone do cabeçalho de acordo com o status atual
@@ -383,10 +382,10 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-destructive rounded-full flex items-center justify-center mx-auto mb-4">
             <Package className="w-8 h-8 text-white" />
           </div>
-          <p className="text-gray-600">Carregando pedido...</p>
+          <p className="text-muted-foreground">Carregando pedido...</p>
         </div>
       </div>
     )
@@ -396,7 +395,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Pedido não encontrado</p>
+          <p className="text-muted-foreground mb-4">Pedido não encontrado</p>
           <Button onClick={onVoltarMenu}>Voltar ao Menu</Button>
         </div>
       </div>
@@ -404,7 +403,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-muted/60">
       {/* Header */}
       <Header
         nomeEstabelecimento={configuracao.nomeEstabelecimento}
@@ -427,8 +426,8 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                     {getHeaderIcone()}
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold">{getTituloPedido()}</h1>
-                    <p className="text-green-100">#{getIdCurto()}</p>
+                    <h1 className="text-2xl font-semibold">{getTituloPedido()}</h1>
+                    <p className="text-success/60">#{getIdCurto()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
@@ -439,7 +438,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-green-100 text-sm">Total Pago</p>
+                <p className="text-success/60 text-sm">Total Pago</p>
                 <p className="text-2xl font-bold">R$ {pedido.total.toFixed(2).replace('.', ',')}</p>
               </div>
             </div>
@@ -452,8 +451,8 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                 </div>
                 <div className="flex-1">
                   <h1 className="text-xl font-bold mb-1">{getTituloPedido()}</h1>
-                  <p className="text-green-100 text-lg mb-2">#{getIdCurto()}</p>
-                  <p className="text-green-100 text-sm mb-1">Total Pago</p>
+                  <p className="text-success/60 text-lg mb-2">#{getIdCurto()}</p>
+                  <p className="text-success/60 text-sm mb-1">Total Pago</p>
                   <p className="text-2xl font-bold mb-3">R$ {pedido.total.toFixed(2).replace('.', ',')}</p>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -486,8 +485,8 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
               <CardContent>
                 <div className="space-y-4">
                   {pedido.itens.map((item: any, index: number) => (
-                    <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                    <div key={index} className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                      <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
                         {item.produto.imagem_path || item.produto.urlImagem ? (
                           <img
                             src={item.produto.imagem_path || item.produto.urlImagem}
@@ -499,13 +498,13 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                             }}
                           />
                         ) : (
-                          <Package className="w-8 h-8 text-gray-400" />
+                          <Package className="w-8 h-8 text-muted-foreground/70" />
                         )}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">{item.produto.nome}</h4>
+                        <h4 className="font-semibold text-foreground">{item.produto.nome}</h4>
                         {(item.produto?.categoria_nome || item.produto?.categoria) && (
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             {item.produto.categoria_nome || item.produto.categoria}
                           </p>
                         )}
@@ -515,7 +514,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                         
                         {/* Renderizar detalhes normais se não for combo */}
                         {!item.produtosCombo && (
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-sm text-muted-foreground space-y-1">
                             {item.tamanhoSelecionado && (
                               <p>Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})</p>
                             )}
@@ -531,7 +530,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                               ).join(', ')}</p>
                             )}
                             {item.observacoes && (
-                              <p className="text-xs text-gray-500 italic flex items-start gap-1">
+                              <p className="text-xs text-muted-foreground italic flex items-start gap-1">
                                 <MessageSquare className="inline h-3 w-3 mt-0.5 flex-shrink-0" />
                                 <span>Obs: {item.observacoes}</span>
                               </p>
@@ -555,29 +554,29 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Phone className="w-5 h-5 text-red-600" />
+                  <Phone className="w-5 h-5 text-destructive" />
                   Seus Dados
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">Nome</p>
+                  <p className="text-sm text-muted-foreground">Nome</p>
                   <p className="font-semibold">{pedido.cliente_nome} {pedido.cliente_sobrenome}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Telefone</p>
+                  <p className="text-sm text-muted-foreground">Telefone</p>
                   <p className="font-semibold">{pedido.cliente_telefone}</p>
                 </div>
                 {pedido.cliente_email && (
                   <div>
-                    <p className="text-sm text-gray-600">Email</p>
+                    <p className="text-sm text-muted-foreground">Email</p>
                     <p className="font-semibold">{pedido.cliente_email}</p>
                   </div>
                 )}
                 {cliente && cliente.total_pedidos > 1 && (
                   <div className="pt-2 border-t">
-                    <p className="text-xs text-gray-500">Cliente desde {formatarData(cliente.criado_em)}</p>
-                    <p className="text-xs text-gray-500">{cliente.total_pedidos} pedidos realizados</p>
+                    <p className="text-xs text-muted-foreground">Cliente desde {formatarData(cliente.criado_em)}</p>
+                    <p className="text-xs text-muted-foreground">{cliente.total_pedidos} pedidos realizados</p>
                   </div>
                 )}
               </CardContent>
@@ -588,7 +587,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-red-600" />
+                    <MapPin className="w-5 h-5 text-destructive" />
                     Endereço de Entrega
                   </CardTitle>
                 </CardHeader>
@@ -596,14 +595,14 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                   <div className="text-sm space-y-1">
                     <p className="font-semibold">{pedido.cliente_endereco}, {pedido.cliente_numero}</p>
                     {pedido.cliente_complemento && (
-                      <p className="text-gray-600">{pedido.cliente_complemento}</p>
+                      <p className="text-muted-foreground">{pedido.cliente_complemento}</p>
                     )}
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                       {pedido.cliente_bairro && `${pedido.cliente_bairro}, `}
                       {pedido.cliente_cidade} - {pedido.cliente_estado}
                     </p>
                     {pedido.cliente_cep && (
-                      <p className="text-gray-600">CEP: {pedido.cliente_cep}</p>
+                      <p className="text-muted-foreground">CEP: {pedido.cliente_cep}</p>
                     )}
                   </div>
                 </CardContent>
@@ -615,12 +614,12 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5 text-red-600" />
+                    <MessageCircle className="w-5 h-5 text-destructive" />
                     Observações
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{pedido.observacoes}</p>
+                  <p className="text-sm text-foreground/80 whitespace-pre-wrap">{pedido.observacoes}</p>
                 </CardContent>
               </Card>
             )}
@@ -629,7 +628,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-red-600" />
+                  <CreditCard className="w-5 h-5 text-destructive" />
                   Pagamento
                 </CardTitle>
               </CardHeader>
@@ -637,7 +636,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                 <div className="space-y-2">
                   <p className="font-semibold">{formatarFormaPagamento(pedido.forma_pagamento)}</p>
                   {pedido.precisa_troco && pedido.valor_troco && (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Troco para: R$ {pedido.valor_troco.toFixed(2).replace('.', ',')}
                     </p>
                   )}
@@ -654,8 +653,8 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                     )}
                     {(pedido as any).taxa_extra_km > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Taxa extra (distância):</span>
-                        <span className="text-orange-600">R$ {(pedido as any).taxa_extra_km.toFixed(2).replace('.', ',')}</span>
+                        <span className="text-muted-foreground">Taxa extra (distância):</span>
+                        <span className="text-warning-foreground">R$ {(pedido as any).taxa_extra_km.toFixed(2).replace('.', ',')}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-bold text-lg pt-1 border-t">
@@ -670,7 +669,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
             {/* Ações */}
             <div className="space-y-3">
               <Button
-                className="w-full bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+                className="w-full bg-primary hover:bg-primary-hover text-white cursor-pointer"
                 onClick={() => {
                   if (!configuracao.whatsapp) {
                     toast.error('WhatsApp não configurado. Entre em contato pelo telefone.')
@@ -710,7 +709,6 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
       {/* Footer */}
       <Footer nomeEstabelecimento={configuracao.nomeEstabelecimento} />
 
-      <CookieConsent />
     </div>
   )
 }

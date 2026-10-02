@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { stockService, type StockVariant } from "@/services"
 import toast from "react-hot-toast"
+import { confirmar } from '@/components/ui/confirmar'
 
 interface VariantesModalProps {
   isOpen: boolean
@@ -106,7 +107,7 @@ export default function VariantesModal({
   }
 
   const handleRemoverVariante = async (variantId: string) => {
-    if (!confirm('Tem certeza que deseja remover esta variante?')) {
+    if (!(await confirmar({ titulo: 'Remover esta variante?', descricao: 'O estoque desta variante deixa de ser controlado.', confirmar: 'Remover', perigo: true }))) {
       return
     }
 
@@ -195,18 +196,18 @@ export default function VariantesModal({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="p-3 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive text-sm">
             {error}
           </div>
         )}
 
         {/* Informação sobre total */}
         {variantes.length > 0 && (
-          <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-            <p className="text-sm text-indigo-800">
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <p className="text-sm text-primary">
               <strong>Total em estoque:</strong> {calcularTotal()} unidades
             </p>
-            <p className="text-xs text-indigo-600 mt-1">
+            <p className="text-xs text-primary mt-1">
               O total é calculado automaticamente pela soma das variantes
             </p>
           </div>
@@ -215,7 +216,7 @@ export default function VariantesModal({
         {/* Lista de variantes existentes */}
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         ) : variantes.length > 0 ? (
           <div className="space-y-3">
@@ -223,15 +224,15 @@ export default function VariantesModal({
             {variantes.map((variante) => (
               <div
                 key={variante.id}
-                className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-3 p-3 border rounded-lg hover:bg-accent"
               >
                 <div className="flex-1">
                   <p className="font-medium">{variante.nome}</p>
                   {variante.sku && (
-                    <p className="text-xs text-gray-500">SKU: {variante.sku}</p>
+                    <p className="text-xs text-muted-foreground">SKU: {variante.sku}</p>
                   )}
                   {variante.barcode && (
-                    <p className="text-xs text-gray-500">Código: {variante.barcode}</p>
+                    <p className="text-xs text-muted-foreground">Código: {variante.barcode}</p>
                   )}
                   
                   {edicao?.id === variante.id ? (
@@ -250,7 +251,7 @@ export default function VariantesModal({
                       />
                     </div>
                   ) : (
-                    <p className="text-sm font-semibold text-indigo-600 mt-1">
+                    <p className="text-sm font-semibold text-primary mt-1">
                       Quantidade: {variante.quantidade} unidades
                     </p>
                   )}
@@ -264,7 +265,7 @@ export default function VariantesModal({
                         size="sm"
                         onClick={handleSalvarEdicao}
                         disabled={savingEdicao}
-                        className="bg-green-600 hover:bg-green-700 h-8 w-8 p-0"
+                        className="bg-success hover:bg-success/90 h-8 w-8 p-0"
                       >
                         <Check className="h-4 w-4" />
                       </Button>
@@ -285,7 +286,7 @@ export default function VariantesModal({
                         variant="outline"
                         size="sm"
                         onClick={() => handleIniciarEdicao(variante)}
-                        className="h-8 w-8 p-0 border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                        className="h-8 w-8 p-0 border-primary/20 text-primary hover:bg-primary/5"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
@@ -294,7 +295,7 @@ export default function VariantesModal({
                         variant="outline"
                         size="sm"
                         onClick={() => handleRemoverVariante(variante.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/5 h-8 w-8 p-0"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -305,7 +306,7 @@ export default function VariantesModal({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Nenhuma variante cadastrada</p>
             <p className="text-xs mt-1">Adicione variantes como cor, fragrância ou tamanho</p>

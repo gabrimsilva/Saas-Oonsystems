@@ -176,10 +176,10 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
           onChange={setCusto}
           aria-invalid={custoMaiorQuePreco}
           aria-describedby={custoMaiorQuePreco ? "custo-erro" : undefined}
-          className={custoMaiorQuePreco ? "border-red-500 focus-visible:ring-red-500" : ""}
+          className={custoMaiorQuePreco ? "border-destructive focus-visible:ring-destructive" : ""}
         />
         {custoMaiorQuePreco ? (
-          <p id="custo-erro" role="alert" className="text-sm text-red-600 font-medium flex items-center gap-1">
+          <p id="custo-erro" role="alert" className="text-sm text-destructive font-medium flex items-center gap-1">
             <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
             O custo ({formatarReais(custo)}) é maior que o preço de venda ({formatarReais(preco)}). Confira se
             digitou o valor com os centavos no lugar certo.
@@ -200,7 +200,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             onChange={setPreco}
             required
             aria-invalid={custoMaiorQuePreco}
-            className={custoMaiorQuePreco ? "border-red-500 focus-visible:ring-red-500" : ""}
+            className={custoMaiorQuePreco ? "border-destructive focus-visible:ring-destructive" : ""}
           />
         </div>
 
@@ -214,7 +214,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             aria-invalid={!!avisoPromocional}
           />
           {avisoPromocional && (
-            <p role="alert" className="text-sm text-amber-600 font-medium">⚠️ {avisoPromocional}</p>
+            <p role="alert" className="text-sm text-warning-foreground font-medium">{avisoPromocional}</p>
           )}
         </div>
       </div>
@@ -230,7 +230,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             aria-invalid={!!avisoOnline}
           />
           {avisoOnline ? (
-            <p role="alert" className="text-sm text-amber-600 font-medium">⚠️ {avisoOnline}</p>
+            <p role="alert" className="text-sm text-warning-foreground font-medium">{avisoOnline}</p>
           ) : (
             <p className="text-xs text-muted-foreground">
               Cobrado nos pedidos pelo catálogo. Em branco, vale o preço (ou o promocional) acima.
@@ -248,7 +248,7 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             aria-invalid={!!avisoAtacado}
           />
           {avisoAtacado ? (
-            <p role="alert" className="text-sm text-amber-600 font-medium">⚠️ {avisoAtacado}</p>
+            <p role="alert" className="text-sm text-warning-foreground font-medium">{avisoAtacado}</p>
           ) : (
             <p className="text-xs text-muted-foreground">
               Cobrado no modo Atacado do catálogo (se a loja vender no atacado). Em branco, vale o preço online.
@@ -304,13 +304,13 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
           )}
         </select>
         {categorias.length === 0 && (
-          <p className="text-sm text-amber-600">
-            ⚠️ Cadastre categorias antes de criar produtos
+          <p className="text-sm text-warning-foreground">
+            Cadastre categorias antes de criar produtos
           </p>
         )}
         {precoPromocional > 0 && (
-          <p className="text-sm text-green-600 font-medium">
-            ✨ Este produto também aparecerá na seção de promoções
+          <p className="text-sm text-success font-medium">
+            Este produto também aparecerá na seção de promoções
           </p>
         )}
       </div>
@@ -347,14 +347,14 @@ export default function ProdutoForm({ produtoParaEditar, onSave, onCancel, savin
             className={`
               relative inline-flex h-6 w-11 items-center rounded-full transition-colors border-2
               ${requiresStock 
-                ? 'bg-indigo-500 border-indigo-500' 
+                ? 'bg-primary border-primary' 
                 : 'bg-gray-300 border-gray-400'
               }
             `}
           >
             <span
               className={`
-                inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform
+                inline-block h-4 w-4 transform rounded-full bg-card shadow-sm transition-transform
                 ${requiresStock ? 'translate-x-6' : 'translate-x-1'}
               `}
             />

@@ -71,7 +71,7 @@ export default function NotificarClienteWhatsApp({
         variant="ghost"
         size="sm"
         onClick={handleNotificar}
-        className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-600 flex-shrink-0"
+        className="h-6 w-6 p-0 hover:bg-success/10 hover:text-success flex-shrink-0"
         title="Notificar cliente via WhatsApp"
       >
         <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -84,7 +84,7 @@ export default function NotificarClienteWhatsApp({
       variant="outline"
       size="sm"
       onClick={handleNotificar}
-      className="flex items-center gap-1.5 sm:gap-2 hover:bg-green-100 hover:text-green-600 hover:border-green-600 h-7 sm:h-8 text-xs sm:text-sm"
+      className="flex items-center gap-1.5 sm:gap-2 hover:bg-success/10 hover:text-success hover:border-success h-7 sm:h-8 text-xs sm:text-sm"
     >
       <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       <span className="hidden sm:inline">Notificar Cliente</span>

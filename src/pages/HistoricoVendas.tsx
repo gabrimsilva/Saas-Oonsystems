@@ -35,8 +35,14 @@ import { format, differenceInCalendarDays } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import VisualizarCupomModal from "@/components/VisualizarCupomModal"
 import { toast } from 'react-hot-toast'
+import { confirmar } from '@/components/ui/confirmar'
+import { CarregandoPagina } from '@/components/ui/feedback'
+import { avisoComDesfazer } from '@/components/ui/desfazer'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
+import { descreverPagamentoVenda, vendaUsaMetodo } from '@/utils/pagamentoDividido'
 
 export default function HistoricoVendas() {
+  const tabelaRef = useTabelaResponsiva()
   const [vendas, setVendas] = useState<Sale[]>([])
   const [vendasFiltradas, setVendasFiltradas] = useState<Sale[]>([])
   const [loading, setLoading] = useState(true)
@@ -211,7 +217,7 @@ export default function HistoricoVendas() {
 
     // Filtro por forma de pagamento
     if (formaPagamento !== "TODAS") {
-      resultado = resultado.filter(venda => venda.payment_method === formaPagamento)
+      resultado = resultado.filter(venda => vendaUsaMetodo(venda, formaPagamento))
     }
 
     // Filtro por tipo de venda
@@ -257,17 +263,6 @@ export default function HistoricoVendas() {
     return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
   }
 
-  const formatarFormaPagamento = (metodo: string) => {
-    const mapa: { [key: string]: string } = {
-      'CASH': 'Dinheiro',
-      'DEBIT': 'Débito',
-      'CREDIT': 'Crédito',
-      'PIX': 'PIX',
-      'A_PRAZO': 'A Prazo'
-    }
-    return mapa[metodo] || metodo
-  }
-
   const carregarFaturados = async () => {
     try {
       setCarregandoFaturados(true)
@@ -303,11 +298,11 @@ export default function HistoricoVendas() {
   }
 
   const CORES_STATUS_PARCELA: Record<string, string> = {
-    paga: 'bg-gray-100 text-gray-600 border-gray-200',
-    atrasada: 'bg-red-100 text-red-700 border-red-300',
-    vence_hoje: 'bg-orange-100 text-orange-700 border-orange-300',
-    vence_em_breve: 'bg-amber-100 text-amber-700 border-amber-300',
-    em_dia: 'bg-green-100 text-green-700 border-green-300'
+    paga: 'bg-muted text-muted-foreground border-border',
+    atrasada: 'bg-destructive/10 text-destructive border-destructive/40',
+    vence_hoje: 'bg-warning/15 text-warning-foreground border-warning/40',
+    vence_em_breve: 'bg-warning/15 text-warning-foreground border-warning/40',
+    em_dia: 'bg-success/10 text-success border-success/40'
   }
 
   const LABELS_STATUS_PARCELA: Record<string, string> = {
@@ -318,12 +313,14 @@ export default function HistoricoVendas() {
     em_dia: 'Em dia'
   }
 
-  const handleTogglePagoParcela = async (parcela: SaleInstallment) => {
+  const handleTogglePagoParcela = async (parcela: SaleInstallment, desfazendo = false) => {
     try {
       setAtualizandoParcela(parcela.id)
       const atualizada = await vendaService.definirParcelaPaga(parcela.id, !parcela.pago)
       setParcelas(prev => prev.map(p => p.id === atualizada.id ? atualizada : p))
-      toast.success(atualizada.pago ? 'Parcela marcada como paga' : 'Parcela marcada como pendente')
+      const mensagem = atualizada.pago ? 'Parcela marcada como paga' : 'Parcela marcada como pendente'
+      if (desfazendo) toast.success(mensagem)
+      else avisoComDesfazer(mensagem, () => handleTogglePagoParcela(atualizada, true))
     } catch (error) {
       console.error('Erro ao atualizar parcela:', error)
       toast.error('Erro ao atualizar parcela')
@@ -481,7 +478,11 @@ export default function HistoricoVendas() {
 
   const handleExcluirVenda = async (venda: Sale) => {
     // Confirmar exclusão
-    if (!window.confirm(`Tem certeza que deseja excluir a venda ${venda.sale_number}?\n\nEsta ação não pode ser desfeita e a venda será removida das métricas.`)) {
+    if (!(await confirmar({
+      titulo: `Excluir a venda ${venda.sale_number}?`,
+      descricao: 'Esta ação não pode ser desfeita e a venda será removida das métricas.',
+      perigo: true,
+    }))) {
       return
     }
 
@@ -511,21 +512,14 @@ export default function HistoricoVendas() {
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando histórico...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Receipt className="h-6 w-6" />
           Histórico de Vendas
         </h1>
@@ -535,7 +529,7 @@ export default function HistoricoVendas() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -648,12 +642,12 @@ export default function HistoricoVendas() {
               />
               {/* Dropdown de sugestões */}
               {mostrarSugestoes && sugestoesClientes.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
                   {sugestoesClientes.map((nome, index) => (
                     <button
                       key={index}
                       type="button"
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm transition-colors"
+                      className="w-full text-left px-3 py-2 hover:bg-accent text-sm transition-colors"
                       onClick={() => {
                         setNomeCliente(nome)
                         setMostrarSugestoes(false)
@@ -693,7 +687,7 @@ export default function HistoricoVendas() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div ref={tabelaRef} className="tabela-responsiva overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -724,12 +718,12 @@ export default function HistoricoVendas() {
                         </div>
                       </TableCell>
                       <TableCell>{formatarHora(venda.created_at)}</TableCell>
-                      <TableCell className="font-semibold text-green-600">
+                      <TableCell className="font-semibold text-success">
                         {formatarValor(venda.total_amount)}
                       </TableCell>
                       <TableCell>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                          {formatarFormaPagamento(venda.payment_method)}
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                          {descreverPagamentoVenda(venda)}
                         </span>
                       </TableCell>
                       <TableCell>{venda.sale_type}</TableCell>
@@ -771,7 +765,7 @@ export default function HistoricoVendas() {
                             size="sm"
                             onClick={() => handleExcluirVenda(venda)}
                             disabled={gerandoCupom || excluindoVenda === venda.id}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/5"
                             title="Excluir venda"
                           >
                             {excluindoVenda === venda.id ? (
@@ -803,7 +797,7 @@ export default function HistoricoVendas() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Filtros */}
-              <div className="flex flex-col sm:flex-row gap-3 p-4 bg-gray-50 rounded-lg border">
+              <div className="flex flex-col sm:flex-row gap-3 p-4 bg-muted/50 rounded-lg border">
                 <div className="flex-1">
                   <Label htmlFor="filtroNomeCliente" className="text-xs mb-1 block">
                     Buscar por cliente ou número
@@ -901,7 +895,7 @@ export default function HistoricoVendas() {
                     {vendasFaturadas.map(({ venda, parcelas: parcelasDaVenda, pagas, total }) => (
                     <div key={venda.id} className="border rounded-lg overflow-hidden">
                       {/* Cabeçalho da venda */}
-                      <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 border-b flex-wrap">
+                      <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 border-b flex-wrap">
                         <div className="flex items-center gap-3 flex-wrap">
                           {venda.customer_name ? (
                             <>
@@ -915,7 +909,7 @@ export default function HistoricoVendas() {
                             <Calendar className="h-3 w-3" />
                             {formatarData(venda.created_at)}
                           </span>
-                          <span className="text-sm font-semibold text-green-600">
+                          <span className="text-sm font-semibold text-success">
                             {formatarValor(venda.total_amount)}
                           </span>
                         </div>
@@ -928,7 +922,7 @@ export default function HistoricoVendas() {
                             size="sm"
                             onClick={() => handleExcluirVenda(venda)}
                             disabled={excluindoVenda === venda.id}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/5"
                             title="Excluir venda"
                           >
                             {excluindoVenda === venda.id ? (
@@ -995,7 +989,7 @@ export default function HistoricoVendas() {
                       return (
                         <div
                           key={parcela.id}
-                          className="flex items-center justify-between gap-3 p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors flex-wrap"
+                          className="flex items-center justify-between gap-3 p-3 border rounded-lg bg-card hover:bg-accent transition-colors flex-wrap"
                         >
                           <div className="flex items-center gap-3 flex-1 flex-wrap min-w-0">
                             <div className="flex items-center gap-2 min-w-0">
@@ -1008,7 +1002,7 @@ export default function HistoricoVendas() {
                                 <span className="font-medium text-sm">{venda.sale_number}</span>
                               )}
                             </div>
-                            <span className="text-xs px-2 py-1 bg-gray-100 rounded font-medium shrink-0">
+                            <span className="text-xs px-2 py-1 bg-muted rounded font-medium shrink-0">
                               {numeroParcela}/{totalParcelas}
                             </span>
                             <span className="text-sm text-muted-foreground flex items-center gap-1 shrink-0">

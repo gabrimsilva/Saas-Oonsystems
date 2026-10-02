@@ -217,14 +217,14 @@ export default function MovimentacaoManualModal({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="p-3 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive text-sm">
             {error}
           </div>
         )}
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -236,7 +236,7 @@ export default function MovimentacaoManualModal({
                   type="button"
                   variant={tipo === 'IN' ? 'default' : 'outline'}
                   onClick={() => setTipo('IN')}
-                  className={tipo === 'IN' ? 'bg-green-600 hover:bg-green-700' : ''}
+                  className={tipo === 'IN' ? 'bg-success hover:bg-success/90' : ''}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Entrada
@@ -245,7 +245,7 @@ export default function MovimentacaoManualModal({
                   type="button"
                   variant={tipo === 'OUT' ? 'default' : 'outline'}
                   onClick={() => setTipo('OUT')}
-                  className={tipo === 'OUT' ? 'bg-red-600 hover:bg-red-700' : ''}
+                  className={tipo === 'OUT' ? 'bg-destructive hover:bg-destructive-hover' : ''}
                 >
                   <Minus className="h-4 w-4 mr-2" />
                   Saída
@@ -318,7 +318,7 @@ export default function MovimentacaoManualModal({
                 type="submit"
                 loading={saving}
                 disabled={quantidade <= 0 || (hasVariants && !varianteSelecionada)}
-                className={tipo === 'IN' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
+                className={tipo === 'IN' ? 'bg-success hover:bg-success/90' : 'bg-destructive hover:bg-destructive-hover'}
               >
                 {tipo === 'IN' ? 'Adicionar' : 'Remover'}
               </ActionButton>

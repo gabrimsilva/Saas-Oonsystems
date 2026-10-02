@@ -33,9 +33,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { CalendarIcon, TrendingUp, DollarSign, ShoppingCart, Package } from "lucide-react"
+import { BarChart3, CalendarIcon, TrendingUp, DollarSign, ShoppingCart, Package, Receipt, Store } from "lucide-react"
+import { CartaoIndicador, TituloSecao } from '@/components/ui/indicador'
 import { format, subDays, startOfDay, endOfDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { CarregandoPagina } from '@/components/ui/feedback'
+import { dataParaUrl, lerDataUrl, lerFiltroUrl, useFiltrosNaUrl } from '@/hooks/useFiltrosNaUrl'
+import { partesDaVenda } from '@/utils/pagamentoDividido'
 
 interface MetricasResumo {
   // Métricas principais
@@ -64,22 +68,54 @@ interface MetricasResumo {
   faturamentoPorFormaPagamento: { forma: string; total: number; quantidade: number }[]
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D']
+// Paleta categórica validada (daltonismo e contraste) — ordem fixa por série
+const COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300']
+
+/** Intervalo de datas de um período pré-definido ("7" = últimos 7 dias); null para "custom" */
+function intervaloDoPeriodo(valor: string): [Date, Date] | null {
+  const hoje = new Date()
+  if (valor === "all") return [new Date(2020, 0, 1), hoje]
+  const dias = Number(valor)
+  return Number.isFinite(dias) && valor !== "" ? [subDays(hoje, dias), hoje] : null
+}
+
+/** Estado inicial do período a partir da URL (?periodo=30 ou ?periodo=custom&de=...&ate=...) */
+function periodoInicial(): { periodo: string; inicio: Date; fim: Date } {
+  const periodo = lerFiltroUrl("periodo") ?? "7"
+  const de = lerDataUrl("de")
+  const ate = lerDataUrl("ate")
+  if (periodo === "custom" && de && ate) return { periodo, inicio: de, fim: ate }
+  const intervalo = intervaloDoPeriodo(periodo)
+  if (!intervalo) return { periodo: "7", inicio: subDays(new Date(), 7), fim: new Date() }
+  return { periodo, inicio: intervalo[0], fim: intervalo[1] }
+}
 
 export default function Metricas() {
   const { perfil } = usePermissoes()
   const ehAdminGeral = perfil === 'administrador_geral'
 
-  const [periodo, setPeriodo] = useState<string>("7")
-  const [dataInicio, setDataInicio] = useState<Date>(subDays(new Date(), 7))
-  const [dataFim, setDataFim] = useState<Date>(new Date())
+  const [inicial] = useState(periodoInicial)
+  const [periodo, setPeriodo] = useState<string>(inicial.periodo)
+  const [dataInicio, setDataInicio] = useState<Date>(inicial.inicio)
+  const [dataFim, setDataFim] = useState<Date>(inicial.fim)
   const [metricas, setMetricas] = useState<MetricasResumo | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeChartPagamento, setActiveChartPagamento] = useState<"total" | "quantidade">("total")
   
   // Filtros opcionais
-  const [filtroFormaPagamento, setFiltroFormaPagamento] = useState<string>("TODAS")
-  const [filtroTipoVenda, setFiltroTipoVenda] = useState<string>("TODOS")
+  const [filtroFormaPagamento, setFiltroFormaPagamento] = useState<string>(() => lerFiltroUrl("pagamento") ?? "TODAS")
+  const [filtroTipoVenda, setFiltroTipoVenda] = useState<string>(() => lerFiltroUrl("tipo") ?? "TODOS")
+
+  useFiltrosNaUrl(
+    {
+      periodo,
+      de: periodo === "custom" ? dataParaUrl(dataInicio) : "",
+      ate: periodo === "custom" ? dataParaUrl(dataFim) : "",
+      pagamento: filtroFormaPagamento,
+      tipo: filtroTipoVenda,
+    },
+    { periodo: "7", pagamento: "TODAS", tipo: "TODOS" },
+  )
 
   // Filtro de estabelecimento (somente Admin Geral)
   const [filtroEstab, setFiltroEstab] = useState<string>(() => getEstabelecimentoAtivo() ?? "TODOS")
@@ -159,8 +195,10 @@ export default function Metricas() {
         .order("created_at", { ascending: true })
 
       // Aplicar filtro de forma de pagamento se selecionado
+      // Vendas com pagamento dividido entram quando uma das partes é da forma filtrada
       if (filtroFormaPagamento !== "TODAS" && filtroFormaPagamento !== "A_PRAZO") {
-        query = query.eq("payment_method", filtroFormaPagamento)
+        const f = filtroFormaPagamento
+        query = query.or(`payment_method.eq.${f},pagamento_1_tipo.eq.${f},pagamento_2_tipo.eq.${f}`)
       }
 
       // Aplicar filtro de tipo de venda se selecionado
@@ -179,7 +217,18 @@ export default function Metricas() {
 
       if (error) throw error
 
-      const vendasData = vendas || []
+      // Com filtro de forma de pagamento, uma venda dividida conta só pela parte
+      // daquela forma (ex.: filtro PIX numa venda PIX 60 + Dinheiro 40 => 60)
+      const vendasData = (vendas || []).map((venda) =>
+        filtroFormaPagamento !== "TODAS" && venda.forma_pagamento_dividido
+          ? {
+              ...venda,
+              total_amount: partesDaVenda(venda)
+                .filter((p) => p.metodo === filtroFormaPagamento)
+                .reduce((soma, p) => soma + p.valor, 0),
+            }
+          : venda
+      )
 
       // NOVO: Também incluir pedidos em aberto (não finalizados) de DELIVERY
       // para rastrear formas de pagamento hoje
@@ -471,12 +520,18 @@ export default function Metricas() {
       const formasPagamentoMap = new Map<string, { total: number; quantidade: number }>()
       
       // Adicionar dados de sales
+      // Venda dividida soma cada parte na sua forma de pagamento
       vendasData.forEach(venda => {
-        const forma = traduzirFormaPagamento(venda.payment_method || "Não informado")
-        const atual = formasPagamentoMap.get(forma) || { total: 0, quantidade: 0 }
-        formasPagamentoMap.set(forma, {
-          total: atual.total + (parseFloat(venda.total_amount) || 0),
-          quantidade: atual.quantidade + 1
+        const partes = filtroFormaPagamento !== "TODAS"
+          ? [{ metodo: filtroFormaPagamento, valor: parseFloat(venda.total_amount) || 0 }]
+          : partesDaVenda(venda)
+        partes.forEach(({ metodo, valor }) => {
+          const forma = traduzirFormaPagamento(metodo || "Não informado")
+          const atual = formasPagamentoMap.get(forma) || { total: 0, quantidade: 0 }
+          formasPagamentoMap.set(forma, {
+            total: atual.total + valor,
+            quantidade: atual.quantidade + 1
+          })
         })
       })
 
@@ -665,21 +720,14 @@ export default function Metricas() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando métricas...</p>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="painel" />
   }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Métricas de Vendas</h1>
+          <h1 className="text-2xl font-semibold">Métricas de Vendas</h1>
           <p className="text-muted-foreground">Acompanhe o desempenho das vendas da sua loja</p>
         </div>
 
@@ -822,130 +870,78 @@ export default function Metricas() {
         </Card>
       </div>
 
-      {/* Cards de Resumo - Vendas */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            💰 Indicadores Principais
-          </h3>
-          {(filtroFormaPagamento !== "TODAS" || filtroTipoVenda !== "TODOS") && (
-            <span className="text-xs text-muted-foreground bg-indigo-50 px-2 py-1 rounded-md border border-indigo-200">
+      {/* Indicadores principais */}
+      <div className="space-y-3">
+        <TituloSecao
+          icone={BarChart3}
+          acao={(filtroFormaPagamento !== "TODAS" || filtroTipoVenda !== "TODOS") && (
+            <span className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-0.5 text-xs font-medium text-primary">
               Filtros ativos
             </span>
           )}
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Faturamento Total</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatarMoeda(metricas?.faturamentoTotal || 0)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Total de vendas no período
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-green-200 bg-gradient-to-br from-green-50/60 to-emerald-50/30">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Lucro</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {formatarMoeda(metricas?.lucroTotal || 0)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Faturamento menos custos
-              </p>
-              {metricas && metricas.faturamentoTotal > 0 && (
-                <div className="mt-2 flex items-center gap-1.5">
-                  <div className="text-sm font-semibold text-green-700">
-                    {((metricas.lucroTotal / metricas.faturamentoTotal) * 100).toFixed(1)}%
-                  </div>
-                  <span className="text-xs text-muted-foreground">margem de lucro</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Quantidade de Vendas</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metricas?.quantidadeVendas || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Número de vendas realizadas
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ticket Médio</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatarMoeda(metricas?.ticketMedio || 0)}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Valor médio por venda
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Produtos Vendidos</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {metricas?.quantidadeProdutosVendidos || 0}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Unidades vendidas
-              </p>
-            </CardContent>
-          </Card>
+        >
+          Indicadores principais
+        </TituloSecao>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <CartaoIndicador
+            titulo="Faturamento total"
+            valor={formatarMoeda(metricas?.faturamentoTotal || 0)}
+            descricao="Total de vendas no período"
+            icone={DollarSign}
+            tom="primario"
+          />
+          <CartaoIndicador
+            titulo="Lucro"
+            valor={formatarMoeda(metricas?.lucroTotal || 0)}
+            descricao={
+              metricas && metricas.faturamentoTotal > 0
+                ? <><span className="font-semibold text-success">{((metricas.lucroTotal / metricas.faturamentoTotal) * 100).toFixed(1)}%</span> de margem</>
+                : 'Faturamento menos custos'
+            }
+            icone={TrendingUp}
+            tom={(metricas?.lucroTotal || 0) < 0 ? 'perigo' : 'sucesso'}
+            colorirValor
+          />
+          <CartaoIndicador
+            titulo="Quantidade de vendas"
+            valor={metricas?.quantidadeVendas || 0}
+            descricao="Vendas realizadas"
+            icone={ShoppingCart}
+            tom="info"
+          />
+          <CartaoIndicador
+            titulo="Ticket médio"
+            valor={formatarMoeda(metricas?.ticketMedio || 0)}
+            descricao="Valor médio por venda"
+            icone={Receipt}
+          />
+          <CartaoIndicador
+            titulo="Produtos vendidos"
+            valor={metricas?.quantidadeProdutosVendidos || 0}
+            descricao="Unidades vendidas"
+            icone={Package}
+          />
         </div>
       </div>
 
-      {/* Cards de Resumo - Loja Física */}
+      {/* Loja física */}
       {(filtroTipoVenda === "TODOS" || filtroTipoVenda === "PDV") && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            📍 Loja Física
-          </h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card className="border-purple-200 bg-gradient-to-br from-purple-50/50 to-indigo-50/30">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Faturamento PDV</CardTitle>
-                <DollarSign className="h-4 w-4 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-700">{formatarMoeda(metricas?.faturamentoPDV || 0)}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {metricas?.quantidadeVendasPDV || 0} vendas realizadas
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-purple-200 bg-gradient-to-br from-purple-50/50 to-indigo-50/30">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Vendas PDV</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-purple-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-700">{metricas?.quantidadeVendasPDV || 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Ticket médio: {formatarMoeda(metricas?.quantidadeVendasPDV ? (metricas?.faturamentoPDV || 0) / metricas.quantidadeVendasPDV : 0)}
-                </p>
-              </CardContent>
-            </Card>
+        <div className="space-y-3">
+          <TituloSecao icone={Store}>Loja física</TituloSecao>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <CartaoIndicador
+              titulo="Faturamento PDV"
+              valor={formatarMoeda(metricas?.faturamentoPDV || 0)}
+              descricao={`${metricas?.quantidadeVendasPDV || 0} vendas realizadas`}
+              icone={DollarSign}
+              tom="primario"
+            />
+            <CartaoIndicador
+              titulo="Vendas PDV"
+              valor={metricas?.quantidadeVendasPDV || 0}
+              descricao={`Ticket médio: ${formatarMoeda(metricas?.quantidadeVendasPDV ? (metricas?.faturamentoPDV || 0) / metricas.quantidadeVendasPDV : 0)}`}
+              icone={ShoppingCart}
+            />
           </div>
         </div>
       )}
@@ -972,11 +968,11 @@ export default function Metricas() {
                 config={{
                   total: {
                     label: "Faturamento",
-                    color: "#0088FE",
+                    color: "#2a78d6",
                   },
                   quantidade: {
                     label: "Quantidade",
-                    color: "#00C49F",
+                    color: "#eb6834",
                   },
                 } satisfies ChartConfig}
                 className="aspect-auto h-[350px] w-full"
@@ -1042,7 +1038,7 @@ export default function Metricas() {
                 config={{
                   quantidade: {
                     label: "Quantidade",
-                    color: "#8884d8",
+                    color: "var(--chart-1)",
                   },
                 } satisfies ChartConfig}
               >
@@ -1098,7 +1094,7 @@ export default function Metricas() {
                 config={{
                   total: {
                     label: "Total (R$)",
-                    color: "#82ca9d",
+                    color: "var(--chart-1)",
                   },
                 } satisfies ChartConfig}
               >
@@ -1162,7 +1158,7 @@ export default function Metricas() {
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="var(--chart-1)"
                       dataKey="total"
                       nameKey="categoria"
                       label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(0)}%)`}
@@ -1194,7 +1190,7 @@ export default function Metricas() {
                     <YAxis />
                     <Tooltip labelStyle={{ color: '#000' }} />
                     <Legend />
-                    <Bar dataKey="quantidade" fill="#8884d8" name="Quantidade" />
+                    <Bar dataKey="quantidade" fill="var(--chart-1)" name="Quantidade" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1237,11 +1233,11 @@ export default function Metricas() {
                   config={{
                     total: {
                       label: "Total (R$)",
-                      color: "#0088FE",
+                      color: "#2a78d6",
                     },
                     quantidade: {
                       label: "Quantidade",
-                      color: "#00C49F",
+                      color: "#eb6834",
                     },
                   } satisfies ChartConfig}
                   className="aspect-auto h-[250px] w-full"
@@ -1293,7 +1289,7 @@ export default function Metricas() {
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="var(--chart-1)"
                       dataKey="total"
                       nameKey="forma"
                       label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(0)}%)`}
@@ -1318,7 +1314,7 @@ export default function Metricas() {
       {/* Seção de Consumo Interno */}
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          🔄 Consumo Interno
+          Consumo Interno
         </h3>
 
         {/* Card resumo + Gráfico de evolução */}

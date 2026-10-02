@@ -5,12 +5,35 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
-import { Building2, Plus, Pencil, Power, Loader2, Copy, ExternalLink } from 'lucide-react'
+import { Building2, Plus, Pencil, Power, Copy, ExternalLink } from 'lucide-react'
 import { estabelecimentoService, gerarSlug } from '@/services/estabelecimentoService'
 import { usePermissoes } from '@/hooks/usePermissoes'
 import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
 import { auditoriaService } from '@/services'
 import type { Estabelecimento } from '@/types/estabelecimento'
+import { COR_TEMA_PADRAO_ANTIGA, corPersonalizada } from '@/utils/cor'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Store } from 'lucide-react'
+import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
+import { avisoComDesfazer } from '@/components/ui/desfazer'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
+
+/** Cores sóbrias sugeridas para a identidade da loja */
+const CORES_TEMA: Array<{ nome: string; valor: string; amostra?: string }> = [
+  { nome: 'Padrão do sistema', valor: COR_TEMA_PADRAO_ANTIGA, amostra: 'oklch(0.50 0.15 258)' },
+  { nome: 'Azul-marinho', valor: '#1E3A8A' },
+  { nome: 'Índigo', valor: '#4338CA' },
+  { nome: 'Petróleo', valor: '#0F766E' },
+  { nome: 'Esmeralda', valor: '#047857' },
+  { nome: 'Grafite', valor: '#334155' },
+  { nome: 'Vinho', valor: '#9F1239' },
+  { nome: 'Âmbar', valor: '#B45309' },
+]
 
 type FormState = {
   id?: string
@@ -25,11 +48,12 @@ const FORM_VAZIO: FormState = {
   nome: '',
   slug: '',
   descricao: '',
-  cor_tema: '#2563EB',
+  cor_tema: COR_TEMA_PADRAO_ANTIGA,
   ativo: true,
 }
 
 export default function Estabelecimentos() {
+  const tabelaRef = useTabelaResponsiva()
   const { podeGerenciarEstabelecimentos } = usePermissoes()
   const { recarregar } = useEstabelecimento()
   const [lista, setLista] = useState<Estabelecimento[]>([])
@@ -53,9 +77,9 @@ export default function Estabelecimentos() {
   if (!podeGerenciarEstabelecimentos) {
     return (
       <div className="p-6">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8 text-center">
-          <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600">Apenas o Administrador Geral pode gerenciar estabelecimentos.</p>
+        <div className="max-w-md mx-auto bg-card rounded-xl border border-border shadow-xs p-8 text-center">
+          <Building2 className="h-12 w-12 text-muted-foreground/70 mx-auto mb-3" />
+          <p className="text-muted-foreground">Apenas o Administrador Geral pode gerenciar estabelecimentos.</p>
         </div>
       </div>
     )
@@ -114,10 +138,12 @@ export default function Estabelecimentos() {
     }
   }
 
-  const alternarAtivo = async (e: Estabelecimento) => {
+  const alternarAtivo = async (e: Estabelecimento, desfazendo = false) => {
     try {
       await estabelecimentoService.definirAtivo(e.id, !e.ativo)
-      toast.success(!e.ativo ? 'Estabelecimento ativado' : 'Estabelecimento desativado')
+      const mensagem = !e.ativo ? 'Estabelecimento ativado' : 'Estabelecimento desativado'
+      if (desfazendo) toast.success(mensagem)
+      else avisoComDesfazer(mensagem, () => alternarAtivo({ ...e, ativo: !e.ativo }, true))
       await carregar()
       await recarregar()
     } catch (err) {
@@ -144,22 +170,22 @@ export default function Estabelecimentos() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Building2 className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-bold text-gray-900">Estabelecimentos</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Estabelecimentos</h1>
         </div>
         <button
           onClick={abrirNovo}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90"
+          className="flex items-center gap-2 inline-flex h-9 items-center justify-center gap-2 px-4 rounded-md bg-primary text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary-hover"
         >
           <Plus className="h-4 w-4" /> Novo
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+        <TabelaCarregando colunas={6} linhas={3} />
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div ref={tabelaRef} className="tabela-responsiva bg-card rounded-xl border border-border shadow-xs overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600">
+            <thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3">Nome</th>
                 <th className="text-left px-4 py-3">Slug</th>
@@ -171,114 +197,134 @@ export default function Estabelecimentos() {
             </thead>
             <tbody>
               {lista.map((e) => (
-                <tr key={e.id} className="border-t border-gray-100">
+                <tr key={e.id} className="border-t border-border transition-colors hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium">{e.nome}</td>
-                  <td className="px-4 py-3 text-gray-500">/{e.slug}</td>
+                  <td className="px-4 py-3 text-muted-foreground">/{e.slug}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <code className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded px-2 py-1 max-w-[220px] truncate inline-block align-middle" title={linkCliente(e)}>
+                      <code className="text-xs text-muted-foreground bg-muted/50 border border-border rounded px-2 py-1 max-w-[220px] truncate inline-block align-middle" title={linkCliente(e)}>
                         {linkCliente(e)}
                       </code>
-                      <button onClick={() => copiarLink(e)} className="p-1.5 rounded hover:bg-gray-100" title="Copiar link do cliente">
-                        <Copy className="h-4 w-4 text-gray-600" />
+                      <button onClick={() => copiarLink(e)} className="p-1.5 rounded hover:bg-accent" title="Copiar link do cliente">
+                        <Copy className="h-4 w-4 text-muted-foreground" />
                       </button>
-                      <a href={linkCliente(e)} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded hover:bg-gray-100" title="Abrir link do cliente">
-                        <ExternalLink className="h-4 w-4 text-gray-600" />
+                      <a href={linkCliente(e)} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded hover:bg-accent" title="Abrir link do cliente">
+                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
                       </a>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full" style={{ backgroundColor: e.cor_tema }} />
-                      {e.cor_tema}
+                    <span className="inline-flex items-center gap-2 text-sm">
+                      <span className="size-3.5 rounded-full ring-1 ring-border" style={{ backgroundColor: corPersonalizada(e.cor_tema) ?? 'var(--primary)' }} />
+                      {corPersonalizada(e.cor_tema) ? (CORES_TEMA.find((c) => c.valor.toLowerCase() === e.cor_tema.toLowerCase())?.nome ?? e.cor_tema) : 'Padrão do sistema'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${e.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${e.ativo ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
                       {e.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => abrirEdicao(e)} className="p-2 rounded hover:bg-gray-100" title="Editar">
-                        <Pencil className="h-4 w-4 text-gray-600" />
+                      <button onClick={() => abrirEdicao(e)} className="p-2 rounded hover:bg-accent" title="Editar">
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
                       </button>
-                      <button onClick={() => alternarAtivo(e)} className="p-2 rounded hover:bg-gray-100" title={e.ativo ? 'Desativar' : 'Ativar'}>
-                        <Power className={`h-4 w-4 ${e.ativo ? 'text-green-600' : 'text-gray-400'}`} />
+                      <button onClick={() => alternarAtivo(e)} className="p-2 rounded hover:bg-accent" title={e.ativo ? 'Desativar' : 'Ativar'}>
+                        <Power className={`h-4 w-4 ${e.ativo ? 'text-success' : 'text-muted-foreground/70'}`} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
               {lista.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Nenhum estabelecimento cadastrado</td></tr>
+                <tr><td colSpan={6}><EstadoVazio icone={Store} titulo="Nenhum estabelecimento cadastrado" descricao="Use o botão Novo estabelecimento para cadastrar o primeiro." /></td></tr>
               )}
             </tbody>
           </table>
         </div>
       )}
 
-      {form && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
-            <h2 className="text-lg font-bold mb-4">{form.id ? 'Editar' : 'Novo'} estabelecimento</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+      <Dialog open={!!form} onOpenChange={(aberto) => { if (!aberto) setForm(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{form?.id ? 'Editar' : 'Novo'} estabelecimento</DialogTitle>
+          </DialogHeader>
+          {form && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="estab-nome">Nome *</Label>
+                <Input
+                  id="estab-nome"
                   value={form.nome}
                   maxLength={100}
                   onChange={(ev) => setForm({ ...form, nome: ev.target.value, slug: form.id ? form.slug : gerarSlug(ev.target.value) })}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (rota pública)</label>
-                <input
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              <div className="space-y-1.5">
+                <Label htmlFor="estab-slug">Slug (rota pública)</Label>
+                <Input
+                  id="estab-slug"
                   value={form.slug}
                   maxLength={60}
                   onChange={(ev) => setForm({ ...form, slug: ev.target.value })}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-                <textarea
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              <div className="space-y-1.5">
+                <Label htmlFor="estab-descricao">Descrição</Label>
+                <Textarea
+                  id="estab-descricao"
                   value={form.descricao}
                   maxLength={500}
                   rows={2}
                   onChange={(ev) => setForm({ ...form, descricao: ev.target.value })}
                 />
               </div>
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium text-gray-700">Cor do tema *</label>
-                <input
-                  type="color"
-                  value={/^#([0-9a-fA-F]{6})$/.test(form.cor_tema) ? form.cor_tema : '#2563EB'}
-                  onChange={(ev) => setForm({ ...form, cor_tema: ev.target.value })}
-                  className="h-9 w-14 rounded border border-gray-300"
-                />
-                <input
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
-                  value={form.cor_tema}
-                  onChange={(ev) => setForm({ ...form, cor_tema: ev.target.value })}
-                />
-              </div>
+              <fieldset>
+                <legend className="mb-1.5 text-sm font-medium text-foreground">Cor do tema *</legend>
+                <p className="mb-2 text-xs text-muted-foreground">Aparece em botões, menu ativo e destaques desta loja.</p>
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Cor do tema">
+                  {CORES_TEMA.map((c) => {
+                    const selecionada = form.cor_tema.toLowerCase() === c.valor.toLowerCase()
+                    return (
+                      <button
+                        key={c.valor}
+                        type="button"
+                        role="radio"
+                        aria-checked={selecionada}
+                        onClick={() => setForm({ ...form, cor_tema: c.valor })}
+                        className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-medium ${
+                          selecionada ? 'border-primary bg-primary/5 text-foreground' : 'border-border text-muted-foreground hover:border-border-strong hover:text-foreground'
+                        }`}
+                      >
+                        <span className="size-3.5 rounded-full" style={{ backgroundColor: c.amostra ?? c.valor }} aria-hidden="true" />
+                        {c.nome}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={corPersonalizada(form.cor_tema) ?? '#2459C4'}
+                    onChange={(ev) => setForm({ ...form, cor_tema: ev.target.value })}
+                    className="h-9 w-12 cursor-pointer rounded-md border border-input bg-card p-1"
+                    aria-label="Escolher outra cor"
+                  />
+                  <span className="text-xs text-muted-foreground">Ou escolha outra cor</span>
+                </div>
+              </fieldset>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.ativo} onChange={(ev) => setForm({ ...form, ativo: ev.target.checked })} />
+                <Checkbox checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v === true })} />
                 Ativo
               </label>
             </div>
-            <div className="flex justify-end gap-2 mt-6">
-              <button onClick={() => setForm(null)} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancelar</button>
-              <button onClick={salvar} disabled={salvando} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60 flex items-center gap-2">
-                {salvando && <Loader2 className="h-4 w-4 animate-spin" />} Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setForm(null)}>Cancelar</Button>
+            <Button onClick={salvar} loading={salvando}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from "react"
 import { Calculator } from "lucide-react"
+import { Keyboard, Lightbulb, ScanBarcode } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,9 @@ import { type ProdutoPDV, type DadosClientePDV, type TipoDescontoItem } from "@/
 import { useCarrinhoPDV } from "@/hooks/useCarrinhoPDV"
 import { useFinalizarVendaPDV } from "@/hooks/useFinalizarVendaPDV"
 import toast from "react-hot-toast"
+import { Kbd } from '@/components/ui/kbd'
+import { useAtalhos } from '@/hooks/useAtalhos'
+import type { PagamentoDivididoResolvido } from '@/utils/pagamentoDividido'
 
 /**
  * Página PDV (Ponto de Venda)
@@ -458,21 +462,28 @@ export default function PDV() {
         setModalFinalizarAberto(true)
     }
 
+    useAtalhos({
+        F2: () => document.getElementById('busca-pdv')?.focus(),
+        F4: handleFinalizarPedido,
+    })
+
     // Handler para confirmar venda (simplificado - sem dados de cliente)
     const handleConfirmarPedido = async (dadosPagamento: {
         formaPagamento: string
         precisaTroco: boolean
         valorTroco?: number
         consumoInterno?: boolean
+        nomeCliente?: string
+        pagamentoDividido?: PagamentoDivididoResolvido
     }) => {
         const resultado = await finalizarVenda({
             carrinho,
             subtotal,
             dadosPagamento,
-            // Sem desconto, sem entrega e sem pagamento dividido (simplificado)
+            // Sem desconto e sem entrega (simplificado)
             desconto: 0,
             tipoDesconto: 'valor',
-            formaPagamentoDividido: false,
+            pagamentoDividido: dadosPagamento.pagamentoDividido,
             consumoInterno: dadosPagamento.consumoInterno || false
         })
 
@@ -495,8 +506,8 @@ export default function PDV() {
         return (
             <div className="p-6 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-gray-600">Carregando produtos...</p>
+                    <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-muted-foreground">Carregando produtos...</p>
                 </div>
             </div>
         )
@@ -507,11 +518,11 @@ export default function PDV() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                    <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
                         <Calculator className="h-6 w-6" />
                         PDV - Ponto de Venda
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                         Registre pedidos diretamente pelo sistema
                     </p>
                 </div>
@@ -521,31 +532,34 @@ export default function PDV() {
                 {/* Coluna de Produtos */}
                 <div className="lg:col-span-2 space-y-4 lg:space-y-6">
                     {/* Busca Unificada - Nome ou Código de Barras */}
-                    <div className="bg-white rounded-lg border shadow-sm p-4 space-y-3">
+                    <div className="bg-card rounded-lg border shadow-sm p-4 space-y-3">
                         <BuscaUnificadaPDV
                             onBuscarPorNome={setSearchTerm}
                             onBuscarPorBarcode={handleBuscarPorCodigoBarras}
                             placeholder="Buscar por nome ou código de barras..."
                         />
-                        <div className="text-xs text-gray-500 space-y-1 pt-2 border-t">
+                        <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
                             <p className="flex items-start gap-2">
-                                <span className="text-base">💡</span>
+                                <Lightbulb className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                                 <span>Digite o nome do produto para filtrar</span>
                             </p>
                             <p className="flex items-start gap-2">
-                                <span className="text-base">📱</span>
+                                <ScanBarcode className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                                 <span>Use o leitor de código de barras (BIP) para adicionar direto ao carrinho</span>
                             </p>
                             <p className="flex items-start gap-2">
-                                <span className="text-base">⌨️</span>
+                                <Keyboard className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                                 <span>Ou digite o código e pressione Enter</span>
+                            </p>
+                            <p className="hidden items-center gap-1.5 md:flex">
+                                Atalhos: <Kbd>F2</Kbd> buscar · <Kbd>F4</Kbd> finalizar · <Kbd>Esc</Kbd> fechar janela
                             </p>
                         </div>
                     </div>
 
                     {/* Filtros de Categoria */}
-                    <div className="bg-white rounded-lg border shadow-sm p-4">
-                        <h3 className="text-sm font-semibold mb-3 text-gray-700">Categorias</h3>
+                    <div className="bg-card rounded-lg border shadow-sm p-4">
+                        <h3 className="text-sm font-semibold mb-3 text-foreground/80">Categorias</h3>
                         <div className="flex flex-wrap gap-1 md:gap-2">
                             <Button
                                 variant={categoriaAtiva === 'todos' ? "default" : "outline"}

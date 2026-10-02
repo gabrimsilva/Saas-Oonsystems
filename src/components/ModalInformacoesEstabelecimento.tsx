@@ -75,12 +75,12 @@ export default function ModalInformacoesEstabelecimento({
         </button>
 
         {/* Header neutro */}
-        <div className="bg-neutral-100 border-b border-neutral-200 p-6 text-neutral-900">
+        <div className="bg-muted border-b border-border p-6 text-foreground">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-bold text-neutral-900">
+            <AlertDialogTitle className="text-2xl font-bold text-foreground">
               {nomeEstabelecimento}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-neutral-500 text-sm">
+            <AlertDialogDescription className="text-muted-foreground text-sm">
               Informações de contato e atendimento
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -89,13 +89,13 @@ export default function ModalInformacoesEstabelecimento({
         {/* Conteúdo */}
         <div className="p-6 space-y-4">
           {/* Horário de Funcionamento */}
-          <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-            <div className="bg-neutral-200 p-2 rounded-full">
-              <Clock className="h-5 w-5 text-neutral-700" />
+          <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+            <div className="bg-muted p-2 rounded-full">
+              <Clock className="h-5 w-5 text-foreground/80" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-1">Horário de Funcionamento</h3>
-              <p className="text-gray-600 text-sm whitespace-pre-line">
+              <h3 className="font-semibold text-foreground mb-1">Horário de Funcionamento</h3>
+              <p className="text-muted-foreground text-sm whitespace-pre-line">
                 {horarioFormatado}
               </p>
             </div>
@@ -103,17 +103,17 @@ export default function ModalInformacoesEstabelecimento({
 
           {/* Telefone */}
           {telefone && (
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <div className="bg-green-100 p-2 rounded-full">
-                <Phone className="h-5 w-5 text-green-600" />
+            <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+              <div className="bg-success/10 p-2 rounded-full">
+                <Phone className="h-5 w-5 text-success" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">Telefone / WhatsApp</h3>
+                <h3 className="font-semibold text-foreground mb-1">Telefone / WhatsApp</h3>
                 <a 
                   href={`https://wa.me/55${telefone.replace(/\D/g, '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-green-600 hover:text-green-700 font-medium text-sm"
+                  className="text-success hover:text-success font-medium text-sm"
                 >
                   {telefone}
                 </a>
@@ -123,15 +123,15 @@ export default function ModalInformacoesEstabelecimento({
 
           {/* Email */}
           {email && (
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <div className="bg-blue-100 p-2 rounded-full">
-                <Mail className="h-5 w-5 text-blue-600" />
+            <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+              <div className="bg-info/10 p-2 rounded-full">
+                <Mail className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">E-mail</h3>
+                <h3 className="font-semibold text-foreground mb-1">E-mail</h3>
                 <a 
                   href={`mailto:${email}`}
-                  className="text-blue-600 hover:text-blue-700 font-medium text-sm break-all"
+                  className="text-primary hover:text-info font-medium text-sm break-all"
                 >
                   {email}
                 </a>

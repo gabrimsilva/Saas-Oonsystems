@@ -51,22 +51,22 @@ export const StatusIndicator = ({
       case 'online':
         return {
           icon: Wifi,
-          color: 'text-green-600',
-          bgColor: 'bg-green-100',
+          color: 'text-success',
+          bgColor: 'bg-success/10',
           defaultLabel: 'Online'
         }
       case 'offline':
         return {
           icon: WifiOff,
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-100',
+          color: 'text-warning-foreground',
+          bgColor: 'bg-warning/15',
           defaultLabel: 'Offline'
         }
       case 'connecting':
         return {
           icon: Loader2,
-          color: 'text-indigo-600',
-          bgColor: 'bg-indigo-100',
+          color: 'text-primary',
+          bgColor: 'bg-primary/10',
           defaultLabel: 'Conectando...',
           animate: true
         }
@@ -143,11 +143,11 @@ export const StatusDot = ({
   const getStatusColor = () => {
     switch (status) {
       case 'online':
-        return 'bg-green-500'
+        return 'bg-success'
       case 'offline':
-        return 'bg-orange-500'
+        return 'bg-warning'
       case 'connecting':
-        return 'bg-indigo-500'
+        return 'bg-primary'
     }
   }
 

@@ -79,8 +79,8 @@ interface ColunaKanbanProps {
  *     id: 'Pedido criado',
  *     title: 'Recebidos',
  *     icon: Package,
- *     color: 'bg-indigo-50 border-indigo-200',
- *     badgeColor: 'bg-indigo-100 text-indigo-800'
+ *     color: 'bg-primary/5 border-primary/15',
+ *     badgeColor: 'bg-primary/10 text-primary'
  *   }}
  *   pedidos={pedidosRecebidos}
  *   onStatusChange={handleStatusChange}
@@ -114,7 +114,7 @@ function ColunaKanban({
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={`space-y-2 md:space-y-3 p-1 md:p-2 rounded-lg transition-colors ${
-              snapshot.isDraggingOver ? 'bg-indigo-50 border-2 border-indigo-200 border-dashed' : ''
+              snapshot.isDraggingOver ? 'bg-primary/5 border-2 border-primary/30 border-dashed' : ''
             }`}
             style={{
               minHeight: minHeight || 'min(300px, 400px)'
@@ -143,7 +143,7 @@ function ColunaKanban({
 
             {/* Mensagem quando não há pedidos */}
             {pedidos.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">Nenhum pedido</p>
               </div>

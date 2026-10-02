@@ -72,7 +72,6 @@ Este arquivo documenta os testes de integração implementados para a funcionali
 - **Vitest**: Framework de testes
 - **React Testing Library**: Testes de componentes React
 - **Mock localStorage**: Simulação de persistência local
-- **Mock Google Analytics**: Simulação de tracking
 
 ## Como Executar
 

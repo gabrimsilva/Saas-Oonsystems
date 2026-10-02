@@ -5,10 +5,11 @@ import { ActionButton } from "@/components/ui/action-button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Users, Search, Edit, Trash2, Phone, Loader2, AlertCircle, Mail, UserCheck, Bike, ChefHat, Plus } from "lucide-react"
+import { Users, Search, Edit, Trash2, Phone, AlertCircle, Mail, UserCheck, Bike, ChefHat, Plus } from "lucide-react"
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import { funcionarioService, type FuncionarioSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 type Funcionario = FuncionarioSupabase
 
@@ -87,22 +88,15 @@ export default function Funcionarios() {
 
   const getCorFuncao = (funcao: string) => {
     const cores: Record<string, string> = {
-      'atendente': 'bg-indigo-100 text-indigo-800 hover:bg-indigo-100',
-      'garcom': 'bg-green-100 text-green-800 hover:bg-green-100',
-      'entregador': 'bg-orange-100 text-orange-800 hover:bg-orange-100'
+      'atendente': 'bg-primary/10 text-primary hover:bg-primary/10',
+      'garcom': 'bg-success/10 text-success hover:bg-success/10',
+      'entregador': 'bg-warning/15 text-warning-foreground hover:bg-warning/15'
     }
-    return cores[funcao] || 'bg-gray-100 text-gray-800'
+    return cores[funcao] || 'bg-muted text-foreground'
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando funcionários...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
@@ -110,7 +104,7 @@ export default function Funcionarios() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Users className="h-6 w-6" />
             Funcionários
           </h1>
@@ -127,7 +121,7 @@ export default function Funcionarios() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Users className="h-6 w-6" />
             Funcionários
           </h1>
@@ -142,7 +136,7 @@ export default function Funcionarios() {
       </div>
 
       {error && (
-        <div className="flex flex-col gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex flex-col gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <span className="font-medium">{error}</span>
@@ -152,7 +146,7 @@ export default function Funcionarios() {
 
       {/* Barra de busca */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground/70 h-4 w-4" />
         <Input
           id="buscar-funcionarios"
           name="buscar-funcionarios"
@@ -214,14 +208,14 @@ export default function Funcionarios() {
                     <Mail className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <span className={`text-xs truncate ${
                       funcionario.email.includes('@temp.local') 
-                        ? 'text-orange-600 font-medium' 
+                        ? 'text-warning-foreground font-medium' 
                         : 'text-muted-foreground'
                     }`}>
                       {funcionario.email}
                     </span>
                   </div>
                   {funcionario.email.includes('@temp.local') && (
-                    <div className="text-xs text-orange-600 flex items-center gap-1">
+                    <div className="text-xs text-warning-foreground flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" />
                       <span>Email temporário - Atualizar</span>
                     </div>
@@ -279,7 +273,7 @@ export default function Funcionarios() {
                         variant="outline"
                         size="sm"
                         disabled={saving}
-                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Remover Funcionário

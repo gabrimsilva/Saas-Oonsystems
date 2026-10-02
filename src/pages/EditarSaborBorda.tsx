@@ -109,7 +109,7 @@ export default function EditarSaborBorda() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Pizza className="h-6 w-6" />
           Editar Sabor de Borda
         </h1>

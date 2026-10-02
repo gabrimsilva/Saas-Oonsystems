@@ -4,7 +4,6 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
 import BotoesFlutantes from "@/components/delivery/BotoesFlutantes"
-import CookieConsent from "@/components/CookieConsent"
 import { configuracaoService } from "@/services"
 
 export default function PoliticasPrivacidade() {
@@ -39,7 +38,7 @@ export default function PoliticasPrivacidade() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-muted/50">
       <Header
         nomeEstabelecimento={configuracoes.nome_estabelecimento}
         logoUrl={configuracoes.logo_url}
@@ -50,12 +49,12 @@ export default function PoliticasPrivacidade() {
       />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
-        <div className="bg-white rounded-lg shadow-sm p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Políticas de Privacidade</h1>
+        <div className="bg-card rounded-lg shadow-sm p-6 md:p-8">
+          <h1 className="text-2xl font-semibold text-foreground mb-6">Políticas de Privacidade</h1>
           
-          <div className="space-y-6 text-gray-700">
+          <div className="space-y-6 text-foreground/80">
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">1. Informações Coletadas</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">1. Informações Coletadas</h2>
                 <p>
                   Coletamos informações necessárias para processar seus pedidos e melhorar 
                   nossos serviços. As informações coletadas incluem:
@@ -72,7 +71,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">2. Uso das Informações</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">2. Uso das Informações</h2>
                 <p>
                   Suas informações são utilizadas exclusivamente para:
                 </p>
@@ -87,7 +86,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">3. Compartilhamento de Dados</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">3. Compartilhamento de Dados</h2>
                 <p>
                   Não compartilhamos suas informações pessoais com terceiros para fins 
                   comerciais. Seus dados podem ser compartilhados apenas nas seguintes situações:
@@ -101,7 +100,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">4. Segurança dos Dados</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">4. Segurança dos Dados</h2>
                 <p>
                   Implementamos medidas de segurança técnicas e organizacionais adequadas 
                   para proteger suas informações contra acesso não autorizado, alteração, 
@@ -116,7 +115,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">5. Cookies e Tecnologias Similares</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">5. Cookies e Tecnologias Similares</h2>
                 <p>
                   Utilizamos cookies e tecnologias similares para:
                 </p>
@@ -133,7 +132,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">6. Retenção de Dados</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">6. Retenção de Dados</h2>
                 <p>
                   Mantemos suas informações pessoais apenas pelo tempo necessário para 
                   cumprir as finalidades descritas nesta política, a menos que um período 
@@ -142,7 +141,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">7. Seus Direitos (LGPD)</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">7. Seus Direitos (LGPD)</h2>
                 <p>
                   De acordo com a Lei Geral de Proteção de Dados (LGPD), você tem os seguintes direitos:
                 </p>
@@ -162,7 +161,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">8. Menores de Idade</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">8. Menores de Idade</h2>
                 <p>
                   Nosso serviço não é direcionado a menores de 18 anos. Não coletamos 
                   intencionalmente informações de menores. Se você é pai ou responsável 
@@ -171,7 +170,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">9. Alterações na Política</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">9. Alterações na Política</h2>
                 <p>
                   Podemos atualizar esta política de privacidade periodicamente. 
                   Notificaremos sobre alterações significativas através do site ou 
@@ -180,7 +179,7 @@ export default function PoliticasPrivacidade() {
               </section>
 
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">10. Contato</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">10. Contato</h2>
                 <p>
                   Para questões sobre privacidade, exercer seus direitos ou reportar 
                   preocupações, entre em contato através dos nossos canais de atendimento 
@@ -191,8 +190,8 @@ export default function PoliticasPrivacidade() {
                 </p>
               </section>
 
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-500">
+              <div className="mt-8 pt-6 border-t border-border">
+                <p className="text-sm text-muted-foreground">
                   Última atualização: {new Date().toLocaleDateString('pt-BR')}
                 </p>
               </div>
@@ -204,7 +203,6 @@ export default function PoliticasPrivacidade() {
 
       <Footer nomeEstabelecimento={configuracoes.nome_estabelecimento} />
 
-      <CookieConsent />
 
       <InformacoesEstabelecimentoModal
         isOpen={modalAberto}

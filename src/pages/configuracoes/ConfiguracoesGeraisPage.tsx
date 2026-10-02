@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { ActionButton } from "@/components/ui/action-button"
-import { Save, Loader2, CheckCircle, AlertCircle } from "lucide-react"
+import { Save, CheckCircle, AlertCircle } from "lucide-react"
 import { configuracaoService } from "@/services"
 import { useFormatacao } from "@/hooks/useFormatacao"
 import { ConfiguracoesGerais } from "@/components/configuracoes/ConfiguracoesGerais"
@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 export default function ConfiguracoesGeraisPage() {
   const [config, setConfig] = useState({
@@ -107,14 +108,7 @@ export default function ConfiguracoesGeraisPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando configurações...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="formulario" />
   }
 
   return (
@@ -127,7 +121,7 @@ export default function ConfiguracoesGeraisPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -153,7 +147,7 @@ export default function ConfiguracoesGeraisPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-success" />
               Sucesso!
             </AlertDialogTitle>
             <AlertDialogDescription>

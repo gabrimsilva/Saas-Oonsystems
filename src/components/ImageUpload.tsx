@@ -86,7 +86,7 @@ export default function ImageUpload({
 
   return (
     <div className="space-y-3">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+      <div className="border-2 border-dashed border-input rounded-lg p-4">
         {previewUrl ? (
           <div className="relative">
             <img
@@ -107,10 +107,10 @@ export default function ImageUpload({
           </div>
         ) : (
           <div className="text-center py-8">
-            <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500 mb-2">{placeholder}</p>
+            <Upload className="h-8 w-8 mx-auto text-muted-foreground/70 mb-2" />
+            <p className="text-sm text-muted-foreground mb-2">{placeholder}</p>
             {recommendedSize && (
-              <p className="text-xs text-gray-400">Recomendado: {recommendedSize}</p>
+              <p className="text-xs text-muted-foreground/70">Recomendado: {recommendedSize}</p>
             )}
           </div>
         )}
@@ -157,7 +157,7 @@ export default function ImageUpload({
         className="hidden"
       />
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-muted-foreground">
         Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: {maxSizeMB}MB
       </p>
     </div>

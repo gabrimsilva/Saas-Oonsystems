@@ -301,8 +301,8 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
         </CardHeader>
         <CardContent>
           <div className="text-center py-4">
-            <div className="w-6 h-6 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-gray-600">Carregando...</p>
+            <div className="w-6 h-6 border-2 border-border border-t-primary rounded-full animate-spin mx-auto mb-2" />
+            <p className="text-muted-foreground">Carregando...</p>
           </div>
         </CardContent>
       </Card>
@@ -387,7 +387,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
         {/* Configurações de Densidade e Tamanhos de Fonte - Sempre Visíveis */}
         <div className="border-t pt-4 mt-4">
           <h3 className="text-lg font-semibold mb-2">Configurações de Impressão</h3>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             Estas configurações afetam tanto a impressão via QZ Tray quanto a impressão normal do navegador
           </p>
           
@@ -397,7 +397,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
                 Densidade da Impressão: <strong>{configuracoes.densidadeImpressao}</strong>
               </Label>
               <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-500">Claro</span>
+                <span className="text-sm text-muted-foreground">Claro</span>
                 <input
                   id="densidadeImpressao"
                   name="densidadeImpressao"
@@ -410,11 +410,11 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
                     ...prev,
                     densidadeImpressao: parseInt(e.target.value)
                   }))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                 />
-                <span className="text-sm text-gray-500">Escuro</span>
+                <span className="text-sm text-muted-foreground">Escuro</span>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Ajuste a intensidade da impressão (1 = mais claro, 5 = mais escuro)
               </p>
             </div>
@@ -619,7 +619,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
                 </div>
               </div>
               
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Ajuste os tamanhos das fontes para personalizar a aparência da impressão
               </p>
             </div>
@@ -634,7 +634,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <span className="text-sm font-medium">Usar QZ Tray</span>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Ative para impressão automática em impressora térmica
                 </p>
               </div>
@@ -650,7 +650,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <span className="text-sm font-medium">Impressão Automática de Pedidos</span>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Imprime automaticamente quando um novo pedido delivery é criado
                 </p>
               </div>
@@ -666,7 +666,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <span className="text-sm font-medium">Impressão Automática no PDV</span>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Imprime cupom fiscal automaticamente ao finalizar venda no PDV
                 </p>
               </div>
@@ -710,7 +710,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
                         ...prev,
                         impressoraPadrao: e.target.value
                       }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring/30"
                     >
                       <option value="">Selecione uma impressora</option>
                       {impressoras.map((impressora) => (
@@ -720,15 +720,15 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
                       ))}
                     </select>
                   ) : (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       Clique em "Buscar Impressoras" para listar as impressoras disponíveis.
                       Certifique-se de que o QZ Tray está rodando.
                     </p>
                   )}
                 </div>
 
-                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-                  <p className="text-sm text-indigo-800">
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                  <p className="text-sm text-primary">
                     <strong>Importante:</strong> O QZ Tray deve estar instalado e rodando no computador.
                     <br />
                     Download: <a href="https://qz.io/download/" target="_blank" rel="noopener noreferrer" className="underline">https://qz.io/download/</a>
@@ -758,12 +758,12 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
             <AlertDialogTitle className="flex items-center gap-2">
               {dialogTipo === 'sucesso' ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-success" />
                   Sucesso!
                 </>
               ) : (
                 <>
-                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <AlertCircle className="h-5 w-5 text-destructive" />
                   Erro
                 </>
               )}

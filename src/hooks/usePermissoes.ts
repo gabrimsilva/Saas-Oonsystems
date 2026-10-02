@@ -34,7 +34,6 @@ export interface Permissoes {
   podeAcessarFuncionarios: boolean
   podeAcessarConfiguracoes: boolean
   podeAcessarMetricas: boolean
-  podeAcessarAnalytics: boolean
 }
 
 /**
@@ -58,7 +57,6 @@ const getPermissoesPorFuncao = (funcao: Funcao): Permissoes => {
     podeAcessarFuncionarios: false,
     podeAcessarConfiguracoes: false,
     podeAcessarMetricas: false,
-    podeAcessarAnalytics: false,
   }
 
   switch (funcao) {
@@ -115,7 +113,6 @@ const getPermissoesPorPerfil = (perfil: PerfilUsuario): Permissoes => {
     podeAcessarFuncionarios: false,
     podeAcessarConfiguracoes: false,
     podeAcessarMetricas: true,
-    podeAcessarAnalytics: false,
   }
 
   if (perfil === 'operador') {
@@ -129,7 +126,6 @@ const getPermissoesPorPerfil = (perfil: PerfilUsuario): Permissoes => {
     podeAcessarFuncionarios: true,
     podeAcessarConfiguracoes: true,
     podeAcessarMetricas: true,
-    podeAcessarAnalytics: false, // Analytics desativado no sistema por enquanto
   }
 }
 
@@ -243,7 +239,6 @@ export function usePermissoes() {
             podeAcessarFuncionarios: true,
             podeAcessarConfiguracoes: true,
             podeAcessarMetricas: true,
-            podeAcessarAnalytics: true,
           })
           return
         }
@@ -373,9 +368,6 @@ export function usePermissoes() {
     if (pagina === 'metricas') {
       return permissoes.podeAcessarMetricas
     }
-    if (pagina === 'analytics') {
-      return permissoes.podeAcessarAnalytics
-    }
     // Multi-estabelecimento
     if (pagina === 'estabelecimentos') {
       return perfil === 'administrador_geral'
@@ -404,7 +396,6 @@ export function usePermissoes() {
     permissoes.podeAcessarFuncionarios,
     permissoes.podeAcessarConfiguracoes,
     permissoes.podeAcessarMetricas,
-    permissoes.podeAcessarAnalytics,
     perfil,
   ])
 

@@ -36,7 +36,7 @@ export function DialogZerarPedidos({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <History className="h-5 w-5 text-red-600" />
+            <History className="h-5 w-5 text-destructive" />
             Confirmar Ação
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -88,7 +88,7 @@ export function DialogResultado({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className={`flex items-center gap-2 ${
-            tipo === 'sucesso' ? 'text-green-600' : 'text-red-600'
+            tipo === 'sucesso' ? 'text-success' : 'text-destructive'
           }`}>
             {tipo === 'sucesso' ? (
               <CheckCircle className="h-5 w-5" />

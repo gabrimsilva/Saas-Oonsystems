@@ -11,7 +11,6 @@ import {
 } from '@/utils/sanitizacao'
 import { useError, ErrorType, ErrorSeverity } from '@/contexts/ErrorContext'
 import { withRetry, RETRY_PRESETS } from '@/utils/retry'
-import { googleAnalytics } from '@/services/googleAnalyticsService'
 import { chaveCarrinhoPublico } from '@/services/tenant'
 
 /**
@@ -132,7 +131,7 @@ export function useFinalizarPedido() {
     dadosCliente: DadosCliente,
     carrinho: any[],
     entregaDomicilio: boolean,
-    valorEntrega: string
+    _valorEntrega: string
   ) => {
     if (processando) return
 
@@ -311,36 +310,6 @@ export function useFinalizarPedido() {
 
       // Limpar carrinho
       localStorage.removeItem(chaveCarrinhoPublico())
-
-      // Rastrear compra finalizada no Google Analytics
-      const items = carrinho.map(item => {
-        let precoItem = 0
-        if (item.produto.categoria === 'combo' && item.produto.id.includes('-')) {
-          precoItem = item.produto.preco || 0
-        } else if (item.tamanhoSelecionado) {
-          precoItem = item.tamanhoSelecionado.valor
-        } else {
-          precoItem = (item.produto.precoPromocional && item.produto.precoPromocional > 0)
-            ? item.produto.precoPromocional
-            : item.produto.preco || 0
-        }
-        
-        return {
-          id: item.produto.id,
-          name: item.produto.nome,
-          category: item.produto.categoria,
-          price: precoItem,
-          quantity: item.quantidade,
-        }
-      })
-      
-      googleAnalytics.trackPurchase(
-        pedidoId,
-        items,
-        total,
-        parseFloat(valorEntrega) || 0,
-        dadosCliente.formaPagamento
-      )
 
       // Mostrar mensagem de sucesso
       showSuccess('Pedido realizado com sucesso! Redirecionando...')

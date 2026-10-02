@@ -18,7 +18,6 @@ import {
   TrendingUp,
   TrendingDown,
   Settings,
-  Loader2,
   AlertCircle,
   Filter,
   X
@@ -26,6 +25,8 @@ import {
 import { stockService, produtoService, type StockMovement } from "@/services"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { CarregandoPagina } from '@/components/ui/feedback'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 interface MovementWithProduct extends StockMovement {
   product_name?: string
@@ -33,6 +34,7 @@ interface MovementWithProduct extends StockMovement {
 }
 
 export default function HistoricoMovimentacoes() {
+  const tabelaRef = useTabelaResponsiva()
   const [movimentacoes, setMovimentacoes] = useState<MovementWithProduct[]>([])
   const [movimentacoesFiltradas, setMovimentacoesFiltradas] = useState<MovementWithProduct[]>([])
   const [loading, setLoading] = useState(true)
@@ -196,11 +198,11 @@ export default function HistoricoMovimentacoes() {
   const getTipoIcon = (tipo: string) => {
     switch (tipo) {
       case 'IN':
-        return <TrendingUp className="h-4 w-4 text-green-600" />
+        return <TrendingUp className="h-4 w-4 text-success" />
       case 'OUT':
-        return <TrendingDown className="h-4 w-4 text-red-600" />
+        return <TrendingDown className="h-4 w-4 text-destructive" />
       case 'ADJUST':
-        return <Settings className="h-4 w-4 text-indigo-600" />
+        return <Settings className="h-4 w-4 text-primary" />
       default:
         return <Package className="h-4 w-4" />
     }
@@ -209,32 +211,25 @@ export default function HistoricoMovimentacoes() {
   const getTipoColor = (tipo: string) => {
     switch (tipo) {
       case 'IN':
-        return 'bg-green-100 text-green-800'
+        return 'bg-success/10 text-success'
       case 'OUT':
-        return 'bg-red-100 text-red-800'
+        return 'bg-destructive/10 text-destructive'
       case 'ADJUST':
-        return 'bg-indigo-100 text-indigo-800'
+        return 'bg-primary/10 text-primary'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted text-foreground'
     }
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando histórico...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="tabela" />
   }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
           Histórico de Movimentações
         </h1>
@@ -244,7 +239,7 @@ export default function HistoricoMovimentacoes() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -345,7 +340,7 @@ export default function HistoricoMovimentacoes() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div ref={tabelaRef} className="tabela-responsiva overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>

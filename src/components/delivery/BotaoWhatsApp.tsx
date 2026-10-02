@@ -75,7 +75,7 @@ export default function BotaoWhatsApp({ botaoTopoVisivel = false, limiteScroll =
       onClick={abrirWhatsApp}
       className={`
         fixed z-50 rounded-full w-12 h-12 p-0 shadow-lg 
-        bg-green-500 hover:bg-green-600
+        bg-success hover:bg-success/90
         transition-all duration-300
         ${botaoTopoVisivel && mostrar
           ? 'bottom-20 right-2 md:bottom-4 md:right-16' // Mobile: acima do botão | Desktop: ao lado

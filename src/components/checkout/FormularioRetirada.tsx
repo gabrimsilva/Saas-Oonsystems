@@ -39,8 +39,8 @@ const FormularioRetirada = ({
             maxLength={16}
           />
           {clienteExistente && (
-            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm text-green-700">
+            <div className="mt-2 p-2 bg-success/5 border border-success/30 rounded-md">
+              <p className="text-sm text-success">
                 ✅ Cliente encontrado!
                 <span className="text-xs block">
                   {clienteExistente.total_pedidos || 0} pedido(s) anterior(es) •
@@ -74,9 +74,9 @@ const FormularioRetirada = ({
         </div>
 
         {/* Endereço da loja */}
-        <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-          <h3 className="font-medium text-indigo-900 mb-2">📍 Endereço da Loja</h3>
-          <p className="text-indigo-800">{enderecoEstabelecimento}</p>
+        <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+          <h3 className="font-medium text-primary mb-2">📍 Endereço da Loja</h3>
+          <p className="text-primary">{enderecoEstabelecimento}</p>
         </div>
       </CardContent>
     </Card>

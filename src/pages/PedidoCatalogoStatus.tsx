@@ -71,18 +71,18 @@ export default function PedidoCatalogoStatus() {
 
   if (!pedido) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           {erro ? (
             <>
-              <XCircle className="h-12 w-12 text-red-500 mx-auto mb-3" />
-              <p className="text-gray-800 font-medium mb-4">{erro}</p>
+              <XCircle className="h-12 w-12 text-destructive mx-auto mb-3" />
+              <p className="text-foreground font-medium mb-4">{erro}</p>
               <Button onClick={voltar} variant="outline">Voltar ao catálogo</Button>
             </>
           ) : (
             <>
-              <Loader2 className="h-10 w-10 text-purple-600 animate-spin mx-auto mb-3" />
-              <p className="text-gray-600">Consultando seu pedido...</p>
+              <Loader2 className="h-10 w-10 text-primary animate-spin mx-auto mb-3" />
+              <p className="text-muted-foreground">Consultando seu pedido...</p>
             </>
           )}
         </div>
@@ -103,17 +103,17 @@ export default function PedidoCatalogoStatus() {
       : null
   const cabecalho = {
     recebido: {
-      icone: <CheckCircle2 className="h-14 w-14 text-green-600" />,
+      icone: <CheckCircle2 className="h-14 w-14 text-success" />,
       titulo: "Pedido enviado!",
       texto: "Recebemos seu pedido. Se o WhatsApp não abriu, toque no botão abaixo para enviar o resumo para a loja. O pagamento é feito na retirada/entrega.",
     },
     aprovado: {
-      icone: <CheckCircle2 className="h-14 w-14 text-green-600" />,
+      icone: <CheckCircle2 className="h-14 w-14 text-success" />,
       titulo: "Pagamento aprovado!",
       texto: "Recebemos seu pedido e já vamos preparar. Você receberá o contato da loja pelo WhatsApp.",
     },
     aguardando: {
-      icone: <Clock className="h-14 w-14 text-amber-500" />,
+      icone: <Clock className="h-14 w-14 text-warning-foreground" />,
       titulo: "Aguardando pagamento",
       texto:
         pedido.forma_pagamento === "pix"
@@ -121,52 +121,52 @@ export default function PedidoCatalogoStatus() {
           : "Estamos aguardando a confirmação do pagamento.",
     },
     recusado: {
-      icone: <XCircle className="h-14 w-14 text-red-500" />,
+      icone: <XCircle className="h-14 w-14 text-destructive" />,
       titulo: "Pagamento não aprovado",
       texto: "Nenhum valor foi cobrado. Você pode tentar novamente com outro cartão ou forma de pagamento.",
     },
     cancelado: {
-      icone: <XCircle className="h-14 w-14 text-gray-400" />,
+      icone: <XCircle className="h-14 w-14 text-muted-foreground/70" />,
       titulo: "Pedido cancelado",
       texto: "Este pedido foi cancelado. Em caso de dúvida, fale com a loja.",
     },
   }[situacao]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <main className="max-w-lg mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 text-center border-b border-gray-100">
+    <div className="min-h-screen bg-muted/50 py-8 px-4">
+      <main className="max-w-lg mx-auto bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+        <div className="p-6 text-center border-b border-border">
           <div className="flex justify-center mb-3">{cabecalho.icone}</div>
-          <h1 className="text-2xl font-bold text-gray-900">{cabecalho.titulo}</h1>
-          <p className="text-sm text-gray-600 mt-2" role="status">{cabecalho.texto}</p>
-          <p className="mt-4 text-sm text-gray-500">
-            Pedido <strong className="text-gray-900 font-mono">#{pedido.codigo_pedido}</strong>
+          <h1 className="text-2xl font-semibold text-foreground">{cabecalho.titulo}</h1>
+          <p className="text-sm text-muted-foreground mt-2" role="status">{cabecalho.texto}</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Pedido <strong className="text-foreground font-mono">#{pedido.codigo_pedido}</strong>
             {pedido.tipo_venda === "atacado" && " · Atacado"}
             {" · "}{FORMA_PAGAMENTO_LABEL[pedido.forma_pagamento] ?? pedido.forma_pagamento}
           </p>
         </div>
 
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-border">
           {pedido.itens.map((item, i) => (
             <li key={i} className="flex justify-between gap-4 px-6 py-3 text-sm">
-              <span className="text-gray-800">
+              <span className="text-foreground">
                 <span className="font-semibold tabular-nums">{item.quantidade}x</span> {item.nome}
               </span>
-              <span className="text-gray-900 font-medium tabular-nums whitespace-nowrap">{formatarReais(item.subtotal)}</span>
+              <span className="text-foreground font-medium tabular-nums whitespace-nowrap">{formatarReais(item.subtotal)}</span>
             </li>
           ))}
         </ul>
 
-        <div className="px-6 py-4 bg-gray-50 flex justify-between items-baseline">
-          <span className="text-gray-600">Total</span>
-          <span className="text-xl font-bold text-gray-900 tabular-nums">{formatarReais(pedido.total)}</span>
+        <div className="px-6 py-4 bg-muted/50 flex justify-between items-baseline">
+          <span className="text-muted-foreground">Total</span>
+          <span className="text-xl font-bold text-foreground tabular-nums">{formatarReais(pedido.total)}</span>
         </div>
 
         <div className="p-6 space-y-3">
           {linkWhatsApp && (
             <Button
               asChild
-              className="w-full h-12 text-base font-semibold bg-green-600 hover:bg-green-700 text-white"
+              className="w-full h-12 text-base font-semibold bg-success hover:bg-success/90 text-white"
             >
               <a href={linkWhatsApp} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-5 w-5" /> Enviar pedido pelo WhatsApp
@@ -176,7 +176,7 @@ export default function PedidoCatalogoStatus() {
           {(situacao === "aguardando" || situacao === "recusado") && pedido.checkout_url && (
             <Button
               onClick={() => { window.location.href = pedido.checkout_url! }}
-              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+              className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary-hover text-white"
             >
               {situacao === "recusado" ? "Tentar pagar novamente" : "Ir para o pagamento"}
             </Button>

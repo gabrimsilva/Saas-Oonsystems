@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { ArrowRight, Lock, Mail } from 'lucide-react'
 import { authService, supabase } from "@/services"
 import { plataformaService } from "@/services/plataformaService"
-import './LoginPremium.css'
+import { AuthLayout, CampoAuth, CampoSenha } from '@/components/auth/AuthLayout'
+import { Button } from '@/components/ui/button'
+import { Alerta } from '@/components/ui/feedback'
 
 interface LoginProps {
   onLogin: (credentials: { login: string; senha: string }) => void
@@ -15,7 +17,6 @@ interface LoginProps {
 export default function Login({ onLogin }: LoginProps) {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-  const [mostrarSenha, setMostrarSenha] = useState(false)
   const [lembrarMe, setLembrarMe] = useState(false)
   const [carregando, setCarregando] = useState(false)
   const [error, setError] = useState('')
@@ -115,174 +116,79 @@ export default function Login({ onLogin }: LoginProps) {
   }
 
   return (
-    <div className="login-premium-container">
-      {/* Background com gradiente e texturas */}
-      <div className="login-bg-gradient"></div>
-      <div className="login-bg-texture"></div>
-      <div className="login-bg-ambient"></div>
+    <AuthLayout
+      titulo="Entrar na sua conta"
+      subtitulo="Use o e-mail e a senha cadastrados para acessar o painel."
+      rodape={
+        <>
+          <p>
+            Ainda não tem conta?{' '}
+            <a href="/cadastro" className="font-medium text-primary hover:text-primary-hover hover:underline underline-offset-4">
+              Teste grátis por 14 dias
+            </a>
+          </p>
+          <p className="text-xs">
+            Criado por{' '}
+            <a href="https://oonsystems.tech" target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline underline-offset-4">
+              OonSystems
+            </a>
+          </p>
+        </>
+      }
+    >
+      <form className="space-y-5" onSubmit={handleEntrar} noValidate={false}>
+        {error && <Alerta tipo="erro">{error}</Alerta>}
 
-      {/* Conteúdo Principal */}
-      <div className="login-content">
-        {/* Lado Esquerdo - 50% */}
-        <div className="login-left">
-          {/* Background com textura sutil */}
-          <div className="login-left-bg">
-            <div className="pastor-bg-container" />
-          </div>
+        <CampoAuth
+          id="email"
+          rotulo="E-mail"
+          icone={Mail}
+          type="email"
+          placeholder="voce@empresa.com.br"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          autoFocus
+          required
+          aria-invalid={!!error || undefined}
+        />
 
-          {/* Conteúdo Esquerdo Overlay */}
-          <div className="login-left-content">
-            {/* Título */}
-            <div className="title-section">
-              <h1 className="title-line-2">OonSystems</h1>
-              <p className="subtitle">Gestão para o seu negócio</p>
-            </div>
+        <CampoSenha
+          id="senha"
+          rotulo="Senha"
+          icone={Lock}
+          placeholder="Digite sua senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          autoComplete="current-password"
+          required
+          aria-invalid={!!error || undefined}
+          acessorio={
+            <a href="#" className="text-xs font-medium text-primary hover:text-primary-hover hover:underline underline-offset-4">
+              Esqueceu sua senha?
+            </a>
+          }
+        />
 
-            {/* Descrição */}
-            <div className="description-section">
-              <p className="description-text">
-                Sistema completo de gestão<br />
-                para o seu negócio.<br />
-                Modernidade e eficiência.
-              </p>
-            </div>
+        <label className="flex w-fit cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
+          <input
+            type="checkbox"
+            checked={lembrarMe}
+            onChange={(e) => setLembrarMe(e.target.checked)}
+            className="size-4 rounded border-input"
+          />
+          Lembrar-me neste dispositivo
+        </label>
 
-            {/* Card Destaque */}
-            <div className="verse-card">
-              <svg className="verse-quote" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <p className="verse-text">
-                Gestão inteligente de estoque, vendas e métricas em um só lugar.
-              </p>
-              <p className="verse-reference">OonSystems</p>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Lado Direito - 40% */}
-        <div className="login-right">
-          {/* Login Card */}
-          <div className="login-card">
-            {/* Header */}
-            <div className="login-header">
-              <h2>Bem-vindo(a)!</h2>
-              <p>Faça login para acessar o sistema.</p>
-            </div>
-
-            {/* Form */}
-            <form className="login-form" onSubmit={handleEntrar}>
-              {/* Erro */}
-              {error && (
-                <div className="form-error">
-                  <p>{error}</p>
-                </div>
-              )}
-
-              {/* Email */}
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                  </svg>
-                  E-mail
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Digite seu e-mail"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="form-input"
-                  required
-                />
-              </div>
-
-              {/* Senha */}
-              <div className="form-group">
-                <label htmlFor="senha" className="form-label">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                  </svg>
-                  Senha
-                </label>
-                <div className="form-input-wrapper">
-                  <input
-                    id="senha"
-                    type={mostrarSenha ? 'text' : 'password'}
-                    placeholder="Digite sua senha"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    className="form-input"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setMostrarSenha(!mostrarSenha)}
-                    className="form-input-icon"
-                  >
-                    {mostrarSenha ? (
-                      <EyeOff width={16} height={16} />
-                    ) : (
-                      <Eye width={16} height={16} />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Checkbox e Link */}
-              <div className="form-footer">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={lembrarMe}
-                    onChange={(e) => setLembrarMe(e.target.checked)}
-                    className="checkbox-input"
-                  />
-                  <span>Lembrar-me</span>
-                </label>
-                <a href="#" className="form-link">
-                  Esqueceu sua senha?
-                </a>
-              </div>
-
-              {/* Botão */}
-              <button
-                type="submit"
-                className={`form-button ${carregando ? 'loading' : ''}`}
-                disabled={carregando}
-              >
-                {carregando ? (
-                  <>
-                    <span className="spinner"></span>
-                    Entrando...
-                  </>
-                ) : (
-                  <>
-                    Entrar
-                    <ArrowRight width={16} height={16} />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Footer */}
-            <div className="login-card-footer">
-              <p className="footer-text">
-                Não tem conta? <a href="/cadastro">Teste grátis por 14 dias</a>
-              </p>
-              <p className="footer-text">
-                Criado por <a href="https://oonsystems.tech" target="_blank" rel="noopener noreferrer">OonSystems</a>
-              </p>
-            </div>
-
-
-          </div>
-        </div>
-      </div>
-    </div>
+        <Button type="submit" size="lg" className="w-full" loading={carregando}>
+          {carregando ? 'Entrando...' : (
+            <>
+              Entrar
+              <ArrowRight />
+            </>
+          )}
+        </Button>
+      </form>
+    </AuthLayout>
   )
 }

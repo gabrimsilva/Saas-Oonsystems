@@ -136,7 +136,7 @@ export default function SelecionarVarianteModal({
         </DialogHeader>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-2">
+          <div className="p-3 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive text-sm flex items-start gap-2">
             <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
             <span>{error}</span>
           </div>
@@ -144,11 +144,11 @@ export default function SelecionarVarianteModal({
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         ) : variantes.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Escolha qual variante está sendo vendida:
             </p>
 
@@ -162,23 +162,23 @@ export default function SelecionarVarianteModal({
                   className={`
                     w-full p-4 border-2 rounded-lg text-left transition-all
                     ${varianteSelecionada === variante.id
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-input hover:bg-accent'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-foreground">
                         {variante.nome ?? variante.label}
                       </p>
                       {variante.sku && (
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           SKU: {variante.sku}
                         </p>
                       )}
                       {variante.barcode && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           Código: {variante.barcode}
                         </p>
                       )}
@@ -187,10 +187,10 @@ export default function SelecionarVarianteModal({
                       <span className={`
                         inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
                         ${(variante.quantidade ?? 0) > 10
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-success/10 text-success'
                           : (variante.quantidade ?? 0) > 5
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-warning/15 text-warning-foreground'
+                          : 'bg-destructive/10 text-destructive'
                         }
                       `}>
                         {variante.quantidade ?? 0} em estoque

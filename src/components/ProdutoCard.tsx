@@ -20,21 +20,21 @@ interface ProdutoCardProps {
 
 const getCategoriaColor = (categoria: string) => {
   const colors = {
-    pizza: 'bg-red-100 text-red-800',
-    lanche: 'bg-green-100 text-green-800',
-    bebida: 'bg-indigo-100 text-indigo-800',
-    combo: 'bg-purple-100 text-purple-800'
+    pizza: 'bg-destructive/10 text-destructive',
+    lanche: 'bg-success/10 text-success',
+    bebida: 'bg-primary/10 text-primary',
+    combo: 'bg-primary/10 text-primary'
   }
-  return colors[categoria as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+  return colors[categoria as keyof typeof colors] || 'bg-muted text-foreground'
 }
 
 export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
       {/* Layout Desktop */}
       <div className="hidden md:flex p-4 gap-4 items-center">
         {/* Imagem do produto */}
-        <div className="relative w-20 h-20 flex-shrink-0 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+        <div className="relative w-20 h-20 flex-shrink-0 bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
           {produto.urlImagem ? (
             <img 
               src={produto.urlImagem} 
@@ -43,7 +43,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Package className="h-8 w-8 text-gray-400" />
+              <Package className="h-8 w-8 text-muted-foreground/70" />
             </div>
           )}
         </div>
@@ -61,7 +61,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
                   {produto.categoria.charAt(0).toUpperCase() + produto.categoria.slice(1)}
                 </span>
                 {produto.precoPromocional && produto.precoPromocional > 0 && (
-                  <span className="text-xs font-medium px-2 py-1 rounded bg-yellow-100 text-yellow-800">
+                  <span className="text-xs font-medium px-2 py-1 rounded bg-warning/15 text-warning-foreground">
                     Promoção
                   </span>
                 )}
@@ -114,7 +114,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
                 <span className="text-lg font-bold text-[color:var(--price-color)]">
                   R$ {produto.precoPromocional.toFixed(2).replace('.', ',')}
                 </span>
-                <span className="text-sm text-gray-500 line-through">
+                <span className="text-sm text-muted-foreground line-through">
                   R$ {produto.preco.toFixed(2).replace('.', ',')}
                 </span>
               </>
@@ -130,7 +130,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
       {/* Layout Mobile */}
       <div className="md:hidden">
         {/* Imagem do produto */}
-        <div className="relative h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
+        <div className="relative h-32 bg-muted/50 flex items-center justify-center overflow-hidden">
           {produto.urlImagem ? (
             <img 
               src={produto.urlImagem} 
@@ -139,7 +139,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <Package className="h-8 w-8 text-gray-400" />
+              <Package className="h-8 w-8 text-muted-foreground/70" />
             </div>
           )}
           
@@ -149,7 +149,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
               {produto.categoria.charAt(0).toUpperCase() + produto.categoria.slice(1)}
             </span>
             {produto.precoPromocional && produto.precoPromocional > 0 && (
-              <span className="text-xs font-medium px-2 py-1 rounded bg-yellow-100 text-yellow-800">
+              <span className="text-xs font-medium px-2 py-1 rounded bg-warning/15 text-warning-foreground">
                 Promoção
               </span>
             )}
@@ -184,7 +184,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
                 <span className="text-lg font-bold text-[color:var(--price-color)]">
                   R$ {produto.precoPromocional.toFixed(2).replace('.', ',')}
                 </span>
-                <span className="text-sm text-gray-500 line-through">
+                <span className="text-sm text-muted-foreground line-through">
                   R$ {produto.preco.toFixed(2).replace('.', ',')}
                 </span>
               </div>
@@ -211,7 +211,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Remover Produto

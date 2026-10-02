@@ -58,7 +58,7 @@ interface EscolherObservacoesModalProps {
   /**
    * Variante de estilo do botão de confirmação
    * - 'default': Usa a cor primária padrão do tema
-   * - 'delivery': Usa cor vermelha (bg-red-600)
+   * - 'delivery': Usa cor vermelha (bg-destructive)
    * @type {'default' | 'delivery'}
    * @default 'delivery'
    */
@@ -239,15 +239,15 @@ export default function EscolherObservacoesModal({
    * @returns {string} Classe CSS do Tailwind para a cor do texto
    * 
    * @description
-   * - Vermelho (text-red-600): >= 90% do limite (270+ caracteres)
-   * - Laranja (text-orange-600): >= 75% do limite (225+ caracteres)
-   * - Cinza (text-gray-600): < 75% do limite
+   * - Vermelho (text-destructive): >= 90% do limite (270+ caracteres)
+   * - Laranja (text-warning-foreground): >= 75% do limite (225+ caracteres)
+   * - Cinza (text-muted-foreground): < 75% do limite
    */
   const getContadorColor = () => {
     const percentual = (observacoes.length / MAX_CARACTERES) * 100
-    if (percentual >= 90) return 'text-red-600'
-    if (percentual >= 75) return 'text-orange-600'
-    return 'text-gray-600'
+    if (percentual >= 90) return 'text-destructive'
+    if (percentual >= 75) return 'text-warning-foreground'
+    return 'text-muted-foreground'
   }
 
   // Não renderizar nada se o modal não estiver aberto
@@ -259,13 +259,13 @@ export default function EscolherObservacoesModal({
         {/* Botão fechar mobile */}
         <button
           onClick={onClose}
-          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-white p-2 hover:bg-gray-100 transition-colors shadow-md cursor-pointer"
+          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-card p-2 hover:bg-accent transition-colors shadow-md cursor-pointer"
           aria-label="Fechar modal de observações"
         >
-          <X className="h-5 w-5 text-gray-600" />
+          <X className="h-5 w-5 text-muted-foreground" />
         </button>
 
-        <AlertDialogHeader className="flex-shrink-0 max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-white max-md:z-10 max-md:border-b">
+        <AlertDialogHeader className="flex-shrink-0 max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-card max-md:z-10 max-md:border-b">
           <AlertDialogTitle className="max-md:pr-10">Adicionar Observações</AlertDialogTitle>
           <AlertDialogDescription>
             Alguma observação especial para este produto?
@@ -295,7 +295,7 @@ export default function EscolherObservacoesModal({
           </div>
         </div>
 
-        <AlertDialogFooter className="flex-col sm:flex-row gap-2 flex-shrink-0 max-md:sticky max-md:bottom-0 max-md:bg-white max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <AlertDialogFooter className="flex-col sm:flex-row gap-2 flex-shrink-0 max-md:sticky max-md:bottom-0 max-md:bg-card max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
           <Button
             type="button"
             variant="outline"
@@ -309,7 +309,7 @@ export default function EscolherObservacoesModal({
             onClick={handleConfirmar}
             className={`w-full sm:w-auto cursor-pointer ${
               variant === 'delivery' 
-                ? 'bg-red-600 hover:bg-red-700' 
+                ? 'bg-primary hover:bg-primary-hover' 
                 : ''
             }`}
           >

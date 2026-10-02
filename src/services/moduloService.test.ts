@@ -22,7 +22,6 @@ const TUDO: Permissoes = {
   podeAcessarFuncionarios: true,
   podeAcessarConfiguracoes: true,
   podeAcessarMetricas: true,
-  podeAcessarAnalytics: true,
 }
 
 const TODOS_MODULOS = ['pdv', 'comandas', 'pedidos_online', 'estoque', 'metricas']

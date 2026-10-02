@@ -95,7 +95,7 @@ export default function VisualizarCupomModal({
           .flex.items-center.gap-3.pt-6.mt-6.border-t.p-5 {
             padding: 20px !important;
           }
-          p.text-sm.text-gray-500 {
+          p.text-sm.text-muted-foreground {
             padding-bottom: 5px !important;
             display: flex !important;
             align-content: flex-start !important;
@@ -116,14 +116,14 @@ export default function VisualizarCupomModal({
             {/* Cabeçalho integrado */}
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
-                <Receipt className="h-6 w-6 text-indigo-600" />
+                <Receipt className="h-6 w-6 text-primary" />
                 <h2 className="text-xl font-semibold">{titulo} - {numero}</h2>
               </div>
-              <p className="text-sm text-gray-500">Visualize o cupom antes de imprimir</p>
+              <p className="text-sm text-muted-foreground">Visualize o cupom antes de imprimir</p>
             </div>
 
             {/* Conteúdo do Cupom */}
-            <div className="border rounded-lg bg-white mb-6">
+            <div className="border rounded-lg bg-card mb-6">
               <div 
                 dangerouslySetInnerHTML={{ __html: cupomHTML }}
                 className="cupom-preview"
@@ -153,7 +153,7 @@ export default function VisualizarCupomModal({
               <Button
                 onClick={handleImprimir}
                 disabled={imprimindo}
-                className="flex-1 py-6 px-6 bg-gradient-to-r from-indigo-500 to-indigo-500 hover:from-indigo-600 hover:to-indigo-600"
+                className="flex-1 py-6 px-6 bg-primary hover:bg-primary-hover"
               >
                 {imprimindo ? (
                   <>

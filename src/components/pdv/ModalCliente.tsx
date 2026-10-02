@@ -182,7 +182,7 @@ export default function ModalCliente({
                 maxLength={15}
                 autoFocus
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Digite o telefone para buscar cliente existente
               </p>
             </div>

@@ -135,7 +135,7 @@ export default function CarrinhoPDV({
         </CardHeader>
         <CardContent>
           {carrinho.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-muted-foreground">
               <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <p>Carrinho vazio</p>
             </div>
@@ -150,7 +150,7 @@ export default function CarrinhoPDV({
                 const valorDescontoItem = precoOriginalItem - precoFinalItem
 
                 return (
-                  <div key={`${item.produto.id}-${index}`} className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg">
+                  <div key={`${item.produto.id}-${index}`} className="flex items-start gap-2 md:gap-3 p-2 md:p-3 bg-muted/50 rounded-lg">
                     <img
                       src={item.produto.urlImagem}
                       alt={item.produto.nome}
@@ -160,7 +160,7 @@ export default function CarrinhoPDV({
                       <p className="font-medium text-xs md:text-sm break-words">
                         {item.produto.nome}
                         {item.variantLabel && (
-                          <span className="text-gray-600"> - {item.variantLabel}</span>
+                          <span className="text-muted-foreground"> - {item.variantLabel}</span>
                         )}
                       </p>
                       
@@ -171,27 +171,27 @@ export default function CarrinhoPDV({
                       {!item.produtosCombo && (
                         <>
                           {item.tamanhoSelecionado && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
                             </p>
                           )}
                           {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Sabores: {item.saboresSelecionados.map((s: any) => s.nome).join(', ')}
                             </p>
                           )}
                           {item.bordaSelecionada && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Borda: {item.bordaSelecionada.nome}
                             </p>
                           )}
                           {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Adicionais: {item.adicionaisSelecionados.map((a: any) => `${a.quantidade}x ${a.nome}`).join(', ')}
                             </p>
                           )}
                           {item.observacoes && (
-                            <p className="text-xs text-gray-500 italic">
+                            <p className="text-xs text-muted-foreground italic">
                               <MessageSquare className="inline h-3 w-3 mr-1" />
                               Obs: {item.observacoes}
                             </p>
@@ -201,16 +201,16 @@ export default function CarrinhoPDV({
                       
                       {/* Preço e Desconto */}
                       <div className="space-y-1 mt-1">
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-muted-foreground">
                           R$ {item.precoUnitario.toFixed(2).replace('.', ',')} x {item.quantidade}
                         </p>
                         
                         {descontoItem > 0 && (
                           <div className="flex items-center gap-2">
-                            <span className="text-xs line-through text-gray-400">
+                            <span className="text-xs line-through text-muted-foreground/70">
                               R$ {precoOriginalItem.toFixed(2).replace('.', ',')}
                             </span>
-                            <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">
+                            <span className="text-xs bg-warning/15 text-warning-foreground px-1.5 py-0.5 rounded font-medium">
                               -{tipoDescontoItem === 'percentual' ? `${descontoItem}%` : `R$ ${valorDescontoItem.toFixed(2).replace('.', ',')}`}
                             </span>
                           </div>
@@ -227,7 +227,7 @@ export default function CarrinhoPDV({
                           size="sm"
                           variant="ghost"
                           onClick={() => onAbrirModalDesconto(index)}
-                          className="h-6 px-2 text-xs mt-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                          className="h-6 px-2 text-xs mt-1 text-warning-foreground hover:text-warning-foreground hover:bg-warning/10"
                         >
                           <Tag className="h-3 w-3 mr-1" />
                           {descontoItem > 0 ? 'Alterar Desconto' : 'Aplicar Desconto'}
@@ -254,12 +254,12 @@ export default function CarrinhoPDV({
                           onBlur={() => handleBlurQuantidade(index)}
                           onKeyDown={(e) => handleKeyDownQuantidade(e, index)}
                           autoFocus
-                          className="w-10 text-center text-sm border border-indigo-500 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 px-1 py-1"
+                          className="w-10 text-center text-sm border border-primary rounded focus:outline-none focus:ring-2 focus:ring-ring/30 px-1 py-1"
                         />
                       ) : (
                         <button
                           onClick={() => handleClickQuantidade(index, item.quantidade)}
-                          className="w-10 text-center text-sm hover:bg-gray-100 rounded transition-colors py-1 cursor-pointer"
+                          className="w-10 text-center text-sm hover:bg-accent rounded transition-colors py-1 cursor-pointer"
                           title="Clique para editar"
                         >
                           {item.quantidade}
@@ -294,7 +294,7 @@ export default function CarrinhoPDV({
               <div className="border-t pt-2">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total:</span>
-                  <span className="text-green-600">R$ {total.toFixed(2).replace('.', ',')}</span>
+                  <span className="text-success">R$ {total.toFixed(2).replace('.', ',')}</span>
                 </div>
               </div>
             </div>

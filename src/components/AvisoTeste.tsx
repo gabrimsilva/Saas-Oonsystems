@@ -38,17 +38,18 @@ export default function AvisoTeste() {
 
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-2 px-6 py-2 text-sm border-b ${
-        urgente ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-blue-50 border-blue-200 text-blue-900'
+      role="status"
+      className={`flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2 text-sm md:px-6 ${
+        urgente ? 'border-warning/40 bg-warning/10 text-foreground' : 'border-primary/15 bg-primary/5 text-foreground'
       }`}
     >
       <span className="flex items-center gap-2">
-        <Clock className="h-4 w-4 flex-shrink-0" />
+        <Clock className={`size-4 flex-shrink-0 ${urgente ? 'text-warning-foreground' : 'text-primary'}`} />
         Seu período de teste termina {quando} ({trialAte.toLocaleDateString('pt-BR')}).
       </span>
       <a
         href={CONTATO_ASSINATURA}
-        className={`font-semibold underline-offset-2 hover:underline ${urgente ? 'text-amber-900' : 'text-blue-900'}`}
+        className="inline-flex h-7 items-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary-hover"
       >
         Assinar agora
       </a>

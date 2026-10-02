@@ -37,28 +37,28 @@ const configCards: ConfigCard[] = [
     title: 'Loja',
     description: 'Nome, endereço, telefone e informações básicas',
     icon: <Store className="h-6 w-6" />,
-    color: 'text-purple-600'
+    color: 'text-primary'
   },
   {
     id: 'pagamento',
     title: 'Pagamentos',
     description: 'Formas de pagamento e pedidos pela loja online',
     icon: <CreditCard className="h-6 w-6" />,
-    color: 'text-pink-600'
+    color: 'text-primary'
   },
   {
     id: 'horario',
     title: 'Horário de Funcionamento',
     description: 'Dias e horários de atendimento',
     icon: <Clock className="h-6 w-6" />,
-    color: 'text-orange-600'
+    color: 'text-warning-foreground'
   },
   {
     id: 'visuais',
     title: 'Aparência',
     description: 'Logo, cores e personalização visual',
     icon: <Palette className="h-6 w-6" />,
-    color: 'text-blue-600'
+    color: 'text-primary'
   }
 ]
 
@@ -107,7 +107,7 @@ export default function ConfiguracoesIndex({ initialPage = 'index' }: Configurac
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Settings className="h-6 w-6" />
           Configurações
         </h1>

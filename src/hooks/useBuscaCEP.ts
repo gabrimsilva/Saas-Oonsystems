@@ -60,7 +60,7 @@ export interface Endereco {
  *         onBlur={handleCepBlur}
  *       />
  *       {loading && <span>Buscando CEP...</span>}
- *       {erro && <span className="text-red-500">{erro}</span>}
+ *       {erro && <span className="text-destructive">{erro}</span>}
  *     </div>
  *   )
  * }

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { ShoppingCart, Plus, Minus, AlertCircle, Clock, Star, Package, MessageSquare } from "lucide-react"
 import { useLojaStatus } from "@/hooks/useLojaStatus"
-import { googleAnalytics } from "@/services/googleAnalyticsService"
 import type { Sabor, Borda, Tamanho, Adicional } from '@/types/carrinho'
 import { renderizarDetalhesCombo } from "@/utils/comboFormatacao"
 import { chaveCarrinhoPublico } from '@/services/tenant'
@@ -132,30 +131,6 @@ export default function CarrinhoSheet({
   }
 
   const handleFinalizarPedido = () => {
-    // Rastrear início do checkout
-    const total = calcularTotal()
-    const items = carrinho.map(item => {
-      let precoItem = 0
-      if (item.produto.categoria === 'combo' && item.produto.id.includes('-')) {
-        precoItem = item.produto.preco || 0
-      } else if (item.tamanhoSelecionado) {
-        precoItem = item.tamanhoSelecionado.valor
-      } else {
-        precoItem = (item.produto.precoPromocional && item.produto.precoPromocional > 0)
-          ? item.produto.precoPromocional
-          : item.produto.preco || 0
-      }
-      
-      return {
-        id: item.produto.id,
-        name: item.produto.nome,
-        category: item.produto.categoria,
-        price: precoItem,
-        quantity: item.quantidade,
-      }
-    })
-    
-    googleAnalytics.trackBeginCheckout(items, total)
 
     // Verificar se a loja está aberta
     if (!isAberta) {
@@ -203,11 +178,11 @@ export default function CarrinhoSheet({
   return (
     <>
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-red-600 rounded-full shadow-lg flex items-center">
+        <div className="bg-destructive rounded-full shadow-lg flex items-center">
           {/* Botão Avaliar */}
           <Button
             size="lg"
-            className="bg-red-600 hover:bg-red-700 p-4 rounded-full shadow-none border-0 cursor-pointer"
+            className="bg-primary hover:bg-primary-hover p-4 rounded-full shadow-none border-0 cursor-pointer"
             onClick={() => window.location.href = '/avaliar'}
           >
             <Star className="h-6 w-6" />
@@ -216,37 +191,11 @@ export default function CarrinhoSheet({
           {/* Botão Carrinho */}
           <Sheet open={carrinhoAberto} onOpenChange={(open) => {
             setCarrinhoAberto(open)
-            // Rastrear visualização do carrinho quando aberto
-            if (open && carrinho.length > 0) {
-              const totalPedido = calcularTotal()
-              const items = carrinho.map(item => {
-                let precoItem = 0
-                if (item.produto.categoria === 'combo' && item.produto.id.includes('-')) {
-                  precoItem = item.produto.preco || 0
-                } else if (item.tamanhoSelecionado) {
-                  precoItem = item.tamanhoSelecionado.valor
-                } else {
-                  precoItem = (item.produto.precoPromocional && item.produto.precoPromocional > 0)
-                    ? item.produto.precoPromocional
-                    : item.produto.preco || 0
-                }
-                
-                return {
-                  id: item.produto.id,
-                  name: item.produto.nome,
-                  category: item.produto.categoria,
-                  price: precoItem,
-                  quantity: item.quantidade,
-                }
-              })
-              
-              googleAnalytics.trackViewCart(items, totalPedido)
-            }
           }}>
             <SheetTrigger asChild>
               <Button
                 size="lg"
-                className="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-none shadow-none border-0 cursor-pointer"
+                className="bg-primary hover:bg-primary-hover px-8 py-4 rounded-none shadow-none border-0 cursor-pointer"
               >
                 <span className="text-xl font-bold whitespace-nowrap">
                   R$ {calcularTotal().toFixed(2).replace('.', ',')}
@@ -254,7 +203,7 @@ export default function CarrinhoSheet({
               </Button>
             </SheetTrigger>
 
-            <SheetContent side="right" className="w-[95%] sm:w-96 [&>button]:text-red-600 [&>button]:hover:text-red-700 [&>button]:hover:bg-red-50 [&>button_.size-4]:w-8 [&>button_.size-4]:h-8">
+            <SheetContent side="right" className="w-[95%] sm:w-96">
               <SheetHeader className="pb-4 border-b">
                 <div className="flex items-center justify-between gap-4">
                   <SheetTitle className="flex items-center gap-2 text-lg font-semibold flex-1">
@@ -269,7 +218,7 @@ export default function CarrinhoSheet({
                       variant="outline"
                       size="sm"
                       onClick={handleLimparCarrinho}
-                      className="border-red-200 font-medium shrink-0 mr-[47px] cursor-pointer"
+                      className="border-destructive/30 font-medium shrink-0 mr-[47px] cursor-pointer"
                     >
                       Limpar
                     </DangerButton>
@@ -281,7 +230,7 @@ export default function CarrinhoSheet({
                 {/* Lista de itens com scroll */}
                 <div className="flex-1 overflow-y-auto space-y-4 pr-2">
                   {carrinho.map((item, index) => (
-                    <div key={`${item.produto.id}-${index}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div key={`${item.produto.id}-${index}`} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                       {/* Imagem do produto */}
                       <img
                         src={item.produto.urlImagem}
@@ -307,28 +256,28 @@ export default function CarrinhoSheet({
                           <>
                             {/* Mostrar tamanho selecionado */}
                             {item.tamanhoSelecionado && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
                               </p>
                             )}
 
                             {/* Mostrar sabores selecionados */}
                             {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Sabores: {item.saboresSelecionados.map(s => s.nome).join(', ')}
                               </p>
                             )}
 
                             {/* Mostrar borda selecionada */}
                             {item.bordaSelecionada && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Borda: {item.bordaSelecionada.nome}
                               </p>
                             )}
 
                             {/* Mostrar adicionais selecionados */}
                             {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Adicionais: {item.adicionaisSelecionados.map((a: Adicional) =>
                                   `${a.quantidade}x ${a.nome}`
                                 ).join(', ')}
@@ -337,7 +286,7 @@ export default function CarrinhoSheet({
                             
                             {/* Mostrar observações (apenas para produtos normais, não combos) */}
                             {item.observacoes && (
-                              <p className="text-xs text-gray-500 italic">
+                              <p className="text-xs text-muted-foreground italic">
                                 <MessageSquare className="inline h-3 w-3 mr-1" />
                                 Obs: {item.observacoes}
                               </p>
@@ -345,7 +294,7 @@ export default function CarrinhoSheet({
                           </>
                         )}
 
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-muted-foreground">
                           R$ {(() => {
                             let precoUnitario = 0
 
@@ -382,7 +331,7 @@ export default function CarrinhoSheet({
                           })()} x {item.quantidade}
                         </p>
 
-                        <p className="font-bold text-sm text-red-600">
+                        <p className="font-semibold text-sm text-[color:var(--price-color-cliente)]">
                           R$ {(() => {
                             let preco = 0
 
@@ -442,7 +391,7 @@ export default function CarrinhoSheet({
                         <Button
                           size="sm"
                           onClick={() => onIncrementarItem(index)}
-                          className="bg-red-600 hover:bg-red-700 h-8 w-8 p-0 cursor-pointer"
+                          className="bg-primary hover:bg-primary-hover h-8 w-8 p-0 cursor-pointer"
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -452,7 +401,7 @@ export default function CarrinhoSheet({
                 </div>
 
                 {/* Total fixo na parte inferior */}
-                <div className="border-t bg-white px-4 pt-4 pb-2 mt-auto">
+                <div className="border-t bg-card px-4 pt-4 pb-2 mt-auto">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-lg font-semibold">Total:</span>
                     <span className="text-2xl font-bold text-[color:var(--price-color-cliente)]">
@@ -462,10 +411,10 @@ export default function CarrinhoSheet({
 
                   {/* Aviso de loja fechada */}
                   {!loadingStatus && !isAberta && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="mb-4 p-3 bg-destructive/5 border border-destructive/30 rounded-lg">
                       <div className="flex items-start gap-2">
-                        <Clock className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm text-red-700">
+                        <Clock className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-destructive">
                           <p className="font-medium">Loja fechada</p>
                           <p>
                             Não é possível finalizar pedidos no momento. Volte quando estivermos abertos!
@@ -476,7 +425,7 @@ export default function CarrinhoSheet({
                   )}
 
                   <Button
-                    className="w-full bg-red-600 hover:bg-red-700 py-3 text-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full bg-primary hover:bg-primary-hover py-3 text-lg font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                     onClick={handleFinalizarPedido}
                     disabled={loadingStatus || !isAberta}
                   >
@@ -495,7 +444,7 @@ export default function CarrinhoSheet({
           {/* Botão Meus Pedidos */}
           <Button
             size="lg"
-            className="bg-red-600 hover:bg-red-700 p-4 rounded-full shadow-none border-0 cursor-pointer"
+            className="bg-primary hover:bg-primary-hover p-4 rounded-full shadow-none border-0 cursor-pointer"
             onClick={() => window.location.href = '/meus-pedidos'}
           >
             <Package className="h-6 w-6" />
@@ -508,9 +457,9 @@ export default function CarrinhoSheet({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              {dialogTipo === 'loja-fechada' && <Clock className="h-5 w-5 text-red-600" />}
-              {dialogTipo === 'carrinho-vazio' && <ShoppingCart className="h-5 w-5 text-orange-600" />}
-              {dialogTipo === 'limpar-carrinho' && <AlertCircle className="h-5 w-5 text-red-600" />}
+              {dialogTipo === 'loja-fechada' && <Clock className="h-5 w-5 text-destructive" />}
+              {dialogTipo === 'carrinho-vazio' && <ShoppingCart className="h-5 w-5 text-warning-foreground" />}
+              {dialogTipo === 'limpar-carrinho' && <AlertCircle className="h-5 w-5 text-destructive" />}
               {dialogTitulo}
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -523,7 +472,7 @@ export default function CarrinhoSheet({
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleConfirmarDialog}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-primary hover:bg-primary-hover"
                 >
                   Limpar
                 </AlertDialogAction>

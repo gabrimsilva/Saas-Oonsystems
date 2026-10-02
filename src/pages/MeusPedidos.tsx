@@ -20,7 +20,6 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
 import BotoesFlutantes from "@/components/delivery/BotoesFlutantes"
-import CookieConsent from "@/components/CookieConsent"
 import { renderizarDetalhesCombo } from "@/utils/comboFormatacao"
 import { MessageSquare } from "lucide-react"
 
@@ -182,57 +181,57 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
   const getStatusInfo = (status: string) => {
     const statusMap = {
       'Pedido criado': {
-        color: 'bg-yellow-100 text-yellow-800',
+        color: 'bg-warning/15 text-warning-foreground',
         icon: Clock,
         label: 'Aguardando confirmação'
       },
       'Pendente': {
-        color: 'bg-yellow-100 text-yellow-800',
+        color: 'bg-warning/15 text-warning-foreground',
         icon: Clock,
         label: 'Aguardando confirmação'
       },
       'Confirmado': {
-        color: 'bg-indigo-100 text-indigo-800',
+        color: 'bg-primary/10 text-primary',
         icon: CheckCircle,
         label: 'Confirmado'
       },
       'Preparando': {
-        color: 'bg-orange-100 text-orange-800',
+        color: 'bg-warning/15 text-warning-foreground',
         icon: ChefHat,
         label: 'Em preparo'
       },
       'Pronto': {
-        color: 'bg-purple-100 text-purple-800',
+        color: 'bg-primary/10 text-primary',
         icon: Package,
         label: 'Pronto para entrega'
       },
       'Liberado': {
-        color: 'bg-purple-100 text-purple-800',
+        color: 'bg-primary/10 text-primary',
         icon: Truck,
         label: 'Liberado'
       },
       'Saiu para entrega': {
-        color: 'bg-indigo-100 text-indigo-800',
+        color: 'bg-primary/10 text-primary',
         icon: Truck,
         label: 'Saiu para entrega'
       },
       'Entregue': {
-        color: 'bg-green-100 text-green-800',
+        color: 'bg-success/10 text-success',
         icon: CheckCircle,
         label: 'Entregue'
       },
       'Retirado': {
-        color: 'bg-green-100 text-green-800',
+        color: 'bg-success/10 text-success',
         icon: CheckCircle,
         label: 'Retirado'
       },
       'Finalizado': {
-        color: 'bg-green-100 text-green-800',
+        color: 'bg-success/10 text-success',
         icon: CheckCircle,
         label: 'Finalizado'
       },
       'Cancelado': {
-        color: 'bg-red-100 text-red-800',
+        color: 'bg-destructive/10 text-destructive',
         icon: Clock,
         label: 'Cancelado'
       }
@@ -274,13 +273,13 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
       />
 
       {/* Título da página */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-card shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
               Meus Pedidos
             </h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Consulte o histórico dos seus pedidos e acompanhe o status de cada um
             </p>
           </div>
@@ -299,7 +298,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <label htmlFor="telefone-consulta" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="telefone-consulta" className="block text-sm font-medium text-foreground/80 mb-2">
                   Digite seu telefone para consultar os pedidos
                 </label>
                 <div className="flex gap-3">
@@ -317,7 +316,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                   <Button
                     onClick={buscarPedidos}
                     disabled={loading || !telefone.trim()}
-                    className="bg-red-600 hover:bg-red-700 cursor-pointer"
+                    className="bg-primary hover:bg-primary-hover cursor-pointer"
                   >
                     {loading ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -330,7 +329,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
               </div>
 
               {erro && (
-                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                <div className="text-destructive text-sm bg-destructive/5 p-3 rounded-lg">
                   {erro}
                 </div>
               )}
@@ -345,10 +344,10 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
               <Card>
                 <CardContent className="text-center py-12">
                   <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     Nenhum pedido encontrado
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Não encontramos pedidos para este telefone.
                   </p>
                 </CardContent>
@@ -356,7 +355,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
             ) : (
               <>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                  <h2 className="text-xl font-semibold text-foreground">
                     {pedidos.length} {pedidos.length === 1 ? 'pedido encontrado' : 'pedidos encontrados'}
                   </h2>
                 </div>
@@ -373,7 +372,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                             <CardTitle className="text-lg">
                               Pedido #{pedido.codigo_pedido || pedido.id.slice(-8)}
                             </CardTitle>
-                            <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
                                 {formatarData(pedido.criado_em)}
@@ -395,10 +394,10 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                         {/* Endereço de entrega */}
                         {pedido.entrega_domicilio && pedido.cliente_endereco && (
                           <div className="flex items-start gap-2 text-sm">
-                            <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                            <MapPin className="h-4 w-4 text-muted-foreground/70 mt-0.5" />
                             <div>
                               <p className="font-medium">Endereço de entrega:</p>
-                              <p className="text-gray-600">
+                              <p className="text-muted-foreground">
                                 {pedido.cliente_endereco}
                                 {pedido.cliente_numero && `, ${pedido.cliente_numero}`}
                                 {pedido.cliente_complemento && `, ${pedido.cliente_complemento}`}
@@ -421,11 +420,11 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                                 const preco = produto.preco || item.preco || item.preco_total || 0
 
                                 return (
-                                  <div key={index} className="flex justify-between text-sm bg-gray-50 p-2 rounded">
+                                  <div key={index} className="flex justify-between text-sm bg-muted/50 p-2 rounded">
                                     <span>
                                       {quantidade}x {nome}
                                       {(produto.categoria_nome || produto.categoria) && (
-                                        <span className="text-xs text-gray-500 ml-2">
+                                        <span className="text-xs text-muted-foreground ml-2">
                                           ({produto.categoria_nome || produto.categoria})
                                         </span>
                                       )}
@@ -435,7 +434,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                                       
                                       {/* Detalhes do item (se não for combo) */}
                                       {!item.produtosCombo && (
-                                        <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                                        <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
                                           {item.tamanhoSelecionado && (
                                             <div>• Tamanho: {item.tamanhoSelecionado.nome}</div>
                                           )}
@@ -451,7 +450,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                                             ).join(', ')}</div>
                                           )}
                                           {item.observacoes && (
-                                            <div className="text-xs text-gray-500 italic mt-1 flex items-start gap-1">
+                                            <div className="text-xs text-muted-foreground italic mt-1 flex items-start gap-1">
                                               <MessageSquare className="inline h-3 w-3 mt-0.5 flex-shrink-0" />
                                               <span>Obs: {item.observacoes}</span>
                                             </div>
@@ -473,7 +472,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
                         {pedido.observacoes && (
                           <div className="text-sm">
                             <p className="font-medium">Observações:</p>
-                            <p className="text-gray-600">{pedido.observacoes}</p>
+                            <p className="text-muted-foreground">{pedido.observacoes}</p>
                           </div>
                         )}
 
@@ -487,13 +486,13 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
 
                         {/* Informações de cancelamento */}
                         {pedido.cancelado && pedido.motivo_cancelamento && (
-                          <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                            <p className="font-medium text-red-800 text-sm mb-1">Pedido Cancelado</p>
-                            <p className="text-red-700 text-sm">
+                          <div className="bg-destructive/5 border border-destructive/30 p-3 rounded-lg">
+                            <p className="font-medium text-destructive text-sm mb-1">Pedido Cancelado</p>
+                            <p className="text-destructive text-sm">
                               <span className="font-medium">Motivo:</span> {pedido.motivo_cancelamento}
                             </p>
                             {pedido.requer_extorno && (
-                              <p className="text-red-700 text-sm mt-1">
+                              <p className="text-destructive text-sm mt-1">
                                 <span className="font-medium">Extorno:</span> {formatarMoeda(pedido.valor_extorno || 0)}
                               </p>
                             )}
@@ -534,7 +533,6 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
         onClose={() => setModalInfoAberto(false)}
       />
 
-      <CookieConsent />
     </div>
   )
 }

@@ -18,7 +18,6 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
 import BotoesFlutantes from "@/components/delivery/BotoesFlutantes"
-import CookieConsent from "@/components/CookieConsent"
 
 interface PixPaymentData {
   qr_code: string
@@ -461,10 +460,10 @@ export default function PagamentoPix() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-16 h-16 text-red-600 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Gerando QR Code do PIX...</p>
+          <Loader2 className="w-16 h-16 text-destructive animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Gerando QR Code do PIX...</p>
         </div>
       </div>
     )
@@ -472,15 +471,15 @@ export default function PagamentoPix() {
 
   if (paymentStatus === 'approved') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center">
         <Card className="max-w-md w-full mx-4">
           <CardContent className="pt-6 text-center">
-            <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamento Confirmado!</h2>
-            <p className="text-gray-600 mb-4">
+            <CheckCircle className="w-20 h-20 text-success mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento Confirmado!</h2>
+            <p className="text-muted-foreground mb-4">
               Seu pagamento via PIX foi confirmado com sucesso.
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Redirecionando para o acompanhamento do pedido...
             </p>
           </CardContent>
@@ -491,19 +490,19 @@ export default function PagamentoPix() {
 
   if (paymentStatus === 'rejected') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center">
         <Card className="max-w-md w-full mx-4">
           <CardContent className="pt-6 text-center">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">❌</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Pagamento Não Realizado</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento Não Realizado</h2>
+            <p className="text-muted-foreground mb-6">
               O pagamento não foi confirmado. Por favor, tente novamente.
             </p>
             <Button 
               onClick={() => navigate('/delivery')}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-primary hover:bg-primary-hover"
             >
               Voltar ao Cardápio
             </Button>
@@ -515,19 +514,19 @@ export default function PagamentoPix() {
 
   if (paymentStatus === 'expired') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/50 flex items-center justify-center">
         <Card className="max-w-md w-full mx-4">
           <CardContent className="pt-6 text-center">
-            <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Clock className="w-10 h-10 text-orange-600" />
+            <div className="w-20 h-20 bg-warning/15 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-10 h-10 text-warning-foreground" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Tempo Expirado</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Tempo Expirado</h2>
+            <p className="text-muted-foreground mb-6">
               O tempo para pagamento expirou e o pedido foi cancelado automaticamente.
             </p>
             <Button 
               onClick={() => navigate('/delivery')}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-primary hover:bg-primary-hover"
             >
               Fazer Novo Pedido
             </Button>
@@ -538,7 +537,7 @@ export default function PagamentoPix() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/50">
       <Header
         nomeEstabelecimento={configuracao.nomeEstabelecimento}
         logoUrl={configuracao.logoUrl}
@@ -559,10 +558,10 @@ export default function PagamentoPix() {
         <Card>
           <CardHeader className="text-center border-b">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <QrCode className="w-6 h-6 text-red-600" />
+              <QrCode className="w-6 h-6 text-destructive" />
               <CardTitle>Pagamento via PIX</CardTitle>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Escaneie o QR Code ou copie o código para pagar
             </p>
           </CardHeader>
@@ -574,16 +573,16 @@ export default function PagamentoPix() {
                 <Clock className="w-3 h-3 mr-1" />
                 Aguardando Pagamento
               </Badge>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-3xl font-bold text-foreground mb-1">
                 R$ {pixData?.transaction_amount.toFixed(2).replace('.', ',')}
               </div>
-              <p className={`text-sm font-medium ${tempoRestante <= 60 ? 'text-red-600' : tempoRestante <= 180 ? 'text-orange-500' : 'text-gray-500'}`}>
+              <p className={`text-sm font-medium ${tempoRestante <= 60 ? 'text-destructive' : tempoRestante <= 180 ? 'text-warning-foreground' : 'text-muted-foreground'}`}>
                 Expira em: {formatarTempoRestante()}
               </p>
             </div>
 
             {/* QR Code */}
-            <div className="bg-white p-6 rounded-lg border-2 border-gray-200 mb-6">
+            <div className="bg-card p-6 rounded-lg border-2 border-border mb-6">
               <div className="flex justify-center">
                 {pixData?.qr_code_base64 && (
                   <img 
@@ -597,7 +596,7 @@ export default function PagamentoPix() {
 
             {/* Código Pix Copia e Cola */}
             <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700 block text-center">
+              <label className="text-sm font-medium text-foreground/80 block text-center">
                 Ou copie o código PIX:
               </label>
               <div className="flex flex-col sm:flex-row gap-2">
@@ -605,7 +604,7 @@ export default function PagamentoPix() {
                   type="text"
                   value={pixData?.qr_code || ''}
                   readOnly
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 truncate"
+                  className="flex-1 px-3 py-2 border border-input rounded-lg text-sm bg-muted/50 truncate"
                 />
                 <Button
                   onClick={copiarCodigoPix}
@@ -614,7 +613,7 @@ export default function PagamentoPix() {
                 >
                   {copied ? (
                     <>
-                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <CheckCircle className="w-4 h-4 text-success" />
                       Copiado!
                     </>
                   ) : (
@@ -628,24 +627,24 @@ export default function PagamentoPix() {
             </div>
 
             {/* Instruções */}
-            <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
-              <h3 className="font-semibold text-sm text-indigo-900 mb-2">
+            <div className="mt-6 p-4 bg-primary/5 rounded-lg">
+              <h3 className="font-semibold text-sm text-primary mb-2">
                 Como pagar com PIX:
               </h3>
-              <ol className="text-sm text-indigo-800 space-y-1 list-decimal list-inside">
+              <ol className="text-sm text-primary space-y-1 list-decimal list-inside">
                 <li>Abra o app do seu banco</li>
                 <li>Escolha pagar com PIX</li>
                 <li>Escaneie o QR Code ou cole o código</li>
                 <li>Confirme o pagamento</li>
               </ol>
-              <p className="text-xs text-indigo-700 mt-3">
+              <p className="text-xs text-primary mt-3">
                 ⚡ O pagamento é confirmado na hora!
               </p>
             </div>
 
             {/* Aviso de verificação automática */}
             <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 Verificando pagamento automaticamente...
               </p>
@@ -663,7 +662,6 @@ export default function PagamentoPix() {
 
       <Footer nomeEstabelecimento={configuracao.nomeEstabelecimento} />
 
-      <CookieConsent />
     </div>
   )
 }

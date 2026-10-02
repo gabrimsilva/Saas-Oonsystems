@@ -42,7 +42,7 @@ export default function GridProdutos({
 }: GridProdutosProps) {
   if (produtos.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         Nenhum produto encontrado nesta categoria
       </div>
     )

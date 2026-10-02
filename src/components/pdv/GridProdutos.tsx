@@ -34,7 +34,7 @@ export default function GridProdutos({ produtos, onAdicionarAoCarrinho }: GridPr
     return (
       <div className="text-center py-12">
         <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-        <p className="text-gray-500">Nenhum produto encontrado</p>
+        <p className="text-muted-foreground">Nenhum produto encontrado</p>
       </div>
     )
   }
@@ -43,7 +43,7 @@ export default function GridProdutos({ produtos, onAdicionarAoCarrinho }: GridPr
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
       {produtos.map((produto) => (
         <Card key={produto.id} className="overflow-hidden hover:shadow-md transition-shadow py-0">
-          <div className="aspect-square bg-gray-50 relative h-24 md:h-32 flex items-center justify-center overflow-hidden">
+          <div className="aspect-square bg-muted/50 relative h-24 md:h-32 flex items-center justify-center overflow-hidden">
             <img
               src={produto.urlImagem}
               alt={produto.nome}
@@ -54,14 +54,14 @@ export default function GridProdutos({ produtos, onAdicionarAoCarrinho }: GridPr
               }}
             />
             {produto.precoPromocional && (
-              <Badge className="absolute top-2 left-2 bg-red-500">
+              <Badge className="absolute top-2 left-2 bg-destructive">
                 Promoção
               </Badge>
             )}
           </div>
           <CardContent className="px-2 md:px-3 py-1 md:py-2">
             <h3 className="font-semibold text-xs mb-1 line-clamp-2">{produto.nome}</h3>
-            <p className="text-xs text-gray-600 mb-1 md:mb-2 line-clamp-1 hidden sm:block">{produto.descricao}</p>
+            <p className="text-xs text-muted-foreground mb-1 md:mb-2 line-clamp-1 hidden sm:block">{produto.descricao}</p>
             
             <div className="flex items-center justify-between">
               <div>
@@ -70,7 +70,7 @@ export default function GridProdutos({ produtos, onAdicionarAoCarrinho }: GridPr
                     <span className="font-bold text-[color:var(--price-color)] text-sm">
                       R$ {produto.precoPromocional.toFixed(2).replace('.', ',')}
                     </span>
-                    <span className="text-xs text-gray-400 line-through">
+                    <span className="text-xs text-muted-foreground/70 line-through">
                       R$ {produto.preco.toFixed(2).replace('.', ',')}
                     </span>
                   </div>

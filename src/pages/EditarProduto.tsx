@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { Package, Loader2 } from "lucide-react"
+import { Package } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import ProdutoForm from "@/components/ProdutoForm"
 import { produtoService, tamanhoService, categoriaService, type ProdutoSupabase } from "@/services"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 interface Produto extends ProdutoSupabase {
   categoria: string
@@ -124,20 +125,13 @@ export default function EditarProduto() {
   }
 
   if (loading) {
-    return (
-      <div className="w-full p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando produto...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="formulario" />
   }
 
   if (error || !produto) {
     return (
       <div className="w-full p-6">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           {error || 'Produto não encontrado'}
         </div>
       </div>
@@ -147,7 +141,7 @@ export default function EditarProduto() {
   return (
     <div className="w-full p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
           Editar Produto
         </h1>

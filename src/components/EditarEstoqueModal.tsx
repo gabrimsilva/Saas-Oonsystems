@@ -100,7 +100,7 @@ export default function EditarEstoqueModal({
           <div className="space-y-2">
             <Label htmlFor="min-qty">
               Estoque Mínimo
-              <span className="text-red-500 ml-1">*</span>
+              <span className="text-destructive ml-1">*</span>
             </Label>
             <Input
               id="min-qty"
@@ -111,7 +111,7 @@ export default function EditarEstoqueModal({
               placeholder="Ex: 5"
             />
             <p className="text-xs text-muted-foreground">
-              🔴 Alerta crítico quando o estoque atingir este valor
+              Alerta crítico quando o estoque atingir este valor
             </p>
           </div>
 
@@ -127,30 +127,30 @@ export default function EditarEstoqueModal({
               placeholder="Ex: 10"
             />
             <p className="text-xs text-muted-foreground">
-              🟡 Alerta de atenção até este valor. É também a quantidade sugerida para compra
+              Alerta de atenção até este valor. É também a quantidade sugerida para compra
             </p>
           </div>
 
           {/* Preview do Status */}
-          <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+          <div className="p-4 bg-muted/50 rounded-lg space-y-2">
             <p className="text-sm font-medium">Preview dos Alertas:</p>
             <div className="space-y-1 text-xs">
               <p>
-                <span className="font-medium">🔴 Crítico:</span>{' '}
+                <span className="font-medium">Crítico:</span>{' '}
                 {minQty > 0 ? `Quando estoque ≤ ${minQty}` : 'Quando estoque = 0'}
               </p>
               {temFaixaAtencao ? (
                 <p>
-                  <span className="font-medium">🟡 Atenção:</span> Quando estoque entre {minQty + 1} e {reorderQty}
+                  <span className="font-medium">Atenção:</span> Quando estoque entre {minQty + 1} e {reorderQty}
                 </p>
               ) : (
-                <p className="text-amber-700">
-                  <span className="font-medium">🟡 Atenção:</span> sem faixa de atenção — informe uma
+                <p className="text-warning-foreground">
+                  <span className="font-medium">Atenção:</span> sem faixa de atenção — informe uma
                   quantidade de reposição maior que {minQty}
                 </p>
               )}
               <p>
-                <span className="font-medium">🟢 Saudável:</span> Quando estoque {'>'} {limiteAtencao}
+                <span className="font-medium">Saudável:</span> Quando estoque {'>'} {limiteAtencao}
               </p>
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function EditarEstoqueModal({
           <Button
             onClick={handleSalvar}
             disabled={loading}
-            className="bg-indigo-600 hover:bg-indigo-700"
+            className="bg-primary hover:bg-primary-hover"
           >
             {loading ? (
               <>

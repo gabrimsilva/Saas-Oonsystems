@@ -26,12 +26,12 @@ export default function FileUploadIA({ onFileUploaded, disabled }: FileUploadIAP
   ].join(',')
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <ImageIcon className="h-8 w-8 text-indigo-500" />
-    if (type === 'application/pdf') return <FileText className="h-8 w-8 text-red-500" />
+    if (type.startsWith('image/')) return <ImageIcon className="h-8 w-8 text-primary" />
+    if (type === 'application/pdf') return <FileText className="h-8 w-8 text-destructive" />
     if (type.includes('sheet') || type.includes('excel') || type === 'text/csv') {
-      return <File className="h-8 w-8 text-green-500" />
+      return <File className="h-8 w-8 text-success" />
     }
-    return <File className="h-8 w-8 text-gray-500" />
+    return <File className="h-8 w-8 text-muted-foreground" />
   }
 
   const formatFileSize = (bytes: number): string => {
@@ -127,12 +127,12 @@ export default function FileUploadIA({ onFileUploaded, disabled }: FileUploadIAP
   return (
     <div className="space-y-3">
       {preview ? (
-        <div className="border-2 border-gray-200 rounded-lg p-4">
+        <div className="border-2 border-border rounded-lg p-4">
           <div className="flex items-center gap-3">
             {getFileIcon(preview.type)}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{preview.name}</p>
-              <p className="text-xs text-gray-500">{formatFileSize(preview.size)}</p>
+              <p className="text-xs text-muted-foreground">{formatFileSize(preview.size)}</p>
             </div>
             <Button
               type="button"
@@ -146,13 +146,13 @@ export default function FileUploadIA({ onFileUploaded, disabled }: FileUploadIAP
           </div>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+        <div className="border-2 border-dashed border-input rounded-lg p-6">
           <div className="text-center">
-            <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500 mb-1">
+            <Upload className="h-8 w-8 mx-auto text-muted-foreground/70 mb-2" />
+            <p className="text-sm text-muted-foreground mb-1">
               Arraste um arquivo ou clique para selecionar
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground/70">
               Imagens, PDF, Excel ou CSV (máx. 10MB)
             </p>
           </div>

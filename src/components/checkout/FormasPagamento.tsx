@@ -94,15 +94,15 @@ const FormasPagamento = ({ dadosCliente, handleInputChange, configuracoes, entre
                 onClick={() => handleFormaPagamentoChange(forma)}
                 className={`p-4 border-2 rounded-lg text-left transition-colors cursor-pointer ${
                   dadosCliente.formaPagamento === forma
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-success bg-success/5'
+                    : 'border-border hover:border-input'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-4 h-4 rounded-full ${
                     dadosCliente.formaPagamento === forma
-                      ? 'bg-green-500'
-                      : 'border-2 border-gray-300'
+                      ? 'bg-success'
+                      : 'border-2 border-input'
                   }`}>
                   </div>
                   {getIconeFormaPagamento(forma)}
@@ -112,12 +112,12 @@ const FormasPagamento = ({ dadosCliente, handleInputChange, configuracoes, entre
             ))}
         </div>
         {deveMostrarErro(estadosValidacao.formaPagamento) && (
-          <p className="text-red-500 text-xs mt-2">⚠️ {estadosValidacao.formaPagamento.erro}</p>
+          <p className="text-destructive text-xs mt-2">⚠️ {estadosValidacao.formaPagamento.erro}</p>
         )}
 
         {/* Campo para troco se pagamento for dinheiro */}
         {dadosCliente.formaPagamento === 'dinheiro' && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="mt-4 p-4 bg-warning/10 border border-warning/30 rounded-lg">
             <div className="flex items-center gap-2 mb-3">
               <input
                 type="checkbox"
@@ -141,7 +141,7 @@ const FormasPagamento = ({ dadosCliente, handleInputChange, configuracoes, entre
                   className={obterClassesValidacao(estadosValidacao.valorTroco, "mt-1")}
                 />
                 {deveMostrarErro(estadosValidacao.valorTroco) && (
-                  <p className="text-red-500 text-xs mt-1">⚠️ {estadosValidacao.valorTroco.erro}</p>
+                  <p className="text-destructive text-xs mt-1">⚠️ {estadosValidacao.valorTroco.erro}</p>
                 )}
               </div>
             )}
@@ -160,7 +160,7 @@ const FormasPagamento = ({ dadosCliente, handleInputChange, configuracoes, entre
             rows={3}
             maxLength={500}
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             {(dadosCliente.observacoes || '').length}/500 caracteres
           </p>
         </div>

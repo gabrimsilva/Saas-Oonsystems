@@ -485,7 +485,7 @@ export default function PrintOrder({ pedido, compact = false }: PrintOrderProps)
       variant="outline"
       size="sm"
       onClick={handlePrint}
-      className={`text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 ${compact ? 'h-6 px-2' : 'h-9'}`}
+      className={`text-primary hover:text-primary-hover hover:bg-primary/5 ${compact ? 'h-6 px-2' : 'h-9'}`}
     >
       <Printer className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       {!compact && <span className="ml-1 sm:ml-1.5 text-xs">Imprimir</span>}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { Package2, Loader2 } from "lucide-react"
+import { Package2 } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import ComboForm from "@/components/ComboForm"
 import { comboService, type ComboSupabase } from "@/services"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 interface Combo extends ComboSupabase {
   urlImagem?: string
@@ -91,20 +92,13 @@ export default function EditarCombo() {
   }
 
   if (loading) {
-    return (
-      <div className="w-full p-6 flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando combo...</span>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="formulario" />
   }
 
   if (error || !combo) {
     return (
       <div className="w-full p-6">
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">
           {error || 'Combo não encontrado'}
         </div>
       </div>
@@ -114,7 +108,7 @@ export default function EditarCombo() {
   return (
     <div className="w-full p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package2 className="h-6 w-6" />
           Editar Combo
         </h1>

@@ -13,7 +13,7 @@ import { useImpressaoAutomaticaGlobal } from "@/hooks/useImpressaoAutomaticaGlob
 import { usePermissoes } from "@/hooks/usePermissoes"
 import SEOHead from "@/components/SEOHead"
 import { Toaster } from "react-hot-toast"
-import { googleAnalytics } from "@/services/googleAnalyticsService"
+import { ConfirmacaoGlobal } from "@/components/ui/confirmar"
 import { AlertCircle } from "lucide-react"
 
 // Lazy loading das páginas principais
@@ -61,22 +61,28 @@ const ProcessandoPedido = lazy(() => import("@/pages/ProcessandoPedido"))
 const MeusPedidos = lazy(() => import("@/pages/MeusPedidos"))
 const AvaliarEstabelecimento = lazy(() => import("@/pages/AvaliarEstabelecimento"))
 const PagamentoPix = lazy(() => import("@/pages/PagamentoPix"))
-const Analytics = lazy(() => import("@/pages/Analytics"))
 const Metricas = lazy(() => import("@/pages/Metricas"))
 const TermosUso = lazy(() => import("@/pages/TermosUso"))
 const PoliticasPrivacidade = lazy(() => import("@/pages/PoliticasPrivacidade"))
 const Estabelecimentos = lazy(() => import("@/pages/Estabelecimentos"))
 const Usuarios = lazy(() => import("@/pages/Usuarios"))
 const Auditoria = lazy(() => import("@/pages/Auditoria"))
-const Plataforma = lazy(() => import("@/pages/Plataforma"))
+const PlataformaLayout = lazy(() => import("@/pages/plataforma/PlataformaLayout"))
+// Vitrine do design system: só existe em desenvolvimento
+const VitrineUI = import.meta.env.DEV ? lazy(() => import("@/pages/dev/VitrineUI")) : null
+const PlataformaClientes = lazy(() => import("@/pages/plataforma/ClientesPage"))
+const PlataformaFinanceiro = lazy(() => import("@/pages/plataforma/FinanceiroPage"))
+const PlataformaAlertas = lazy(() => import("@/pages/plataforma/AlertasPage"))
+const PlataformaPlanos = lazy(() => import("@/pages/plataforma/PlanosPage"))
+const PlataformaAuditoria = lazy(() => import("@/pages/plataforma/AuditoriaPage"))
 const Cadastro = lazy(() => import("@/pages/Cadastro"))
 
 // Componente de loading
 const LoadingSpinner = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="min-h-screen bg-muted/50 flex items-center justify-center">
     <div className="text-center">
-      <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-gray-600">Carregando...</p>
+      <div className="w-8 h-8 border-2 border-destructive border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-muted-foreground">Carregando...</p>
     </div>
   </div>
 )
@@ -233,29 +239,29 @@ function AdminSystem() {
         onToggleView={handleBackToCustomer}
         currentPage={currentPage}
       >
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Acesso Negado</h2>
-            <p className="text-gray-600 mb-6">
+        <div className="min-h-screen bg-muted/50 flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-8 text-center">
+            <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">Acesso Negado</h2>
+            <p className="text-muted-foreground mb-6">
               Você não tem permissão para acessar esta página.
             </p>
-            <div className="text-sm text-gray-500 mb-4">
+            <div className="text-sm text-muted-foreground mb-4">
               <p>Seu nível de acesso: <strong>{permissoes.funcao || 'Administrador'}</strong></p>
               <p className="mt-2">Página solicitada: <strong>{currentPage}</strong></p>
             </div>
             {permissoes.funcao === 'entregador' && (
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Entregadores não têm acesso à área administrativa.
               </p>
             )}
             {permissoes.funcao === 'garcom' && (
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Garçons têm acesso apenas à área de Comandas.
               </p>
             )}
             {permissoes.funcao === 'atendente' && (
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Atendentes têm acesso a Comandas, Pedidos e PDV.
               </p>
             )}
@@ -276,10 +282,10 @@ function AdminSystem() {
       ) : !estabelecimentoAtual ? (
         // Sem estabelecimento selecionado/vinculado: solicitar seleção (Req 9.2, 11.4, 11.5)
         <div className="min-h-[60vh] flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-            <AlertCircle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Selecione um estabelecimento</h2>
-            <p className="text-gray-600">
+          <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-8 text-center">
+            <AlertCircle className="h-16 w-16 text-warning-foreground mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-2">Selecione um estabelecimento</h2>
+            <p className="text-muted-foreground">
               {erroEstab || 'Escolha um estabelecimento no seletor do topo para visualizar os dados.'}
             </p>
           </div>
@@ -294,7 +300,6 @@ function AdminSystem() {
           <Route path="/comandas" element={<Comandas />} />
           <Route path="/historico-comandas" element={<HistoricoComandas />} />
 
-          <Route path="/analytics" element={<Analytics />} />
           <Route path="/metricas" element={<Metricas />} />
           
           {/* Funcionários */}
@@ -462,22 +467,6 @@ function SlugAvaliarPage() {
   )
 }
 
-// Componente para rastrear mudanças de página (apenas páginas públicas)
-function PageTracker() {
-  const location = useLocation()
-
-  useEffect(() => {
-    // Não rastrear páginas administrativas (que começam com /sistema ou /login)
-    const isAdminPage = location.pathname.startsWith('/sistema') || location.pathname === '/login'
-    
-    if (!isAdminPage) {
-      googleAnalytics.trackPageView(location.pathname + location.search, document.title)
-    }
-  }, [location])
-
-  return null
-}
-
 function App() {
   // Ativar impressão automática global
   useImpressaoAutomaticaGlobal()
@@ -499,10 +488,10 @@ function App() {
 
     if (!pedidoId) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-muted/50 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-gray-600 mb-4">ID do pedido não encontrado</p>
-            <button onClick={handleVoltarMenu} className="bg-red-600 text-white px-4 py-2 rounded">
+            <p className="text-muted-foreground mb-4">ID do pedido não encontrado</p>
+            <button onClick={handleVoltarMenu} className="bg-destructive text-white px-4 py-2 rounded">
               Voltar ao Menu
             </button>
           </div>
@@ -523,31 +512,32 @@ function App() {
         <SEOHead />
         <Toaster
           position="top-right"
+          gutter={8}
+          containerStyle={{ zIndex: 9999 }}
           toastOptions={{
             duration: 4000,
+            className: 'text-sm',
             style: {
-              background: '#fff',
-              color: '#363636',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-              borderRadius: '8px',
-              padding: '16px',
+              background: 'var(--card)',
+              color: 'var(--foreground)',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-lg)',
+              borderRadius: '10px',
+              padding: '10px 14px',
+              maxWidth: '420px',
+              fontWeight: 500,
             },
             success: {
-              iconTheme: {
-                primary: '#10b981',
-                secondary: '#fff',
-              },
+              iconTheme: { primary: 'var(--success)', secondary: '#fff' },
             },
             error: {
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
-              },
+              duration: 5000,
+              iconTheme: { primary: 'var(--destructive)', secondary: '#fff' },
             },
           }}
         />
+        <ConfirmacaoGlobal />
         <Router>
-          <PageTracker />
           <Routes>
             {/* Página principal - Catálogo */}
             {/* Raiz do SaaS: não há "loja padrão"; catálogos ficam em /:slug */}
@@ -605,11 +595,18 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Suspense fallback={<LoadingSpinner />}>
-                    <Plataforma />
+                    <PlataformaLayout />
                   </Suspense>
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<Suspense fallback={<LoadingSpinner />}><PlataformaClientes /></Suspense>} />
+              <Route path="financeiro" element={<Suspense fallback={<LoadingSpinner />}><PlataformaFinanceiro /></Suspense>} />
+              <Route path="alertas" element={<Suspense fallback={<LoadingSpinner />}><PlataformaAlertas /></Suspense>} />
+              <Route path="planos" element={<Suspense fallback={<LoadingSpinner />}><PlataformaPlanos /></Suspense>} />
+              <Route path="auditoria" element={<Suspense fallback={<LoadingSpinner />}><PlataformaAuditoria /></Suspense>} />
+              <Route path="*" element={<Navigate to="/plataforma" replace />} />
+            </Route>
             <Route
               path="/sistema/*"
               element={
@@ -622,6 +619,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {VitrineUI && (
+              <Route path="/dev/ui" element={<Suspense fallback={<LoadingSpinner />}><VitrineUI /></Suspense>} />
+            )}
 
             {/* Fluxos públicos por slug (multi-estabelecimento) */}
             <Route path="/:slug/checkout" element={<SlugCheckoutPage />} />

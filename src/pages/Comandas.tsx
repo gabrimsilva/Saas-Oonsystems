@@ -41,6 +41,11 @@ import GridCombos from "@/components/pdv/GridCombos"
 import { qzTrayService } from "@/lib/qzTrayService"
 import { renderizarDetalhesCombo, renderizarDetalhesComboHTML } from "@/utils/comboFormatacao"
 import { calcularDescontoEmReais } from "@/utils/descontoCalculation"
+import { CarregandoPagina } from '@/components/ui/feedback'
+import { Kbd } from '@/components/ui/kbd'
+import { useAtalhos } from '@/hooks/useAtalhos'
+import { DIVISAO_INICIAL, resolverDivisao } from '@/utils/pagamentoDividido'
+import PagamentoDividido from '@/components/PagamentoDividido'
 
 interface ItemComanda {
   id: string
@@ -97,6 +102,7 @@ export default function Comandas() {
   const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoPDV | null>(null)
   const [comboSelecionado, setComboSelecionado] = useState<ComboSupabase | null>(null)
   const [modalFinalizarAberto, setModalFinalizarAberto] = useState(false)
+  const [divisaoComanda, setDivisaoComanda] = useState(DIVISAO_INICIAL)
   const [modalScannerAberto, setModalScannerAberto] = useState(false)
 
 
@@ -1074,9 +1080,29 @@ export default function Comandas() {
     `
   }
 
+  const comandaComItens = !!comandaSelecionada && !!comandaAtual && comandaAtual.itens.length > 0
+  useAtalhos({
+    F2: () => { if (comandaComItens && !salvando) salvarComanda() },
+    F4: () => { if (comandaComItens) setModalFinalizarAberto(true) },
+  })
+
+  // Pagamento dividido começa limpo a cada abertura do modal
+  useEffect(() => {
+    if (modalFinalizarAberto) setDivisaoComanda(DIVISAO_INICIAL)
+  }, [modalFinalizarAberto])
+
+  const comandaDividida = formaPagamento === 'dividido'
+  const pagamentoDivididoComanda = comandaDividida && comandaAtual
+    ? resolverDivisao(comandaAtual.total, divisaoComanda)
+    : null
+
   // Finalizar comanda (simplificado)
   const finalizarComanda = async () => {
     if (!comandaSelecionada || !comandaAtual) return
+    if (comandaDividida && !pagamentoDivididoComanda) {
+      toast.error('Confira os valores do pagamento dividido.')
+      return
+    }
 
     try {
       setFinalizando(true)
@@ -1130,12 +1156,22 @@ export default function Comandas() {
         }
       }
 
-      // Atualizar forma de pagamento (simplificado - sem desconto, sem split payment)
-      comandaBanco.forma_pagamento = formaPagamento
+      // Atualizar forma de pagamento (sem desconto). No pagamento dividido a
+      // forma principal é a 1ª parte e as duas partes vão para o histórico.
       comandaBanco.desconto = 0
       comandaBanco.tipo_desconto = 'valor'
       comandaBanco.total = comandaAtual.total
-      comandaBanco.forma_pagamento_dividido = false
+      if (pagamentoDivididoComanda) {
+        comandaBanco.forma_pagamento = pagamentoDivididoComanda.pagamento1Tipo
+        comandaBanco.forma_pagamento_dividido = true
+        comandaBanco.pagamento_1_tipo = pagamentoDivididoComanda.pagamento1Tipo
+        comandaBanco.pagamento_1_valor = pagamentoDivididoComanda.pagamento1Valor
+        comandaBanco.pagamento_2_tipo = pagamentoDivididoComanda.pagamento2Tipo
+        comandaBanco.pagamento_2_valor = pagamentoDivididoComanda.pagamento2Valor
+      } else {
+        comandaBanco.forma_pagamento = formaPagamento
+        comandaBanco.forma_pagamento_dividido = false
+      }
 
       // Mover para histórico
       await comandaService.moverParaHistorico(comandaBanco)
@@ -1191,14 +1227,7 @@ export default function Comandas() {
     : null
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Carregando...</p>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="cartoes" />
   }
 
   return (
@@ -1207,17 +1236,17 @@ export default function Comandas() {
       <div className="text-center md:text-left">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2 justify-center md:justify-start">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2 justify-center md:justify-start">
               <ClipboardList className="h-6 w-6" />
               Comandas
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Gerencie os pedidos das mesas do estabelecimento
             </p>
           </div>
           <Button
             onClick={() => setModalScannerAberto(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2"
+            className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2"
             disabled={!comandaSelecionada}
           >
             <Scan className="h-5 w-5" />
@@ -1238,10 +1267,10 @@ export default function Comandas() {
                   key={comanda.numero}
                   onClick={() => setComandaSelecionada(comanda.numero)}
                   className={`relative aspect-square rounded-lg border-2 transition-all ${comandaSelecionada === comanda.numero
-                    ? 'border-red-500 bg-red-50'
+                    ? 'border-destructive bg-destructive/5'
                     : comanda.aberta
-                      ? 'border-orange-400 bg-orange-50 hover:border-orange-500'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-warning bg-warning/10 hover:border-warning'
+                      : 'border-border hover:border-input'
                     }`}
                 >
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -1296,7 +1325,7 @@ export default function Comandas() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setComandaSelecionada(null)}
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-muted-foreground hover:text-foreground"
                     title="Fechar comanda"
                   >
                     <X className="h-4 w-4" />
@@ -1309,7 +1338,7 @@ export default function Comandas() {
                       size="sm"
                       onClick={() => imprimirComanda(comandaSelecionada!)}
                       disabled={imprimindo}
-                      className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                      className="text-primary hover:text-primary-hover hover:bg-primary/5"
                     >
                       <Printer className="h-4 w-4" />
                     </Button>
@@ -1326,12 +1355,12 @@ export default function Comandas() {
             </div>
 
             {!comandaSelecionada ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <ClipboardList className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>Selecione uma comanda para começar</p>
               </div>
             ) : comandaAtual && comandaAtual.itens.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <Plus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>Adicione produtos à comanda</p>
               </div>
@@ -1339,7 +1368,7 @@ export default function Comandas() {
               <>
                 <div className="space-y-3">
                   {comandaAtual?.itens.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/60 rounded-lg">
                       <img
                         src={item.produto.urlImagem}
                         alt={item.produto.nome}
@@ -1356,7 +1385,7 @@ export default function Comandas() {
                         
                         {/* Exibir variante se houver */}
                         {item.variantLabel && (
-                          <p className="text-xs text-gray-500 font-medium">
+                          <p className="text-xs text-muted-foreground font-medium">
                             Variante: {item.variantLabel}
                           </p>
                         )}
@@ -1368,29 +1397,29 @@ export default function Comandas() {
                         {!item.produtosCombo && (
                           <>
                             {item.tamanhoSelecionado && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
                               </p>
                             )}
                             {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Sabores: {item.saboresSelecionados.map(s => s.nome).join(', ')}
                               </p>
                             )}
                             {item.bordaSelecionada && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Borda: {item.bordaSelecionada.nome}
                               </p>
                             )}
                             {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Adicionais: {item.adicionaisSelecionados.map(a =>
                                   `${a.quantidade}x ${a.nome}`
                                 ).join(', ')}
                               </p>
                             )}
                             {item.observacoes && (
-                              <p className="text-xs text-gray-500 italic">
+                              <p className="text-xs text-muted-foreground italic">
                                 <MessageSquare className="inline h-3 w-3 mr-1" />
                                 Obs: {item.observacoes}
                               </p>
@@ -1398,7 +1427,7 @@ export default function Comandas() {
                           </>
                         )}
                         
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-muted-foreground">
                           R$ {(item.precoUnitario || 0).toFixed(2).replace('.', ',')} x {item.quantidade}
                         </p>
                         <p className="font-bold text-sm text-[color:var(--price-color)]">
@@ -1503,6 +1532,7 @@ export default function Comandas() {
                       className="flex-1"
                     >
                       {salvando ? 'Salvando...' : 'Salvar Comanda'}
+                      {!salvando && <Kbd className="ml-1 hidden md:inline-flex">F2</Kbd>}
                     </Button>
                     <Button
                       onClick={() => setModalFinalizarAberto(true)}
@@ -1510,6 +1540,7 @@ export default function Comandas() {
                       style={{ background: 'var(--sidebar-primary)' }}
                     >
                       Finalizar
+                      <Kbd className="ml-1 hidden border-white/30 bg-white/15 text-white md:inline-flex">F4</Kbd>
                     </Button>
                   </div>
                 </div>
@@ -1522,7 +1553,7 @@ export default function Comandas() {
             <h3 className="text-sm font-semibold mb-3">Comandas Abertas</h3>
             <div className="space-y-2">
               {comandas.filter(c => c.aberta).length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">
+                <p className="text-sm text-muted-foreground text-center py-4">
                   Nenhuma comanda aberta
                 </p>
               ) : (
@@ -1531,7 +1562,7 @@ export default function Comandas() {
                   .map(comanda => (
                     <div
                       key={comanda.numero}
-                      className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 cursor-pointer"
+                      className="flex items-center justify-between p-2 border rounded hover:bg-accent cursor-pointer"
                       onClick={() => setVisualizandoComanda(comanda.numero)}
                     >
                       <div className="flex items-center gap-2">
@@ -1542,7 +1573,7 @@ export default function Comandas() {
                         <span className="text-sm font-semibold text-[color:var(--price-color)]">
                           R$ {comanda.total.toFixed(2).replace('.', ',')}
                         </span>
-                        <Eye className="h-4 w-4 text-gray-400" />
+                        <Eye className="h-4 w-4 text-muted-foreground/70" />
                       </div>
                     </div>
                   ))
@@ -1625,18 +1656,29 @@ export default function Comandas() {
                 name="forma-pagamento-comanda"
                 value={formaPagamento}
                 onChange={(e) => setFormaPagamento(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input rounded-md"
               >
                 <option value="dinheiro">Dinheiro</option>
                 <option value="cartaoCredito">Cartão de Crédito</option>
                 <option value="cartaoDebito">Cartão de Débito</option>
                 <option value="pix">PIX</option>
+                <option value="dividido">Dividir em duas formas</option>
               </select>
             </div>
 
+            {comandaDividida && comandaAtual && (
+              <PagamentoDividido
+                total={comandaAtual.total}
+                valor={divisaoComanda}
+                onChange={setDivisaoComanda}
+                disabled={finalizando}
+                idBase="comanda-divisao"
+              />
+            )}
+
             {/* Resumo Simplificado */}
             <div className="border-t pt-4">
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span>R$ {comandaAtual?.total.toFixed(2).replace('.', ',')}</span>
@@ -1644,7 +1686,7 @@ export default function Comandas() {
                 <div className="border-t pt-2">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total:</span>
-                    <span className="text-green-600">R$ {comandaAtual?.total.toFixed(2).replace('.', ',')}</span>
+                    <span className="text-success">R$ {comandaAtual?.total.toFixed(2).replace('.', ',')}</span>
                   </div>
                 </div>
               </div>
@@ -1661,7 +1703,7 @@ export default function Comandas() {
             </Button>
             <Button
               onClick={finalizarComanda}
-              disabled={finalizando}
+              disabled={finalizando || (comandaDividida && !pagamentoDivididoComanda)}
               className="text-white hover:opacity-90"
               style={{ background: 'var(--sidebar-primary)' }}
             >
@@ -1709,41 +1751,27 @@ export default function Comandas() {
       )}
 
       {/* Modal de Visualização de Comanda */}
-      {comandaVisualizacao && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setVisualizandoComanda(null)}
-        >
-          <Card
-            className="max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Comanda {comandaVisualizacao.numero}</h2>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => imprimirComanda(comandaVisualizacao.numero)}
-                  disabled={imprimindo}
-                  className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                >
-                  <Printer className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setVisualizandoComanda(null)}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
+      <Dialog open={!!comandaVisualizacao} onOpenChange={(aberto) => { if (!aberto) setVisualizandoComanda(null) }}>
+        <DialogContent className="sm:max-w-md">
+          {comandaVisualizacao && (
+          <>
+            <div className="flex items-center gap-2 pr-8">
+              <DialogTitle className="flex-1">Comanda {comandaVisualizacao.numero}</DialogTitle>
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => imprimirComanda(comandaVisualizacao.numero)}
+                disabled={imprimindo}
+                aria-label="Imprimir comanda"
+              >
+                <Printer className="h-4 w-4" />
+              </Button>
             </div>
 
             <ScrollArea className="max-h-[400px] pr-4">
               <div className="space-y-3">
                 {comandaVisualizacao.itens.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div key={item.id} className="flex items-center gap-3 p-3 bg-muted/60 rounded-lg">
                     <img
                       src={item.produto.urlImagem}
                       alt={item.produto.nome}
@@ -1760,7 +1788,7 @@ export default function Comandas() {
                       
                       {/* Exibir variante se houver */}
                       {item.variantLabel && (
-                        <p className="text-xs text-gray-500 font-medium">
+                        <p className="text-xs text-muted-foreground font-medium">
                           Variante: {item.variantLabel}
                         </p>
                       )}
@@ -1772,29 +1800,29 @@ export default function Comandas() {
                       {!item.produtosCombo && (
                         <>
                           {item.tamanhoSelecionado && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
                             </p>
                           )}
                           {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Sabores: {item.saboresSelecionados.map(s => s.nome).join(', ')}
                             </p>
                           )}
                           {item.bordaSelecionada && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Borda: {item.bordaSelecionada.nome}
                             </p>
                           )}
                           {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                               Adicionais: {item.adicionaisSelecionados.map(a =>
                                 `${a.quantidade}x ${a.nome}`
                               ).join(', ')}
                             </p>
                           )}
                           {item.observacoes && (
-                            <p className="text-xs text-gray-500 italic">
+                            <p className="text-xs text-muted-foreground italic">
                               <MessageSquare className="inline h-3 w-3 mr-1" />
                               Obs: {item.observacoes}
                             </p>
@@ -1802,7 +1830,7 @@ export default function Comandas() {
                         </>
                       )}
                       
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-muted-foreground">
                         R$ {(item.precoUnitario || 0).toFixed(2).replace('.', ',')} x {item.quantidade}
                       </p>
                       <p className="font-bold text-sm text-[color:var(--price-color)]">
@@ -1814,7 +1842,7 @@ export default function Comandas() {
               </div>
             </ScrollArea>
 
-            <div className="border-t pt-4 mt-4">
+            <div className="border-t pt-4">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-lg font-bold">Total:</span>
                 <span className="text-2xl font-bold text-[color:var(--price-color)]">
@@ -1829,9 +1857,10 @@ export default function Comandas() {
                 Limpar Comanda
               </DangerButton>
             </div>
-          </Card>
-        </div>
-      )}
+          </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* AlertDialog para confirmar limpeza de comanda */}
       <AlertDialog open={!!comandaParaLimpar} onOpenChange={() => setComandaParaLimpar(null)}>

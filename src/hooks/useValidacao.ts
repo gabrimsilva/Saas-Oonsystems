@@ -35,7 +35,7 @@ import {
  *       value={cpf} 
  *       onChange={(e) => setCpf(e.target.value)}
  *       onBlur={handleCpfBlur}
- *       className={!cpfValido ? 'border-red-500' : ''}
+ *       className={!cpfValido ? 'border-destructive' : ''}
  *     />
  *   )
  * }

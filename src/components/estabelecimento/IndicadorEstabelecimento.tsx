@@ -7,6 +7,7 @@
 
 import { Building2, AlertTriangle } from 'lucide-react'
 import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
+import { corPersonalizada } from '@/utils/cor'
 
 export default function IndicadorEstabelecimento() {
   const { estabelecimentoAtual, loading } = useEstabelecimento()
@@ -16,25 +17,25 @@ export default function IndicadorEstabelecimento() {
   if (!estabelecimentoAtual) {
     // Nenhum estabelecimento selecionado (Req 7.5)
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200">
-        <AlertTriangle className="h-4 w-4 text-amber-600" />
-        <span className="text-xs font-medium text-amber-700">
+      <div className="inline-flex items-center gap-2 rounded-full border border-warning/40 bg-warning/10 px-3 py-1">
+        <AlertTriangle className="size-3.5 text-warning-foreground" />
+        <span className="text-xs font-medium text-warning-foreground">
           Nenhum estabelecimento selecionado
         </span>
       </div>
     )
   }
 
-  const cor = estabelecimentoAtual.cor_tema
+  const cor = corPersonalizada(estabelecimentoAtual.cor_tema) ?? 'var(--primary)'
 
   return (
     <div
-      className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-      style={{ backgroundColor: `${cor}1A`, border: `1px solid ${cor}` }}
+      className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-muted px-3 py-1"
       title={`Estabelecimento atual: ${estabelecimentoAtual.nome}`}
     >
-      <Building2 className="h-4 w-4" style={{ color: cor }} />
-      <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: cor }}>
+      <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: cor }} aria-hidden="true" />
+      <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
+      <span className="truncate text-xs font-medium text-foreground">
         {estabelecimentoAtual.nome}
       </span>
     </div>

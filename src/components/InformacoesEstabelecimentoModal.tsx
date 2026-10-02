@@ -228,15 +228,15 @@ export default function InformacoesEstabelecimentoModal({
         {/* Botão fechar mobile */}
         <button
           onClick={onClose}
-          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-white p-2 hover:bg-gray-100 transition-colors shadow-md cursor-pointer"
+          className="hidden max-md:block absolute right-4 top-4 z-20 rounded-full bg-card p-2 hover:bg-accent transition-colors shadow-md cursor-pointer"
           aria-label="Fechar"
         >
-          <X className="h-5 w-5 text-gray-600" />
+          <X className="h-5 w-5 text-muted-foreground" />
         </button>
 
-        <AlertDialogHeader className="max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-white max-md:z-10 max-md:border-b max-md:flex-shrink-0">
+        <AlertDialogHeader className="max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-card max-md:z-10 max-md:border-b max-md:flex-shrink-0">
           <AlertDialogTitle className="flex items-center gap-3 max-md:pr-10">
-            <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center overflow-hidden shadow-sm">
+            <div className="w-8 h-8 bg-destructive rounded-full flex items-center justify-center overflow-hidden shadow-sm">
               {config.logoUrl ? (
                 <img
                   src={config.logoUrl}
@@ -261,71 +261,71 @@ export default function InformacoesEstabelecimentoModal({
         <ScrollArea className="max-h-[400px] pr-6 max-md:max-h-none max-md:flex-1 max-md:overflow-y-auto max-md:pr-0">
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 text-lg">Carregando informações...</p>
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-destructive mx-auto mb-4"></div>
+              <p className="text-muted-foreground text-lg">Carregando informações...</p>
             </div>
           ) : (
             <div className="space-y-6 pb-4 max-md:px-4 max-md:pb-4">
               {/* Informações de Contato */}
-              <div className="border border-gray-200 rounded-lg p-5">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">
+              <div className="border border-border rounded-lg p-5">
+                <h3 className="text-base font-semibold text-foreground mb-4">
                   Informações de Contato
                 </h3>
 
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                    <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 mb-1">Endereço</p>
-                      <p className="text-gray-700">{config.endereco}</p>
+                      <p className="font-medium text-foreground mb-1">Endereço</p>
+                      <p className="text-foreground/80">{config.endereco}</p>
                       {config.cep && config.cep !== 'CEP não informado' && (
-                        <p className="text-sm text-gray-500 mt-1">CEP: {config.cep}</p>
+                        <p className="text-sm text-muted-foreground mt-1">CEP: {config.cep}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <Phone className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                    <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 mb-1">Telefones</p>
-                      <p className="text-gray-700">Celular: {config.telefone}</p>
+                      <p className="font-medium text-foreground mb-1">Telefones</p>
+                      <p className="text-foreground/80">Celular: {config.telefone}</p>
                       {config.telefoneFixo && config.telefoneFixo.trim() !== '' && (
-                        <p className="text-gray-700">Fixo: {config.telefoneFixo}</p>
+                        <p className="text-foreground/80">Fixo: {config.telefoneFixo}</p>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <MessageCircle className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                    <MessageCircle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 mb-1">WhatsApp</p>
-                      <p className="text-gray-700">{config.whatsapp}</p>
+                      <p className="font-medium text-foreground mb-1">WhatsApp</p>
+                      <p className="text-foreground/80">{config.whatsapp}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <Mail className="h-5 w-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                    <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 mb-1">E-mail</p>
-                      <p className="text-gray-700">{config.email}</p>
+                      <p className="font-medium text-foreground mb-1">E-mail</p>
+                      <p className="text-foreground/80">{config.email}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Horários de Funcionamento */}
-              <div className="border border-gray-200 rounded-lg p-5">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">
+              <div className="border border-border rounded-lg p-5">
+                <h3 className="text-base font-semibold text-foreground mb-4">
                   Horários de Funcionamento
                 </h3>
 
                 <div className="grid gap-3 mb-4">
                   {config.diasSemana.map((dia) => (
-                    <div key={dia.nome} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                      <span className="font-medium text-gray-900">{dia.nome}</span>
+                    <div key={dia.nome} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                      <span className="font-medium text-foreground">{dia.nome}</span>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${dia.aberto
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-success/10 text-success'
+                        : 'bg-destructive/10 text-destructive'
                         }`}>
                         {dia.aberto
                           ? `${dia.abertura} às ${dia.fechamento}`
@@ -336,11 +336,11 @@ export default function InformacoesEstabelecimentoModal({
                   ))}
                 </div>
 
-                <div className="flex items-center gap-3 pt-3 border-t border-gray-200">
-                  <Calendar className="h-5 w-5 text-gray-600" />
+                <div className="flex items-center gap-3 pt-3 border-t border-border">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="font-medium text-gray-900">Feriados</p>
-                    <p className="text-gray-700">
+                    <p className="font-medium text-foreground">Feriados</p>
+                    <p className="text-foreground/80">
                       {config.trabalhaFeriado ? 'Funcionamos normalmente' : 'Fechado'}
                     </p>
                   </div>
@@ -348,8 +348,8 @@ export default function InformacoesEstabelecimentoModal({
               </div>
 
               {/* Formas de Pagamento */}
-              <div className="border border-gray-200 rounded-lg p-5">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">
+              <div className="border border-border rounded-lg p-5">
+                <h3 className="text-base font-semibold text-foreground mb-4">
                   Formas de Pagamento
                 </h3>
 
@@ -357,15 +357,15 @@ export default function InformacoesEstabelecimentoModal({
                   <div className="space-y-3">
                     {obterFormasPagamento().map((forma, index) => (
                       <div key={index} className="flex items-center gap-3">
-                        <CreditCard className="h-5 w-5 text-gray-600" />
-                        <span className="text-gray-700">{forma}</span>
+                        <CreditCard className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-foreground/80">{forma}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <CreditCard className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Nenhuma forma de pagamento configurada</p>
+                    <CreditCard className="h-8 w-8 text-muted-foreground/70 mx-auto mb-2" />
+                    <p className="text-muted-foreground">Nenhuma forma de pagamento configurada</p>
                   </div>
                 )}
               </div>
@@ -373,7 +373,7 @@ export default function InformacoesEstabelecimentoModal({
           )}
         </ScrollArea>
 
-        <AlertDialogFooter className="max-md:sticky max-md:bottom-0 max-md:bg-white max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] max-md:flex-shrink-0">
+        <AlertDialogFooter className="max-md:sticky max-md:bottom-0 max-md:bg-card max-md:p-4 max-md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] max-md:flex-shrink-0">
           <AlertDialogAction onClick={onClose} className="cursor-pointer">
             Entendi
           </AlertDialogAction>

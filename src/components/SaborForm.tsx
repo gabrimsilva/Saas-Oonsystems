@@ -278,7 +278,7 @@ export default function SaborForm({
                 checked={criacaoMultipla}
                 onChange={(e) => setCriacaoMultipla(e.target.checked)}
                 disabled={isLoading}
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 disabled:opacity-50"
+                className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30 disabled:opacity-50"
               />
               <Label htmlFor="criacaoMultipla" className="cursor-pointer">
                 Criar múltiplos sabores (separar por vírgula)
@@ -298,9 +298,9 @@ export default function SaborForm({
               disabled={isLoading}
             />
             {criacaoMultipla && saboresDetectados.length > 0 && (
-              <div className="flex items-start gap-2 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800 rounded-md">
-                <Info className="h-4 w-4 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-indigo-800 dark:text-indigo-300">
+              <div className="flex items-start gap-2 p-3 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary rounded-md">
+                <Info className="h-4 w-4 text-primary dark:text-primary mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-primary dark:text-primary">
                   <p className="font-medium">
                     {saboresDetectados.length} {saboresDetectados.length === 1 ? 'sabor será criado' : 'sabores serão criados'}
                     {categoriasMultiplas && categoriasSelecionadas.length > 0 && 
@@ -341,7 +341,7 @@ export default function SaborForm({
                 checked={categoriasMultiplas}
                 onChange={(e) => setCategoriasMultiplas(e.target.checked)}
                 disabled={isLoading}
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 disabled:opacity-50"
+                className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30 disabled:opacity-50"
               />
               <Label htmlFor="categoriasMultiplas" className="cursor-pointer">
                 Adicionar em múltiplas categorias
@@ -426,7 +426,7 @@ export default function SaborForm({
                         checked={categoriasSelecionadas.includes(categoria.id)}
                         onChange={() => handleToggleCategoria(categoria.id)}
                         disabled={isLoading}
-                        className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 disabled:opacity-50"
+                        className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30 disabled:opacity-50"
                       />
                       <Label htmlFor={`cat-${categoria.id}`} className="cursor-pointer flex-1">
                         {categoria.nome}
@@ -435,9 +435,9 @@ export default function SaborForm({
                   ))}
               </div>
               {categoriasSelecionadas.length > 0 && (
-                <div className="flex items-start gap-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
-                  <Info className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-green-800 dark:text-green-300">
+                <div className="flex items-start gap-2 p-3 bg-success/5 dark:bg-success border border-success/30 dark:border-success rounded-md">
+                  <Info className="h-4 w-4 text-success dark:text-success mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-success dark:text-success/60">
                     <p className="font-medium">
                       {categoriasSelecionadas.length} {categoriasSelecionadas.length === 1 ? 'categoria selecionada' : 'categorias selecionadas'}
                     </p>
@@ -472,7 +472,7 @@ export default function SaborForm({
               checked={isPremium}
               onChange={(e) => setIsPremium(e.target.checked)}
               disabled={isLoading}
-              className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 disabled:opacity-50"
+              className="h-4 w-4 text-primary border-input rounded focus:ring-ring/30 disabled:opacity-50"
             />
             <Label htmlFor="premium">Sabor Premium?</Label>
           </div>

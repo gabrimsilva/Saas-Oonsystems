@@ -32,6 +32,8 @@ vi.mock('@/utils/cor', () => ({
   gerarPaleta: vi.fn(),
   corHexValida: vi.fn(),
   hexParaOklch: vi.fn(),
+  // Nos testes, toda cor válida é tratada como escolha da loja
+  corPersonalizada: vi.fn((cor: string) => cor),
 }))
 
 import { gerarPaleta, corHexValida } from '@/utils/cor'
@@ -160,8 +162,6 @@ describe('TemaEstabelecimentoProvider - CSS Variable Application (Req 6.1, Prope
         '--ring',
         '--sidebar-primary',
         '--chart-1',
-        '--admin-btn-primary-bg',
-        '--admin-sidebar-active-bg',
         '--price-color',
         '--price-color-cliente',
         '--color-price',

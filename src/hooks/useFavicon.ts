@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const DEFAULT_FAVICON = '/favicon.svg'
+const DEFAULT_FAVICON = '/favicon.png'
 
 export const useFavicon = (faviconUrl?: string) => {
   useEffect(() => {
@@ -11,7 +11,7 @@ export const useFavicon = (faviconUrl?: string) => {
     if (!faviconLink) {
       faviconLink = document.createElement('link')
       faviconLink.rel = 'icon'
-      faviconLink.type = 'image/svg+xml'
+      faviconLink.type = 'image/png'
       document.head.appendChild(faviconLink)
     }
 

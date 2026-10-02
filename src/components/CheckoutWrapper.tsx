@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { buscarConfiguracaoSegura, limparCache } from "@/lib/configService"
 import CheckoutCardapioWhatsapp from "@/components/CheckoutCardapioWhatsapp"
 import CheckoutStepByStep from "@/components/CheckoutStepByStep"
-import CookieConsent from "@/components/CookieConsent"
 
 interface CheckoutWrapperProps {
   onNavigate: (page: 'delivery' | 'checkout') => void
@@ -52,9 +51,9 @@ const CheckoutWrapper = ({ onNavigate }: CheckoutWrapperProps) => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando checkout...</p>
-          <p className="mt-2 text-sm text-gray-500">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-warning mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando checkout...</p>
+          <p className="mt-2 text-sm text-muted-foreground">
             WhatsApp: {modoCardapioWhatsapp ? 'ativo' : 'inativo'}
           </p>
         </div>
@@ -67,7 +66,6 @@ const CheckoutWrapper = ({ onNavigate }: CheckoutWrapperProps) => {
     return (
       <>
         <CheckoutCardapioWhatsapp onNavigate={onNavigate} />
-        <CookieConsent />
       </>
     )
   }
@@ -76,7 +74,6 @@ const CheckoutWrapper = ({ onNavigate }: CheckoutWrapperProps) => {
   return (
     <>
       <CheckoutStepByStep onNavigate={onNavigate} />
-      <CookieConsent />
     </>
   )
 }

@@ -43,6 +43,7 @@ import {
 } from "lucide-react"
 import { supabase, getEstabelecimentoAtivo } from "@/services"
 import { lojaOnlineService } from "@/services/lojaOnlineService"
+import { CarregandoPagina } from '@/components/ui/feedback'
 
 interface PedidoAguardando {
   id: string
@@ -279,14 +280,7 @@ export default function AguardandoPagamento() {
   }
 
   if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Carregando pedidos...</p>
-        </div>
-      </div>
-    )
+    return <CarregandoPagina variante="cartoes" />
   }
 
   return (
@@ -294,8 +288,8 @@ export default function AguardandoPagamento() {
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Clock className="h-6 w-6 text-orange-600" />
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
+            <Clock className="h-6 w-6 text-warning-foreground" />
             Aguardando Pagamento
           </h1>
           <p className="text-muted-foreground">
@@ -304,7 +298,7 @@ export default function AguardandoPagamento() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className="text-sm bg-orange-50 border-orange-200 text-orange-700">
+          <Badge variant="outline" className="text-sm bg-warning/10 border-warning/30 text-warning-foreground">
             {pedidos.length} {pedidos.length === 1 ? 'pedido aguardando' : 'pedidos aguardando'}
           </Badge>
 
@@ -313,7 +307,7 @@ export default function AguardandoPagamento() {
             size="sm"
             onClick={confirmarLimpezaExpirados}
             loading={limpandoExpirados}
-            className="border-red-300 text-red-700 hover:bg-red-50"
+            className="border-destructive/40 text-destructive hover:bg-destructive/5"
           >
             <Clock className="h-4 w-4" />
             Limpar Expirados
@@ -335,8 +329,8 @@ export default function AguardandoPagamento() {
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
-            <Clock className="h-6 w-6 text-orange-600" />
+          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
+            <Clock className="h-6 w-6 text-warning-foreground" />
             Aguardando Pagamento
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
@@ -345,7 +339,7 @@ export default function AguardandoPagamento() {
         </div>
         
         <div className="flex flex-col gap-3">
-          <Badge variant="outline" className="text-sm text-center py-2 bg-orange-50 border-orange-200 text-orange-700">
+          <Badge variant="outline" className="text-sm text-center py-2 bg-warning/10 border-warning/30 text-warning-foreground">
             {pedidos.length} {pedidos.length === 1 ? 'pedido aguardando' : 'pedidos aguardando'}
           </Badge>
 
@@ -353,7 +347,7 @@ export default function AguardandoPagamento() {
             variant="outline"
             onClick={confirmarLimpezaExpirados}
             loading={limpandoExpirados}
-            className="w-full border-red-300 text-red-700 hover:bg-red-50"
+            className="w-full border-destructive/40 text-destructive hover:bg-destructive/5"
           >
             <Clock className="h-4 w-4" />
             Limpar Expirados
@@ -386,10 +380,10 @@ export default function AguardandoPagamento() {
 
       {/* Alerta se não houver pedidos */}
       {pedidos.length === 0 && (
-        <div className="border border-green-200 bg-green-50 rounded-lg p-6 text-center">
-          <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-3" />
-          <h3 className="font-semibold text-green-900 mb-1">Nenhum pedido aguardando pagamento</h3>
-          <p className="text-sm text-green-700">
+        <div className="border border-success/30 bg-success/5 rounded-lg p-6 text-center">
+          <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-3" />
+          <h3 className="font-semibold text-success mb-1">Nenhum pedido aguardando pagamento</h3>
+          <p className="text-sm text-success">
             Todos os pedidos PIX foram pagos ou não há pedidos pendentes no momento.
           </p>
         </div>
@@ -414,15 +408,15 @@ export default function AguardandoPagamento() {
               <TableBody>
                 {pedidosFiltrados.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Nenhum pedido encontrado
                     </TableCell>
                   </TableRow>
                 ) : (
                   pedidosFiltrados.map((pedido) => (
-                    <TableRow key={pedido.id} className="bg-orange-50/30">
+                    <TableRow key={pedido.id} className="bg-warning/5">
                       <TableCell>
-                        <Badge variant="outline" className="font-mono text-xs border-orange-300">
+                        <Badge variant="outline" className="font-mono text-xs border-warning/40">
                           #{pedido.codigo_pedido || pedido.pedido_id.slice(-4)}
                         </Badge>
                       </TableCell>
@@ -432,18 +426,18 @@ export default function AguardandoPagamento() {
                             {pedido.cliente_nome} {pedido.cliente_sobrenome}
                           </div>
                           {pedido.cliente_email && (
-                            <div className="text-xs text-gray-500 truncate max-w-[180px]">{pedido.cliente_email}</div>
+                            <div className="text-xs text-muted-foreground truncate max-w-[180px]">{pedido.cliente_email}</div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell className="text-sm">{pedido.cliente_telefone}</TableCell>
                       <TableCell>
-                        <span className="font-bold text-orange-600 text-sm">
+                        <span className="font-bold text-warning-foreground text-sm">
                           R$ {pedido.total.toFixed(2).replace('.', ',')}
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
+                        <Badge variant="outline" className="bg-warning/15 text-warning-foreground border-warning/40">
                           <Clock className="h-3 w-3 mr-1" />
                           {calcularTempoEspera(pedido.criado_em)}
                         </Badge>
@@ -451,7 +445,7 @@ export default function AguardandoPagamento() {
                       <TableCell>
                         <div>
                           <div className="font-medium text-sm">{formatarData(pedido.criado_em)}</div>
-                          <div className="text-xs text-gray-500">{formatarHora(pedido.criado_em)}</div>
+                          <div className="text-xs text-muted-foreground">{formatarHora(pedido.criado_em)}</div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -470,7 +464,7 @@ export default function AguardandoPagamento() {
                             size="sm"
                             onClick={() => verificarStatusPagamento(pedido)}
                             disabled={verificandoStatus === pedido.pedido_id}
-                            className="flex items-center gap-1 text-xs px-2 py-1 border-orange-300 text-orange-700 hover:bg-orange-50"
+                            className="flex items-center gap-1 text-xs px-2 py-1 border-warning/40 text-warning-foreground hover:bg-warning/10"
                           >
                             {verificandoStatus === pedido.pedido_id ? (
                               <RefreshCw className="h-3 w-3 animate-spin" />
@@ -495,7 +489,7 @@ export default function AguardandoPagamento() {
         <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-2xl max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-orange-600" />
+              <Clock className="h-5 w-5 text-warning-foreground" />
               Pedido #{pedidoSelecionado?.codigo_pedido || pedidoSelecionado?.pedido_id.slice(-4)}
             </DialogTitle>
             <DialogDescription>
@@ -507,16 +501,16 @@ export default function AguardandoPagamento() {
             {pedidoSelecionado && (
               <div className="space-y-6">
                 {/* Alerta de Pagamento Pendente */}
-                <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                <div className="bg-warning/10 border border-warning/30 p-4 rounded-lg">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+                    <AlertCircle className="h-5 w-5 text-warning-foreground mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-orange-900">Pagamento PIX Pendente</h4>
-                      <p className="text-sm text-orange-700 mt-1">
+                      <h4 className="font-medium text-warning-foreground">Pagamento PIX Pendente</h4>
+                      <p className="text-sm text-warning-foreground mt-1">
                         Este pedido está aguardando a confirmação do pagamento via PIX.
                         O status será atualizado automaticamente quando o pagamento for aprovado.
                       </p>
-                      <p className="text-xs text-orange-600 mt-2">
+                      <p className="text-xs text-warning-foreground mt-2">
                         Aguardando há: <strong>{calcularTempoEspera(pedidoSelecionado.criado_em)}</strong>
                       </p>
                     </div>
@@ -525,22 +519,22 @@ export default function AguardandoPagamento() {
 
                 {/* Dados Pessoais */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <Phone className="h-4 w-4" />
                     Dados Pessoais
                   </h3>
-                  <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Nome:</span>
+                      <span className="text-muted-foreground">Nome:</span>
                       <span className="font-medium">{pedidoSelecionado.cliente_nome} {pedidoSelecionado.cliente_sobrenome}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Telefone:</span>
+                      <span className="text-muted-foreground">Telefone:</span>
                       <span className="font-medium">{pedidoSelecionado.cliente_telefone}</span>
                     </div>
                     {pedidoSelecionado.cliente_email && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Email:</span>
+                        <span className="text-muted-foreground">Email:</span>
                         <span className="font-medium">{pedidoSelecionado.cliente_email}</span>
                       </div>
                     )}
@@ -549,13 +543,13 @@ export default function AguardandoPagamento() {
 
                 {/* Dados de Entrega */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-gray-900 flex items-center gap-2">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
                     Dados de Entrega
                   </h3>
-                  <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tipo:</span>
+                      <span className="text-muted-foreground">Tipo:</span>
                       <span className="font-medium">
                         {pedidoSelecionado.entrega_domicilio ? 'Entrega a Domicílio' : 'Retirada no Local'}
                       </span>
@@ -563,7 +557,7 @@ export default function AguardandoPagamento() {
                     {pedidoSelecionado.entrega_domicilio && pedidoSelecionado.cliente_endereco && (
                       <>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Endereço:</span>
+                          <span className="text-muted-foreground">Endereço:</span>
                           <span className="font-medium text-right">
                             {pedidoSelecionado.cliente_endereco}, {pedidoSelecionado.cliente_numero}
                             {pedidoSelecionado.cliente_complemento && <br />}{pedidoSelecionado.cliente_complemento}
@@ -571,13 +565,13 @@ export default function AguardandoPagamento() {
                         </div>
                         {pedidoSelecionado.cliente_bairro && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Bairro:</span>
+                            <span className="text-muted-foreground">Bairro:</span>
                             <span className="font-medium">{pedidoSelecionado.cliente_bairro}</span>
                           </div>
                         )}
                         {pedidoSelecionado.cliente_cidade && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Cidade:</span>
+                            <span className="text-muted-foreground">Cidade:</span>
                             <span className="font-medium">{pedidoSelecionado.cliente_cidade} - {pedidoSelecionado.cliente_estado}</span>
                           </div>
                         )}
@@ -588,30 +582,30 @@ export default function AguardandoPagamento() {
 
                 {/* Itens do Pedido */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-gray-900">Itens do Pedido</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Itens do Pedido</h3>
                   <div className="space-y-3">
                     {pedidoSelecionado.itens.map((item: any, index: number) => (
-                      <div key={index} className="border border-gray-200 p-3 rounded-lg">
-                        <div className="font-medium text-gray-900">
+                      <div key={index} className="border border-border p-3 rounded-lg">
+                        <div className="font-medium text-foreground">
                           {item.quantidade}x {item.produto.nome}
                         </div>
                         {item.tamanhoSelecionado && (
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             Tamanho: {item.tamanhoSelecionado.nome} ({item.tamanhoSelecionado.tamanho})
                           </div>
                         )}
                         {item.saboresSelecionados && item.saboresSelecionados.length > 0 && (
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             Sabores: {item.saboresSelecionados.map((s: any) => s.nome).join(', ')}
                           </div>
                         )}
                         {item.bordaSelecionada && (
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             Borda: {item.bordaSelecionada.nome}
                           </div>
                         )}
                         {item.adicionaisSelecionados && item.adicionaisSelecionados.length > 0 && (
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-muted-foreground">
                             Adicionais: {item.adicionaisSelecionados.map((a: any) => `${a.quantidade}x ${a.nome}`).join(', ')}
                           </div>
                         )}
@@ -621,26 +615,26 @@ export default function AguardandoPagamento() {
                 </div>
 
                 {/* Resumo Financeiro */}
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div className="bg-muted/50 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal:</span>
+                    <span className="text-muted-foreground">Subtotal:</span>
                     <span className="font-medium">R$ {pedidoSelecionado.subtotal.toFixed(2).replace('.', ',')}</span>
                   </div>
                   {pedidoSelecionado.taxa_entrega > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Taxa de entrega:</span>
+                      <span className="text-muted-foreground">Taxa de entrega:</span>
                       <span className="font-medium">R$ {pedidoSelecionado.taxa_entrega.toFixed(2).replace('.', ',')}</span>
                     </div>
                   )}
                   {pedidoSelecionado.taxa_extra_km && pedidoSelecionado.taxa_extra_km > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Taxa extra (dist.):</span>
+                      <span className="text-muted-foreground">Taxa extra (dist.):</span>
                       <span className="font-medium">R$ {pedidoSelecionado.taxa_extra_km.toFixed(2).replace('.', ',')}</span>
                     </div>
                   )}
-                  <div className="flex justify-between pt-2 border-t border-gray-200">
-                    <span className="font-semibold text-gray-900">Total:</span>
-                    <span className="font-bold text-orange-600 text-lg">
+                  <div className="flex justify-between pt-2 border-t border-border">
+                    <span className="font-semibold text-foreground">Total:</span>
+                    <span className="font-bold text-warning-foreground text-lg">
                       R$ {pedidoSelecionado.total.toFixed(2).replace('.', ',')}
                     </span>
                   </div>
@@ -650,7 +644,7 @@ export default function AguardandoPagamento() {
                 <Button
                   onClick={() => verificarStatusPagamento(pedidoSelecionado)}
                   disabled={verificandoStatus === pedidoSelecionado.pedido_id}
-                  className="w-full bg-orange-600 hover:bg-orange-700"
+                  className="w-full"
                 >
                   {verificandoStatus === pedidoSelecionado.pedido_id ? (
                     <>

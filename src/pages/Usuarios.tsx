@@ -6,10 +6,21 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
-import { Users, Plus, Power, Loader2, ShieldAlert, Pencil, Trash2, KeyRound } from 'lucide-react'
+import { Users, Plus, Power, ShieldAlert, Pencil, Trash2, KeyRound } from 'lucide-react'
 import { usuarioService, estabelecimentoService, auditoriaService } from '@/services'
 import { usePermissoes } from '@/hooks/usePermissoes'
 import type { Estabelecimento, PerfilUsuario, UsuarioEstabelecimento } from '@/types/estabelecimento'
+import { confirmar } from '@/components/ui/confirmar'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
+import { campoBase, textoErro } from '@/components/ui/estilos'
+import { cn } from '@/lib/utils'
+import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
+import { avisoComDesfazer } from '@/components/ui/desfazer'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 const ROTULO_PERFIL: Record<PerfilUsuario, string> = {
   administrador_geral: 'Administrador Geral',
@@ -36,6 +47,7 @@ const FORM_VAZIO: FormState = {
 }
 
 export default function Usuarios() {
+  const tabelaRef = useTabelaResponsiva()
   const { podeGerenciarUsuarios, perfil, estabelecimentoId } = usePermissoes()
   const [lista, setLista] = useState<UsuarioEstabelecimento[]>([])
   const [estabs, setEstabs] = useState<Estabelecimento[]>([])
@@ -73,9 +85,9 @@ export default function Usuarios() {
   if (!podeGerenciarUsuarios) {
     return (
       <div className="p-6">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow p-8 text-center">
-          <ShieldAlert className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600">Seu perfil não tem permissão para gerenciar usuários.</p>
+        <div className="max-w-md mx-auto bg-card rounded-xl border border-border shadow-xs p-8 text-center">
+          <ShieldAlert className="h-12 w-12 text-muted-foreground/70 mx-auto mb-3" />
+          <p className="text-muted-foreground">Seu perfil não tem permissão para gerenciar usuários.</p>
         </div>
       </div>
     )
@@ -155,10 +167,12 @@ export default function Usuarios() {
     }
   }
 
-  const alternarAtivo = async (u: UsuarioEstabelecimento) => {
+  const alternarAtivo = async (u: UsuarioEstabelecimento, desfazendo = false) => {
     try {
       await usuarioService.definirAtivo(u.id, !u.ativo)
-      toast.success(!u.ativo ? 'Usuário ativado' : 'Usuário desativado')
+      const mensagem = !u.ativo ? 'Usuário ativado' : 'Usuário desativado'
+      if (desfazendo) toast.success(mensagem)
+      else avisoComDesfazer(mensagem, () => alternarAtivo({ ...u, ativo: !u.ativo }, true))
       await carregar()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao alterar status')
@@ -166,13 +180,13 @@ export default function Usuarios() {
   }
 
   const excluirUsuario = async (u: UsuarioEstabelecimento) => {
-    const confirmacao = window.confirm(
-      `⚠️ ATENÇÃO: Esta ação é IRREVERSÍVEL!\n\n` +
-      `Você está prestes a EXCLUIR PERMANENTEMENTE o usuário "${u.nome}".\n\n` +
-      `Todos os dados deste usuário serão removidos do sistema.\n\n` +
-      `Se você deseja apenas impedir o acesso temporariamente, use o botão de DESATIVAR em vez de excluir.\n\n` +
-      `Tem certeza que deseja EXCLUIR permanentemente?`
-    )
+    const confirmacao = await confirmar({
+      titulo: `Excluir o usuário "${u.nome}"?`,
+      descricao:
+        'Esta ação é irreversível: todos os dados deste usuário serão removidos. Para apenas impedir o acesso, use Desativar.',
+      confirmar: 'Excluir permanentemente',
+      perigo: true,
+    })
     
     if (!confirmacao) return
     
@@ -239,19 +253,19 @@ export default function Usuarios() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Users className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-bold text-gray-900">Usuários</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Usuários</h1>
         </div>
-        <button onClick={abrirNovo} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90">
+        <button onClick={abrirNovo} className="flex items-center gap-2 inline-flex h-9 items-center justify-center gap-2 px-4 rounded-md bg-primary text-sm font-medium text-primary-foreground shadow-xs hover:bg-primary-hover">
           <Plus className="h-4 w-4" /> Novo
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+        <TabelaCarregando colunas={6} linhas={4} />
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div ref={tabelaRef} className="tabela-responsiva bg-card rounded-xl border border-border shadow-xs overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600">
+            <thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3">Nome</th>
                 <th className="text-left px-4 py-3">Email</th>
@@ -263,165 +277,164 @@ export default function Usuarios() {
             </thead>
             <tbody>
               {lista.map((u) => (
-                <tr key={u.id} className="border-t border-gray-100">
+                <tr key={u.id} className="border-t border-border transition-colors hover:bg-muted/40">
                   <td className="px-4 py-3 font-medium">{u.nome}</td>
-                  <td className="px-4 py-3 text-gray-500">{u.email}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
                   <td className="px-4 py-3">{ROTULO_PERFIL[u.perfil]}</td>
                   <td className="px-4 py-3">{nomeEstab(u.estabelecimento_id)}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${u.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${u.ativo ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
                       {u.ativo ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => abrirEdicao(u)} className="p-2 rounded hover:bg-gray-100" title="Editar usuário">
-                        <Pencil className="h-4 w-4 text-gray-600" />
+                      <button onClick={() => abrirEdicao(u)} className="p-2 rounded hover:bg-accent" title="Editar usuário">
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
                       </button>
                       {(perfil === 'administrador_geral' || perfil === 'administrador_estabelecimento') && (
-                        <button onClick={() => abrirResetSenha(u)} className="p-2 rounded hover:bg-blue-50" title="Resetar senha">
-                          <KeyRound className="h-4 w-4 text-blue-600" />
+                        <button onClick={() => abrirResetSenha(u)} className="p-2 rounded hover:bg-primary/5" title="Resetar senha">
+                          <KeyRound className="h-4 w-4 text-primary" />
                         </button>
                       )}
-                      <button onClick={() => alternarAtivo(u)} className="p-2 rounded hover:bg-gray-100" title={u.ativo ? 'Desativar usuário' : 'Ativar usuário'}>
-                        <Power className={`h-4 w-4 ${u.ativo ? 'text-green-600' : 'text-gray-400'}`} />
+                      <button onClick={() => alternarAtivo(u)} className="p-2 rounded hover:bg-accent" title={u.ativo ? 'Desativar usuário' : 'Ativar usuário'}>
+                        <Power className={`h-4 w-4 ${u.ativo ? 'text-success' : 'text-muted-foreground/70'}`} />
                       </button>
-                      <button onClick={() => excluirUsuario(u)} className="p-2 rounded hover:bg-red-50" title="Excluir permanentemente (irreversível)">
-                        <Trash2 className="h-4 w-4 text-red-600" />
+                      <button onClick={() => excluirUsuario(u)} className="p-2 rounded hover:bg-destructive/5" title="Excluir permanentemente (irreversível)">
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
               {lista.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Nenhum usuário cadastrado</td></tr>
+                <tr><td colSpan={6}><EstadoVazio icone={Users} titulo="Nenhum usuário cadastrado" descricao="Use o botão Novo usuário para dar acesso à sua equipe." /></td></tr>
               )}
             </tbody>
           </table>
         </div>
       )}
 
-      {form && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
-            <h2 className="text-lg font-bold mb-4">{editId ? 'Editar usuário' : 'Novo usuário'}</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
-                <input className="w-full border border-gray-300 rounded-lg px-3 py-2" value={form.nome} maxLength={120}
+      <Dialog open={!!form} onOpenChange={(aberto) => { if (!aberto) { setForm(null); setEditId(null) } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editId ? 'Editar usuário' : 'Novo usuário'}</DialogTitle>
+          </DialogHeader>
+          {form && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="usuario-nome">Nome *</Label>
+                <Input id="usuario-nome" value={form.nome} maxLength={120}
                   onChange={(e) => setForm({ ...form, nome: e.target.value })} />
               </div>
               {!editId && (
                 <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                    <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2" value={form.email}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="usuario-email">E-mail *</Label>
+                    <Input id="usuario-email" type="email" value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })} />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Senha *</label>
-                    <input type="password" className="w-full border border-gray-300 rounded-lg px-3 py-2" value={form.senha}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="usuario-senha">Senha *</Label>
+                    <Input id="usuario-senha" type="password" value={form.senha}
                       onChange={(e) => setForm({ ...form, senha: e.target.value })} />
                   </div>
                 </>
               )}
               {editId && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input disabled className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-500" value={form.email} />
+                <div className="space-y-1.5">
+                  <Label htmlFor="usuario-email-fixo">E-mail</Label>
+                  <Input id="usuario-email-fixo" disabled value={form.email} />
                 </div>
               )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Perfil *</label>
-                <select className="w-full border border-gray-300 rounded-lg px-3 py-2" value={form.perfil}
+              <div className="space-y-1.5">
+                <Label htmlFor="usuario-perfil">Perfil *</Label>
+                <select id="usuario-perfil" className={cn(campoBase, 'h-9 px-3')} value={form.perfil}
                   onChange={(e) => setForm({ ...form, perfil: e.target.value as PerfilUsuario })}>
                   {ehAdminGeral && <option value="administrador_geral">Administrador Geral</option>}
                   <option value="administrador_estabelecimento">Administrador do Estabelecimento</option>
                   <option value="operador">Operador</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estabelecimento *</label>
+              <div className="space-y-1.5">
+                <Label htmlFor="usuario-estab">Estabelecimento *</Label>
                 {form.perfil === 'administrador_geral' ? (
-                  <input disabled className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-500"
-                    value="Todos os estabelecimentos" />
+                  <Input id="usuario-estab" disabled value="Todos os estabelecimentos" />
                 ) : ehAdminGeral ? (
-                  <select className="w-full border border-gray-300 rounded-lg px-3 py-2" value={form.estabelecimento_id ?? ''}
+                  <select id="usuario-estab" className={cn(campoBase, 'h-9 px-3')} value={form.estabelecimento_id ?? ''}
                     onChange={(e) => setForm({ ...form, estabelecimento_id: e.target.value || null })}>
                     <option value="">Selecione…</option>
                     {estabs.map((e) => <option key={e.id} value={e.id}>{e.nome}</option>)}
                   </select>
                 ) : (
-                  <input disabled className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-500"
-                    value={nomeEstab(estabelecimentoId)} />
+                  <Input id="usuario-estab" disabled value={nomeEstab(estabelecimentoId)} />
                 )}
               </div>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={form.ativo} onChange={(e) => setForm({ ...form, ativo: e.target.checked })} /> Ativo
+                <Checkbox checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v === true })} /> Ativo
               </label>
             </div>
-            <div className="flex justify-end gap-2 mt-6">
-              <button onClick={() => { setForm(null); setEditId(null) }} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">Cancelar</button>
-              <button onClick={salvar} disabled={salvando} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-60 flex items-center gap-2">
-                {salvando && <Loader2 className="h-4 w-4 animate-spin" />} {editId ? 'Salvar' : 'Criar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setForm(null); setEditId(null) }}>Cancelar</Button>
+            <Button onClick={salvar} loading={salvando}>{editId ? 'Salvar' : 'Criar'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {resetSenhaUsuario && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
-            <h2 className="text-lg font-bold mb-2">Resetar senha</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Usuário: <strong>{resetSenhaUsuario.nome}</strong> ({resetSenhaUsuario.email})
-            </p>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nova senha *</label>
-                <input 
-                  type="password" 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2" 
-                  value={novaSenha}
-                  onChange={(e) => setNovaSenha(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  minLength={6}
-                />
-                {novaSenha && novaSenha.length < 6 && (
-                  <p className="text-xs text-red-600 mt-1">A senha deve ter no mínimo 6 caracteres</p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar senha *</label>
-                <input 
-                  type="password" 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2" 
-                  value={confirmaSenha}
-                  onChange={(e) => setConfirmaSenha(e.target.value)}
-                  placeholder="Digite a senha novamente"
-                />
-                {confirmaSenha && novaSenha !== confirmaSenha && (
-                  <p className="text-xs text-red-600 mt-1">As senhas não coincidem</p>
-                )}
-              </div>
+      <Dialog open={!!resetSenhaUsuario} onOpenChange={(aberto) => { if (!aberto) fecharResetSenha() }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Redefinir senha</DialogTitle>
+            {resetSenhaUsuario && (
+              <DialogDescription>
+                Usuário: <strong className="text-foreground">{resetSenhaUsuario.nome}</strong> ({resetSenhaUsuario.email})
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="nova-senha">Nova senha *</Label>
+              <Input
+                id="nova-senha"
+                type="password"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                minLength={6}
+                aria-invalid={!!novaSenha && novaSenha.length < 6}
+              />
+              {novaSenha && novaSenha.length < 6 && (
+                <p className={textoErro}>A senha deve ter no mínimo 6 caracteres</p>
+              )}
             </div>
-            <div className="flex justify-end gap-2 mt-6">
-              <button onClick={fecharResetSenha} className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
-                Cancelar
-              </button>
-              <button 
-                onClick={resetarSenha} 
-                disabled={resetando || !novaSenha || novaSenha.length < 6 || novaSenha !== confirmaSenha} 
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {resetando && <Loader2 className="h-4 w-4 animate-spin" />} 
-                Resetar senha
-              </button>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirma-senha">Confirmar senha *</Label>
+              <Input
+                id="confirma-senha"
+                type="password"
+                value={confirmaSenha}
+                onChange={(e) => setConfirmaSenha(e.target.value)}
+                placeholder="Digite a senha novamente"
+                aria-invalid={!!confirmaSenha && novaSenha !== confirmaSenha}
+              />
+              {confirmaSenha && novaSenha !== confirmaSenha && (
+                <p className={textoErro}>As senhas não coincidem</p>
+              )}
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button variant="outline" onClick={fecharResetSenha}>Cancelar</Button>
+            <Button
+              onClick={resetarSenha}
+              loading={resetando}
+              disabled={!novaSenha || novaSenha.length < 6 || novaSenha !== confirmaSenha}
+            >
+              Redefinir senha
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
