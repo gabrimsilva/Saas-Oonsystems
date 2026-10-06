@@ -17,6 +17,7 @@ import {
   Pencil,
   Plus,
   Power,
+  Receipt,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -29,6 +30,7 @@ import {
   diasAte,
   formatarDocumento,
   nomeDoCliente,
+  temMensalidade,
   testeExpirado,
   type ClientePlataforma,
 } from '@/services/plataformaService'
@@ -47,12 +49,13 @@ import {
   ModalPrazos,
   ModalUsuarios,
 } from './ModaisCliente'
+import { ModalRegistrarPagamento } from './ModaisMensalidade'
 import { EstadoVazio } from '@/components/ui/feedback'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 type FiltroStatus = 'todos' | 'ativo' | 'trial' | 'expirado' | 'suspenso' | 'cancelado'
 
-type Acao = 'editar' | 'plano' | 'prazos' | 'bloqueio' | 'ativacao' | 'usuarios' | 'modulos' | 'detalhes' | 'excluir'
+type Acao = 'editar' | 'plano' | 'pagamento' | 'prazos' | 'bloqueio' | 'ativacao' | 'usuarios' | 'modulos' | 'detalhes' | 'excluir'
 
 const FILTROS: Array<{ id: FiltroStatus; rotulo: string }> = [
   { id: 'todos', rotulo: 'Todos' },
@@ -114,6 +117,9 @@ export default function ClientesPage() {
     const itens: Array<{ acao: Acao; titulo: string; icone: React.ReactNode; cor: string }> = [
       { acao: 'editar', titulo: 'Editar cliente', icone: <Pencil className="h-4 w-4" />, cor: 'text-foreground/80' },
       { acao: 'plano', titulo: 'Plano e cobrança', icone: <SlidersHorizontal className="h-4 w-4" />, cor: 'text-primary' },
+      ...(temMensalidade(c)
+        ? [{ acao: 'pagamento' as const, titulo: 'Registrar pagamento', icone: <Receipt className="h-4 w-4" />, cor: 'text-success' }]
+        : []),
       { acao: 'prazos', titulo: 'Prazos (teste e vigência)', icone: <CalendarClock className="h-4 w-4" />, cor: 'text-warning-foreground' },
       {
         acao: 'bloqueio',
@@ -312,9 +318,10 @@ export default function ClientesPage() {
         </p>
       </section>
 
-      {novo && <ModalNovoCliente onFechar={() => setNovo(false)} onAlterado={recarregar} />}
+      {novo && <ModalNovoCliente planos={planos} onFechar={() => setNovo(false)} onAlterado={recarregar} />}
       {aberto?.acao === 'editar' && <ModalEditarCliente cliente={aberto.cliente} onFechar={fechar} onAlterado={recarregar} />}
       {aberto?.acao === 'plano' && <ModalPlanoCliente cliente={aberto.cliente} planos={planos} onFechar={fechar} onAlterado={recarregar} />}
+      {aberto?.acao === 'pagamento' && <ModalRegistrarPagamento cliente={aberto.cliente} planos={planos} onFechar={fechar} onAlterado={recarregar} />}
       {aberto?.acao === 'prazos' && <ModalPrazos cliente={aberto.cliente} onFechar={fechar} onAlterado={recarregar} />}
       {aberto?.acao === 'bloqueio' && <ModalBloqueio cliente={aberto.cliente} onFechar={fechar} onAlterado={recarregar} />}
       {aberto?.acao === 'ativacao' && <ModalAtivacao cliente={aberto.cliente} onFechar={fechar} onAlterado={recarregar} />}

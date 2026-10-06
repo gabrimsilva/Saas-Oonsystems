@@ -1,13 +1,15 @@
 import type { Plano, RegistroAuditoria } from '@/services/plataformaService'
-import { formatarData, ROTULO_CAMPO, ROTULO_STATUS_TEXTO } from './comum'
+import { formatarData, formatarReais, ROTULO_CAMPO, ROTULO_FORMA, ROTULO_STATUS_TEXTO } from './comum'
 
-const CAMPOS_DATA = new Set(['vigencia_ate', 'trial_ate'])
+const CAMPOS_DATA = new Set(['vigencia_ate', 'trial_ate', 'pago_em'])
 
 function valorLegivel(campo: string, valor: unknown, planos: Plano[]): string {
   if (valor === null || valor === undefined || valor === '') return '—'
   if (campo === 'status') return ROTULO_STATUS_TEXTO[String(valor)] ?? String(valor)
   if (campo === 'plano_id') return planos.find((p) => p.id === valor)?.nome ?? 'plano removido'
   if (campo === 'ciclo') return valor === 'anual' ? 'Anual' : 'Mensal'
+  if (campo === 'valor') return formatarReais(Number(valor))
+  if (campo === 'forma') return ROTULO_FORMA[valor as keyof typeof ROTULO_FORMA] ?? String(valor)
   if (CAMPOS_DATA.has(campo)) return formatarData(String(valor))
   if (campo === 'origem') return valor === 'site' ? 'Site (autocadastro)' : 'Plataforma'
   return String(valor)

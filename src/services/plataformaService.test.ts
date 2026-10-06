@@ -6,7 +6,11 @@ import {
   calcularAlertas,
   diasAte,
   ehPagante,
+  mensagemCobranca,
   proximaVigencia,
+  situacaoMensalidade,
+  valorDoCiclo,
+  vencimentoAposPagamento,
   testeExpirado,
   valorMensalDoCliente,
   type ClientePlataforma,
@@ -135,5 +139,50 @@ describe('alertas', () => {
       AGORA,
     )
     expect(lista[0].gravidade).toBe('critico')
+  })
+})
+
+describe('mensalidades', () => {
+  it('classifica a situação do vencimento', () => {
+    expect(situacaoMensalidade(null, AGORA)).toBe('sem_data')
+    expect(situacaoMensalidade(emDias(-2), AGORA)).toBe('vencida')
+    expect(situacaoMensalidade(emDias(0), AGORA)).toBe('hoje')
+    expect(situacaoMensalidade(emDias(5), AGORA)).toBe('semana')
+    expect(situacaoMensalidade(emDias(20), AGORA)).toBe('mes')
+    expect(situacaoMensalidade(emDias(45), AGORA)).toBe('em_dia')
+  })
+
+  it('valor do ciclo usa o preço mensal ou anual do plano', () => {
+    expect(valorDoCiclo({ ciclo: 'mensal', plano_id: 'p1' }, [plano])).toBe(100)
+    expect(valorDoCiclo({ ciclo: 'anual', plano_id: 'p1' }, [plano])).toBe(960)
+    expect(valorDoCiclo({ ciclo: 'mensal', plano_id: null }, [plano])).toBe(0)
+  })
+
+  it('próximo vencimento mantém o dia mesmo pagando atrasado', () => {
+    const atual = new Date(2026, 8, 10, 23, 59, 59).toISOString()
+    const novo = vencimentoAposPagamento(atual, 'mensal', 1, new Date(2026, 9, 2))
+    expect([novo.getFullYear(), novo.getMonth(), novo.getDate()]).toEqual([2026, 9, 10])
+  })
+
+  it('não pula o mês no fim do mês e soma vários períodos', () => {
+    const fimJan = new Date(2027, 0, 31, 23, 59, 59).toISOString()
+    const fev = vencimentoAposPagamento(fimJan, 'mensal', 1, new Date(2027, 0, 31))
+    expect([fev.getMonth(), fev.getDate()]).toEqual([1, 28])
+    const tres = vencimentoAposPagamento(fimJan, 'mensal', 3, new Date(2027, 0, 31))
+    expect([tres.getMonth(), tres.getDate()]).toEqual([3, 30])
+    const anual = vencimentoAposPagamento(fimJan, 'anual', 1, new Date(2027, 0, 31))
+    expect([anual.getFullYear(), anual.getMonth(), anual.getDate()]).toEqual([2028, 0, 31])
+  })
+
+  it('sem vencimento conta a partir do pagamento (fim do dia)', () => {
+    const novo = vencimentoAposPagamento(null, 'mensal', 1, new Date(2026, 9, 2))
+    expect([novo.getMonth(), novo.getDate(), novo.getHours()]).toEqual([10, 2, 23])
+  })
+
+  it('mensagem de cobrança cita valor e situação', () => {
+    const c = { nome_fantasia: 'Pizzaria X', razao_social: 'X Ltda', plano_nome: 'Essencial', ciclo: 'mensal' as const }
+    expect(mensagemCobranca(c, 100, emDias(-3), AGORA)).toContain('venceu em')
+    expect(mensagemCobranca(c, 100, emDias(0), AGORA)).toContain('vence hoje')
+    expect(mensagemCobranca(c, 100, emDias(5), AGORA)).toMatch(/Pizzaria X.*mensalidade do plano Essencial.*R\$\s?100,00/)
   })
 })

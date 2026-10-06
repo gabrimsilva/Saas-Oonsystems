@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import {
   diasAte,
+  type FormaPagamento,
   testeExpirado,
   vencimentoDoCliente,
   type ClientePlataforma,
@@ -27,8 +28,13 @@ import {
 export const formatarReais = (valor: number) =>
   valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-export const formatarData = (data: string | null | undefined) =>
-  data ? new Date(data).toLocaleDateString('pt-BR') : '—'
+/** Data no formato brasileiro; "yyyy-mm-dd" (só o dia) é lido no fuso local */
+export const formatarData = (data: string | null | undefined) => {
+  if (!data) return '—'
+  const soDia = /^(\d{4})-(\d{2})-(\d{2})$/.exec(data)
+  const d = soDia ? new Date(Number(soDia[1]), Number(soDia[2]) - 1, Number(soDia[3])) : new Date(data)
+  return d.toLocaleDateString('pt-BR')
+}
 
 export const formatarDataHora = (data: string | null | undefined) =>
   data ? new Date(data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—'
@@ -92,7 +98,7 @@ export function Vencimento({ cliente }: { cliente: ClientePlataforma }) {
     <div className="leading-tight whitespace-nowrap">
       <div className="text-foreground">{formatarData(data)}</div>
       <div className={`text-xs ${cor}`}>
-        {tipo === 'teste' ? 'Teste' : 'Vigência'}
+        {tipo === 'teste' ? 'Teste' : 'Mensalidade'}
         {' · '}
         {dias < 0 ? 'vencido' : dias === 0 ? 'vence hoje' : `${dias} dia(s)`}
       </div>
@@ -119,13 +125,24 @@ export const ROTULO_ACAO: Record<string, string> = {
   usuario_bloqueado: 'Usuário bloqueado',
   usuario_liberado: 'Usuário liberado',
   logins_nao_removidos: 'Logins não removidos',
+  pagamento_registrado: 'Pagamento registrado',
+  pagamento_estornado: 'Pagamento estornado',
+}
+
+export const ROTULO_FORMA: Record<FormaPagamento, string> = {
+  pix: 'Pix',
+  boleto: 'Boleto',
+  cartao: 'Cartão',
+  transferencia: 'Transferência',
+  dinheiro: 'Dinheiro',
+  outro: 'Outro',
 }
 
 export const ROTULO_CAMPO: Record<string, string> = {
   status: 'Status',
   plano_id: 'Plano',
   ciclo: 'Ciclo',
-  vigencia_ate: 'Vigência até',
+  vigencia_ate: 'Vencimento',
   trial_ate: 'Teste até',
   motivo_bloqueio: 'Motivo do bloqueio',
   razao_social: 'Razão social',
@@ -141,6 +158,10 @@ export const ROTULO_CAMPO: Record<string, string> = {
   modulo: 'Módulo',
   usuario: 'Usuário',
   nome: 'Nome',
+  valor: 'Valor',
+  forma: 'Forma',
+  pago_em: 'Pago em',
+  motivo: 'Motivo',
 }
 
 export const ROTULO_STATUS_TEXTO: Record<string, string> = {

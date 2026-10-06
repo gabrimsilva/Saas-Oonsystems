@@ -14,11 +14,14 @@ import {
   LogOut,
   Menu,
   Package,
+  Receipt,
 } from 'lucide-react'
 import { authService, supabase } from '@/services'
 import {
   calcularAlertas,
   plataformaService,
+  situacaoMensalidade,
+  temMensalidade,
   type AlertaCliente,
   type ClientePlataforma,
   type Plano,
@@ -38,6 +41,7 @@ export const useDadosPlataforma = () => useOutletContext<DadosPlataforma>()
 
 const MENU = [
   { para: '/plataforma', rotulo: 'Clientes', icone: Building2, fim: true },
+  { para: '/plataforma/mensalidades', rotulo: 'Mensalidades', icone: Receipt },
   { para: '/plataforma/financeiro', rotulo: 'Financeiro', icone: DollarSign },
   { para: '/plataforma/alertas', rotulo: 'Alertas', icone: Bell },
   { para: '/plataforma/planos', rotulo: 'Planos', icone: Package },
@@ -82,6 +86,12 @@ export default function PlataformaLayout() {
 
   const alertas = useMemo(() => calcularAlertas(clientes, planos), [clientes, planos])
   const alertasImportantes = alertas.filter((a) => a.gravidade !== 'info').length
+  // Mensalidades vencidas ou vencendo hoje
+  const mensalidadesPendentes = clientes.filter((c) => {
+    if (!temMensalidade(c)) return false
+    const s = situacaoMensalidade(c.vigencia_ate)
+    return s === 'vencida' || s === 'hoje'
+  }).length
 
   if (autorizado === null) return <div className="min-h-screen"><Carregando /></div>
   if (!autorizado) return <Navigate to="/sistema" replace />
@@ -119,6 +129,14 @@ export default function PlataformaLayout() {
             >
               <Icone className="size-[18px]" />
               <span className="flex-1">{rotulo}</span>
+              {para.endsWith('mensalidades') && mensalidadesPendentes > 0 && (
+                <span
+                  className="min-w-5 h-5 px-1.5 rounded-full bg-destructive/15 text-[11px] font-semibold text-destructive flex items-center justify-center"
+                  aria-label={`${mensalidadesPendentes} mensalidades vencidas ou vencendo hoje`}
+                >
+                  {mensalidadesPendentes}
+                </span>
+              )}
               {para.endsWith('alertas') && alertasImportantes > 0 && (
                 <span
                   className="min-w-5 h-5 px-1.5 rounded-full bg-warning/20 text-[11px] font-semibold text-warning-foreground flex items-center justify-center"

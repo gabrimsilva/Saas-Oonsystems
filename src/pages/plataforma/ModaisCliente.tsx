@@ -100,20 +100,49 @@ const NOVO_VAZIO: NovoCliente & { telefone: string; cidade: string; uf: string }
   uf: '',
 }
 
-export function ModalNovoCliente({ onFechar, onAlterado }: Omit<PropsModal, 'cliente'>) {
+const DIAS_TESTE = 14
+
+/** 1º vencimento sugerido: fim do teste (em teste) ou um ciclo a partir de hoje (ativo) */
+function primeiroVencimento(status: NovoCliente['status'], ciclo: CicloCobranca): string {
+  if (status === 'trial') return paraInputData(new Date(Date.now() + DIAS_TESTE * 24 * 60 * 60 * 1000))
+  return paraInputData(proximaVigencia(null, ciclo))
+}
+
+export function ModalNovoCliente({ planos, onFechar, onAlterado }: Omit<PropsModal, 'cliente'> & { planos: Plano[] }) {
   const [form, setForm] = useState({ ...NOVO_VAZIO })
+  const [planoId, setPlanoId] = useState('')
+  const [ciclo, setCiclo] = useState<CicloCobranca>('mensal')
+  const [vencimento, setVencimento] = useState(() => primeiroVencimento(NOVO_VAZIO.status, 'mensal'))
+  const [vencimentoEditado, setVencimentoEditado] = useState(false)
   const { salvando, executar } = useAcao()
   const set = (campo: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm({ ...form, [campo]: e.target.value })
 
+  // A sugestão acompanha situação e ciclo até o admin mexer na data
+  useEffect(() => {
+    if (!vencimentoEditado) setVencimento(primeiroVencimento(form.status, ciclo))
+  }, [form.status, ciclo, vencimentoEditado])
+
+  const ativos = planos.filter((p) => p.ativo)
+  const plano = planos.find((p) => p.id === planoId)
+
   const salvar = async () => {
     const ok = await executar(async () => {
+      if (planoId && !vencimento) throw new Error('Informe o primeiro vencimento da mensalidade')
       const { telefone, cidade, uf, ...dados } = form
       const id = await plataformaService.criarCliente(dados)
       if (id && (telefone || cidade || uf)) {
         await plataformaService.atualizarCliente(id, { telefone, cidade, uf })
       }
-    }, 'Cliente cadastrado')
+      if (id && planoId) {
+        try {
+          await plataformaService.definirPlano(id, planoId, ciclo, deInputData(vencimento), true)
+        } catch (e) {
+          // O cliente já existe: avisa para concluir pela Nova mensalidade
+          throw new Error(`Cliente cadastrado, mas a mensalidade não foi criada (${e instanceof Error ? e.message : 'erro'}). Use Mensalidades > Nova mensalidade.`)
+        }
+      }
+    }, planoId ? 'Cliente e mensalidade cadastrados' : 'Cliente cadastrado')
     if (ok) {
       onAlterado()
       onFechar()
@@ -162,11 +191,51 @@ export function ModalNovoCliente({ onFechar, onAlterado }: Omit<PropsModal, 'cli
           </Campo>
           <Campo rotulo="Situação inicial">
             <select className={classeInput} value={form.status} onChange={set('status')}>
-              <option value="trial">Em teste (14 dias)</option>
+              <option value="trial">Em teste ({DIAS_TESTE} dias)</option>
               <option value="ativo">Ativo</option>
             </select>
           </Campo>
         </div>
+
+        <p className="text-xs font-semibold uppercase text-muted-foreground pt-2">Plano e mensalidade</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Campo rotulo="Plano">
+            <select className={classeInput} value={planoId} onChange={(e) => setPlanoId(e.target.value)}>
+              <option value="">Definir depois</option>
+              {ativos.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nome} · {formatarReais(p.preco_mensal)}/mês
+                </option>
+              ))}
+            </select>
+          </Campo>
+          {planoId && (
+            <Campo rotulo="Ciclo">
+              <select className={classeInput} value={ciclo} onChange={(e) => setCiclo(e.target.value as CicloCobranca)}>
+                <option value="mensal">Mensal{plano ? ` · ${formatarReais(plano.preco_mensal)}` : ''}</option>
+                <option value="anual">Anual{plano ? ` · ${formatarReais(plano.preco_anual)}` : ''}</option>
+              </select>
+            </Campo>
+          )}
+        </div>
+        {planoId && (
+          <Campo
+            rotulo="Primeiro vencimento"
+            ajuda={form.status === 'trial'
+              ? 'Sugestão: no fim do teste. Depois de cada pagamento, o vencimento avança um ciclo.'
+              : `Sugestão: daqui a 1 ${ciclo === 'anual' ? 'ano' : 'mês'}. Depois de cada pagamento, o vencimento avança um ciclo.`}
+          >
+            <input
+              type="date"
+              className={classeInput}
+              value={vencimento}
+              onChange={(e) => {
+                setVencimento(e.target.value)
+                setVencimentoEditado(true)
+              }}
+            />
+          </Campo>
+        )}
 
         <p className="text-xs font-semibold uppercase text-muted-foreground pt-2">Administrador do cliente</p>
         <Campo rotulo="Nome *">
@@ -331,7 +400,7 @@ export function ModalPlanoCliente({ cliente, planos, onFechar, onAlterado }: Pro
           </div>
         </fieldset>
 
-        <Campo rotulo="Vigência até" ajuda="Fim do período pago. Gera alertas de renovação (não bloqueia sozinho).">
+        <Campo rotulo="Próximo vencimento" ajuda="Data da próxima mensalidade. Aparece em Mensalidades e no Financeiro (não bloqueia sozinho).">
           <div className="flex gap-2">
             <input type="date" className={classeInput} value={vigencia} onChange={(e) => setVigencia(e.target.value)} />
             <BotaoSecundario

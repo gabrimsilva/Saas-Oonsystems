@@ -99,6 +99,45 @@ export interface NovoCliente {
   status?: 'trial' | 'ativo'
 }
 
+export type FormaPagamento = 'pix' | 'boleto' | 'cartao' | 'transferencia' | 'dinheiro' | 'outro'
+
+export interface PagamentoMensalidade {
+  id: string
+  tenant_id: string
+  valor: number
+  pago_em: string
+  forma: FormaPagamento
+  periodos: number
+  ciclo: CicloCobranca
+  plano_id: string | null
+  vencimento_anterior: string | null
+  vencimento_novo: string
+  observacao: string | null
+  criado_em: string
+  estornado_em: string | null
+  motivo_estorno: string | null
+}
+
+export interface NovoPagamento {
+  tenantId: string
+  valor: number
+  /** yyyy-mm-dd */
+  pagoEm: string
+  forma: FormaPagamento
+  periodos: number
+  vencimentoNovo: string
+  observacao?: string
+  liberarAcesso?: boolean
+}
+
+export interface FiltroPagamentos {
+  tenantId?: string
+  /** yyyy-mm-dd (inclusive) */
+  de?: string
+  ate?: string
+  incluirEstornados?: boolean
+}
+
 export type DadosCadastraisCliente = Pick<
   ClientePlataforma,
   'razao_social' | 'nome_fantasia' | 'email' | 'telefone' | 'cidade' | 'uf' | 'observacoes'
@@ -199,6 +238,79 @@ export function proximaVigencia(vigenciaAtual: string | null, ciclo: CicloCobran
   if (ciclo === 'anual') nova.setFullYear(nova.getFullYear() + 1)
   else nova.setMonth(nova.getMonth() + 1)
   return nova
+}
+
+// ---------------------------------------------------------------------------
+// Mensalidades
+// ---------------------------------------------------------------------------
+
+/** Cliente com mensalidade: tem plano e não está inativo (em teste, a 1ª vence no fim do teste). */
+export const temMensalidade = (c: Pick<ClientePlataforma, 'status' | 'plano_id'>) =>
+  !!c.plano_id && c.status !== 'cancelado'
+
+/** Valor de um ciclo do plano do cliente (mensalidade ou anuidade). */
+export function valorDoCiclo(c: Pick<ClientePlataforma, 'ciclo' | 'plano_id'>, planos: Plano[]): number {
+  const plano = planos.find((p) => p.id === c.plano_id)
+  if (!plano) return 0
+  return Number(c.ciclo === 'anual' ? plano.preco_anual : plano.preco_mensal)
+}
+
+export type SituacaoMensalidade = 'sem_data' | 'vencida' | 'hoje' | 'semana' | 'mes' | 'em_dia'
+
+/** Faixa do vencimento: vencida, vence hoje, em até 7 dias, em até 30 dias ou em dia. */
+export function situacaoMensalidade(vencimento: string | null, agora = Date.now()): SituacaoMensalidade {
+  const dias = diasAte(vencimento, agora)
+  if (dias === null) return 'sem_data'
+  if (dias < 0) return 'vencida'
+  if (dias === 0) return 'hoje'
+  if (dias <= 7) return 'semana'
+  if (dias <= 30) return 'mes'
+  return 'em_dia'
+}
+
+/** Soma meses mantendo o dia do vencimento (31/01 + 1 mês = 28/02, não 03/03). */
+function somarMeses(data: Date, meses: number): Date {
+  const nova = new Date(data)
+  const dia = nova.getDate()
+  nova.setDate(1)
+  nova.setMonth(nova.getMonth() + meses)
+  const ultimoDia = new Date(nova.getFullYear(), nova.getMonth() + 1, 0).getDate()
+  nova.setDate(Math.min(dia, ultimoDia))
+  return nova
+}
+
+/**
+ * Próximo vencimento depois de pagar `periodos` ciclos. Parte do vencimento
+ * atual (o dia de vencimento não muda com atraso) ou, sem vencimento, da data
+ * do pagamento.
+ */
+export function vencimentoAposPagamento(
+  vencimentoAtual: string | null,
+  ciclo: CicloCobranca,
+  periodos: number,
+  pagoEm: Date,
+): Date {
+  const base = vencimentoAtual ? new Date(vencimentoAtual) : new Date(pagoEm)
+  if (!vencimentoAtual) base.setHours(23, 59, 59, 0)
+  return somarMeses(base, (ciclo === 'anual' ? 12 : 1) * Math.max(1, periodos))
+}
+
+/** Mensagem de cobrança para o WhatsApp do cliente. */
+export function mensagemCobranca(
+  c: Pick<ClientePlataforma, 'nome_fantasia' | 'razao_social' | 'plano_nome' | 'ciclo'>,
+  valor: number,
+  vencimento: string | null,
+  agora = Date.now(),
+): string {
+  const nome = nomeDoCliente(c)
+  const valorTexto = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  const tipo = c.ciclo === 'anual' ? 'anuidade' : 'mensalidade'
+  const plano = c.plano_nome ? ` do plano ${c.plano_nome}` : ''
+  if (!vencimento) return `Olá, ${nome}! Segue a ${tipo}${plano} do OonSystems no valor de ${valorTexto}.`
+  const data = new Date(vencimento).toLocaleDateString('pt-BR')
+  const dias = diasAte(vencimento, agora) ?? 0
+  const quando = dias < 0 ? `venceu em ${data}` : dias === 0 ? 'vence hoje' : `vence em ${data}`
+  return `Olá, ${nome}! A ${tipo}${plano} do OonSystems (${valorTexto}) ${quando}. Qualquer dúvida, estamos à disposição.`
 }
 
 /** Formata CPF (000.000.000-00) ou CNPJ, inclusive alfanumérico (XX.XXX.XXX/XXXX-00). */
@@ -425,6 +537,48 @@ export const plataformaService = {
   async excluirPlano(id: string): Promise<void> {
     const { error } = await supabase.from('planos').delete().eq('id', id)
     if (error) falha('Falha ao excluir o plano', error)
+  },
+
+  // ---------------------------------------------------------- mensalidades
+  async listarPagamentos(filtro: FiltroPagamentos = {}): Promise<PagamentoMensalidade[]> {
+    let query = supabase
+      .from('plataforma_pagamentos')
+      .select('*')
+      .order('pago_em', { ascending: false })
+      .order('criado_em', { ascending: false })
+      .limit(1000)
+    if (filtro.tenantId) query = query.eq('tenant_id', filtro.tenantId)
+    if (filtro.de) query = query.gte('pago_em', filtro.de)
+    if (filtro.ate) query = query.lte('pago_em', filtro.ate)
+    if (!filtro.incluirEstornados) query = query.is('estornado_em', null)
+    const { data, error } = await query
+    if (error) falha('Falha ao carregar os pagamentos', error)
+    return ((data ?? []) as PagamentoMensalidade[]).map((p) => ({ ...p, valor: Number(p.valor) || 0 }))
+  },
+
+  /** Registra o pagamento e avança o vencimento do cliente; devolve o id do pagamento. */
+  async registrarPagamento(dados: NovoPagamento): Promise<string> {
+    const { data, error } = await supabase.rpc('plataforma_registrar_pagamento', {
+      p_tenant_id: dados.tenantId,
+      p_valor: dados.valor,
+      p_pago_em: dados.pagoEm,
+      p_forma: dados.forma,
+      p_periodos: dados.periodos,
+      p_vencimento_novo: dados.vencimentoNovo,
+      p_observacao: dados.observacao ?? null,
+      p_liberar_acesso: dados.liberarAcesso ?? false,
+    })
+    if (error) falha('Falha ao registrar o pagamento', error)
+    return String(data ?? '')
+  },
+
+  /** Estorna o último pagamento do cliente (o vencimento volta ao anterior). */
+  async estornarPagamento(id: string, motivo?: string): Promise<void> {
+    const { error } = await supabase.rpc('plataforma_estornar_pagamento', {
+      p_pagamento_id: id,
+      p_motivo: motivo ?? null,
+    })
+    if (error) falha('Falha ao estornar o pagamento', error)
   },
 
   // ------------------------------------------------------------- auditoria

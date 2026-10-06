@@ -71,6 +71,7 @@ const PlataformaLayout = lazy(() => import("@/pages/plataforma/PlataformaLayout"
 // Vitrine do design system: só existe em desenvolvimento
 const VitrineUI = import.meta.env.DEV ? lazy(() => import("@/pages/dev/VitrineUI")) : null
 const PlataformaClientes = lazy(() => import("@/pages/plataforma/ClientesPage"))
+const PlataformaMensalidades = lazy(() => import("@/pages/plataforma/MensalidadesPage"))
 const PlataformaFinanceiro = lazy(() => import("@/pages/plataforma/FinanceiroPage"))
 const PlataformaAlertas = lazy(() => import("@/pages/plataforma/AlertasPage"))
 const PlataformaPlanos = lazy(() => import("@/pages/plataforma/PlanosPage"))
@@ -601,6 +602,7 @@ function App() {
               }
             >
               <Route index element={<Suspense fallback={<LoadingSpinner />}><PlataformaClientes /></Suspense>} />
+              <Route path="mensalidades" element={<Suspense fallback={<LoadingSpinner />}><PlataformaMensalidades /></Suspense>} />
               <Route path="financeiro" element={<Suspense fallback={<LoadingSpinner />}><PlataformaFinanceiro /></Suspense>} />
               <Route path="alertas" element={<Suspense fallback={<LoadingSpinner />}><PlataformaAlertas /></Suspense>} />
               <Route path="planos" element={<Suspense fallback={<LoadingSpinner />}><PlataformaPlanos /></Suspense>} />
