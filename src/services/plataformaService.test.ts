@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@/lib/supabase', () => ({ supabase: {} }))
 
 import {
+  bloqueadoPorAtraso,
   calcularAlertas,
   diasAte,
   ehPagante,
@@ -114,6 +115,13 @@ describe('alertas', () => {
     expect(tipos(cliente({ plano_id: null }))).toContain('sem_plano')
   })
 
+  it('mensalidade vencida avisa a suspensão e, passada a tolerância, o bloqueio', () => {
+    const [dentro] = calcularAlertas([cliente({ vigencia_ate: emDias(-3) })], [plano], AGORA)
+    expect(dentro.mensagem).toContain('será suspenso em 2 dia(s)')
+    const [fora] = calcularAlertas([cliente({ vigencia_ate: emDias(-6) })], [plano], AGORA)
+    expect(fora.mensagem).toContain('acesso suspenso por atraso')
+  })
+
   it('acima dos limites do plano', () => {
     const t = tipos(cliente({ qtd_usuarios: 5, qtd_estabelecimentos: 2 }))
     expect(t).toContain('limite_usuarios')
@@ -184,5 +192,12 @@ describe('mensalidades', () => {
     expect(mensagemCobranca(c, 100, emDias(-3), AGORA)).toContain('venceu em')
     expect(mensagemCobranca(c, 100, emDias(0), AGORA)).toContain('vence hoje')
     expect(mensagemCobranca(c, 100, emDias(5), AGORA)).toMatch(/Pizzaria X.*mensalidade do plano Essencial.*R\$\s?100,00/)
+  })
+
+  it('bloqueio por atraso só depois da tolerância e só para ativos', () => {
+    expect(bloqueadoPorAtraso({ status: 'ativo', vigencia_ate: emDias(-4) }, AGORA)).toBe(false)
+    expect(bloqueadoPorAtraso({ status: 'ativo', vigencia_ate: emDias(-6) }, AGORA)).toBe(true)
+    expect(bloqueadoPorAtraso({ status: 'ativo', vigencia_ate: null }, AGORA)).toBe(false)
+    expect(bloqueadoPorAtraso({ status: 'trial', vigencia_ate: emDias(-30) }, AGORA)).toBe(false)
   })
 })

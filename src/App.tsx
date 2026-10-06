@@ -77,6 +77,8 @@ const PlataformaAlertas = lazy(() => import("@/pages/plataforma/AlertasPage"))
 const PlataformaPlanos = lazy(() => import("@/pages/plataforma/PlanosPage"))
 const PlataformaAuditoria = lazy(() => import("@/pages/plataforma/AuditoriaPage"))
 const Cadastro = lazy(() => import("@/pages/Cadastro"))
+const RecuperarSenha = lazy(() => import("@/pages/RecuperarSenha"))
+const RedefinirSenha = lazy(() => import("@/pages/RedefinirSenha"))
 
 // Componente de loading
 const LoadingSpinner = () => (
@@ -580,6 +582,18 @@ function App() {
             <Route path="/cadastro" element={
               <Suspense fallback={<LoadingSpinner />}>
                 <Cadastro />
+              </Suspense>
+            } />
+
+            {/* Recuperação de senha (link do e-mail leva a /reset-password) */}
+            <Route path="/recuperar-senha" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <RecuperarSenha />
+              </Suspense>
+            } />
+            <Route path="/reset-password" element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <RedefinirSenha />
               </Suspense>
             } />
 

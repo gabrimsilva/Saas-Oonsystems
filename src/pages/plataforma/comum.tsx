@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
+  bloqueadoPorAtraso,
   diasAte,
   type FormaPagamento,
   testeExpirado,
@@ -76,7 +77,9 @@ const STATUS: Record<StatusCliente, { texto: string; classe: string }> = {
 export function StatusCliente({ cliente }: { cliente: ClientePlataforma }) {
   const rotulo = testeExpirado(cliente)
     ? { texto: 'Teste expirado', classe: 'bg-destructive/10 text-destructive border-destructive/20' }
-    : STATUS[cliente.status]
+    : bloqueadoPorAtraso(cliente)
+      ? { texto: 'Bloqueado (atraso)', classe: 'bg-destructive/10 text-destructive border-destructive/20' }
+      : STATUS[cliente.status]
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium whitespace-nowrap ${rotulo.classe}`}

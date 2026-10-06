@@ -58,9 +58,9 @@ export default function Login({ onLogin }: LoginProps) {
         await recusar('Seu usuário não possui acesso ativo a nenhum estabelecimento.')
         return
       }
-      // tenants só é visível com o cliente em teste/ativo (RLS)
+      // tenants só é visível com o cliente liberado (RLS): teste no prazo ou mensalidade em dia
       if (!vinculo.tenants) {
-        await recusar('O período de teste terminou ou o acesso está suspenso. Entre em contato com a OonSystems.')
+        await recusar('O acesso está suspenso (fim do período de teste, mensalidade em atraso ou bloqueio). Entre em contato com a OonSystems.')
         return
       }
 
@@ -164,7 +164,7 @@ export default function Login({ onLogin }: LoginProps) {
           required
           aria-invalid={!!error || undefined}
           acessorio={
-            <a href="#" className="text-xs font-medium text-primary hover:text-primary-hover hover:underline underline-offset-4">
+            <a href="/recuperar-senha" className="text-xs font-medium text-primary hover:text-primary-hover hover:underline underline-offset-4">
               Esqueceu sua senha?
             </a>
           }

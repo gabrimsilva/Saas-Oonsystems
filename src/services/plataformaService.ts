@@ -154,6 +154,21 @@ export function testeExpirado(c: Pick<ClientePlataforma, 'status' | 'trial_ate'>
   return c.status === 'trial' && !!c.trial_ate && new Date(c.trial_ate).getTime() <= agora
 }
 
+/** Dias de acesso após o vencimento da mensalidade (igual a fn_dias_tolerancia_atraso no banco). */
+export const DIAS_TOLERANCIA_ATRASO = 5
+
+/** Data em que o cliente ativo perde o acesso por atraso (vencimento + tolerância). */
+export function dataBloqueioPorAtraso(vigenciaAte: string | null): Date | null {
+  if (!vigenciaAte) return null
+  return new Date(new Date(vigenciaAte).getTime() + DIAS_TOLERANCIA_ATRASO * DIA_MS)
+}
+
+/** Cliente ativo sem acesso porque a mensalidade passou da tolerância. */
+export function bloqueadoPorAtraso(c: Pick<ClientePlataforma, 'status' | 'vigencia_ate'>, agora = Date.now()): boolean {
+  const bloqueio = dataBloqueioPorAtraso(c.vigencia_ate)
+  return c.status === 'ativo' && !!bloqueio && bloqueio.getTime() <= agora
+}
+
 /** Dias inteiros até uma data (negativo = já passou). */
 export function diasAte(data: string | null, agora = Date.now()): number | null {
   if (!data) return null
@@ -203,8 +218,13 @@ export function calcularAlertas(clientes: ClientePlataforma[], planos: Plano[], 
     if (c.status === 'ativo') {
       const dias = diasAte(c.vigencia_ate, agora)
       if (!c.plano_id) add('sem_plano', 'info', c, 'Cliente ativo sem plano definido.')
-      if (dias !== null && dias < 0) add('vigencia_vencida', 'critico', c, `Vigência venceu há ${-dias} dia(s).`)
-      else if (dias !== null && dias <= 7) add('vigencia_vencendo', 'atencao', c, `Vigência vence em ${dias} dia(s).`)
+      if (bloqueadoPorAtraso(c, agora)) {
+        add('vigencia_vencida', 'critico', c, `Mensalidade venceu há ${-(dias ?? 0)} dia(s): acesso suspenso por atraso.`)
+      } else if (dias !== null && dias < 0) {
+        const restam = diasAte(dataBloqueioPorAtraso(c.vigencia_ate)?.toISOString() ?? null, agora) ?? 0
+        add('vigencia_vencida', 'critico', c, `Mensalidade venceu há ${-dias} dia(s); o acesso será suspenso em ${restam} dia(s).`)
+      }
+      else if (dias !== null && dias >= 0 && dias <= 7) add('vigencia_vencendo', 'atencao', c, `Vigência vence em ${dias} dia(s).`)
     }
 
     if (c.status === 'suspenso') {
