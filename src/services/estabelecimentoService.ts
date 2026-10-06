@@ -134,6 +134,10 @@ export const estabelecimentoService: EstabelecimentoService = {
       if (error.code === '23505') {
         throw new Error('Já existe um estabelecimento com este nome ou identificador (slug).')
       }
+      // Trigger fn_verificar_limite_plano: estabelecimentos acima do limite do plano
+      if (error.message?.startsWith('Limite do plano')) {
+        throw new Error(error.message)
+      }
       console.error('Erro ao criar estabelecimento:', error)
       throw new Error(`Falha ao criar estabelecimento: ${error.message}`)
     }

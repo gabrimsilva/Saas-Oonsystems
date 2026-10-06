@@ -166,6 +166,10 @@ Deno.serve(async (req) => {
   if (vinculoError || !vinculo) {
     console.error('Erro ao vincular usuário:', vinculoError)
     await desfazer()
+    // Trigger fn_verificar_limite_plano: usuários acima do limite do plano
+    if (vinculoError?.message?.startsWith('Limite do plano')) {
+      return jsonResponse({ error: vinculoError.message }, 403)
+    }
     return jsonResponse({ error: 'Falha ao vincular o usuário ao estabelecimento' }, 500)
   }
 
