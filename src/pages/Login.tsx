@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { ArrowRight, Lock, Mail } from 'lucide-react'
+import { ArrowRight, CreditCard, Lock, Mail } from 'lucide-react'
 import { authService, supabase } from "@/services"
 import { plataformaService } from "@/services/plataformaService"
+import { assinaturaService, type CheckoutAssinatura } from "@/services/assinaturaService"
 import { AuthLayout, CampoAuth, CampoSenha } from '@/components/auth/AuthLayout'
 import { Button } from '@/components/ui/button'
 import { Alerta } from '@/components/ui/feedback'
@@ -20,6 +21,10 @@ export default function Login({ onLogin }: LoginProps) {
   const [lembrarMe, setLembrarMe] = useState(false)
   const [carregando, setCarregando] = useState(false)
   const [error, setError] = useState('')
+  // Acesso suspenso: link para o administrador geral pagar a assinatura
+  const [checkout, setCheckout] = useState<CheckoutAssinatura | null>(null)
+  // Volta do checkout feito nesta tela (/login?pagamento=<cobrança>)
+  const [cobrancaRetorno] = useState(() => new URLSearchParams(window.location.search).get('pagamento'))
 
   const recusar = async (mensagem: string) => {
     setError(mensagem)
@@ -30,6 +35,7 @@ export default function Login({ onLogin }: LoginProps) {
     e.preventDefault()
     setCarregando(true)
     setError('')
+    setCheckout(null)
 
     try {
       // 1. Autenticar
@@ -48,19 +54,35 @@ export default function Login({ onLogin }: LoginProps) {
       }
 
       // 3. Vínculo do usuário com o cliente/estabelecimento
-      const { data: vinculo } = await supabase
+      const lerVinculo = async () => (await supabase
         .from('usuarios_estabelecimento')
         .select('perfil, estabelecimento_id, ultimo_estabelecimento_id, ativo, tenants(status)')
         .eq('user_id', user.id)
-        .maybeSingle()
+        .maybeSingle()).data
+      let vinculo = await lerVinculo()
 
       if (!vinculo || !vinculo.ativo) {
         await recusar('Seu usuário não possui acesso ativo a nenhum estabelecimento.')
         return
       }
       // tenants só é visível com o cliente liberado (RLS): teste no prazo ou mensalidade em dia
-      if (!vinculo.tenants) {
-        await recusar('O acesso está suspenso (fim do período de teste, mensalidade em atraso ou bloqueio). Entre em contato com a OonSystems.')
+      if (!vinculo.tenants && vinculo.perfil === 'administrador_geral') {
+        // Voltou do pagamento: confirma antes de recusar (o webhook pode não ter chegado)
+        if (cobrancaRetorno) {
+          const situacao = await assinaturaService.confirmar(cobrancaRetorno).catch(() => 'pendente')
+          if (situacao === 'pago') vinculo = await lerVinculo()
+        }
+        if (vinculo && !vinculo.tenants) {
+          const link = await assinaturaService.pagar({ retorno: 'login' }).catch(() => null)
+          setCheckout(link)
+          await recusar(link
+            ? 'O acesso está suspenso (fim do período de teste ou mensalidade em atraso). Regularize pelo botão abaixo e entre novamente.'
+            : 'O acesso está suspenso. Entre em contato com a OonSystems.')
+          return
+        }
+      }
+      if (!vinculo?.tenants) {
+        await recusar('O acesso está suspenso (fim do período de teste, mensalidade em atraso ou bloqueio). Avise o administrador da sua empresa ou a OonSystems.')
         return
       }
 
@@ -137,7 +159,18 @@ export default function Login({ onLogin }: LoginProps) {
       }
     >
       <form className="space-y-5" onSubmit={handleEntrar} noValidate={false}>
+        {cobrancaRetorno && !error && (
+          <Alerta tipo="info">Pagamento enviado. Entre para conferir: com o pagamento aprovado, o acesso é liberado na hora.</Alerta>
+        )}
         {error && <Alerta tipo="erro">{error}</Alerta>}
+        {checkout && (
+          <Button asChild size="lg" variant="outline" className="w-full">
+            <a href={checkout.checkout_url}>
+              <CreditCard />
+              Pagar {checkout.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} · Plano {checkout.plano}
+            </a>
+          </Button>
+        )}
 
         <CampoAuth
           id="email"

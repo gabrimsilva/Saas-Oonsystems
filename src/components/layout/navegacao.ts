@@ -5,6 +5,7 @@
  */
 
 import {
+  BadgeCheck,
   Building2,
   ClipboardList,
   Clock,
@@ -93,6 +94,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
       { id: 'usuarios', titulo: 'Usuários', icone: UserCog },
       { id: 'estabelecimentos', titulo: 'Estabelecimentos', icone: Building2 },
       { id: 'auditoria', titulo: 'Auditoria', icone: FileClock },
+      { id: 'meu-plano', titulo: 'Meu plano', icone: BadgeCheck },
       {
         id: 'configuracoes',
         titulo: 'Configurações',

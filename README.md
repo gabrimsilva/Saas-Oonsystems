@@ -11,6 +11,7 @@ Repositório: https://github.com/gabrimsilva/Saas-Oonsystems
 - **Isolamento**: garantido no banco por RLS (`fn_estabelecimentos_do_usuario()`); um cliente suspenso perde o acesso.
 - **Módulos por cliente**: a plataforma liga/desliga módulos (ex.: "Pedidos online") e o banco bloqueia o que não está contratado.
 - **Autocadastro** (`/cadastro`): cria o cliente com 14 dias de teste.
+- **Assinatura** (`/sistema/meu-plano`): o administrador geral escolhe o plano e paga a mensalidade pelo Mercado Pago da OonSystems; o pagamento aprovado avança o vencimento. Com a mensalidade vencida há mais de 5 dias o acesso é suspenso (o login oferece o pagamento).
 - **Catálogo público** (`/:slug`): vitrine da loja; com "Receber pedidos pelo catálogo" ligado, tem carrinho e checkout (Edge Function `catalogo-pedidos`).
 
 ## Funcionalidades
@@ -55,7 +56,7 @@ Ficam em [`supabase/functions/`](./supabase/functions/). Deploy:
 npx supabase functions deploy <nome> --project-ref gagphstrakwfeofghiop --use-api
 ```
 
-Principais: `catalogo-pedidos` (checkout do catálogo e webhook do Mercado Pago), `cadastro-cliente` (autocadastro), `plataforma-criar-cliente`, `plataforma-clientes` (excluir cliente, senha e acesso de usuários), `criar-usuario`, `resetar-senha-usuario`, `cancelar-pedidos-expirados`.
+Principais: `catalogo-pedidos` (checkout do catálogo e webhook do Mercado Pago), `assinatura` (mensalidade online do cliente com a OonSystems; secrets `MP_PLATAFORMA_ACCESS_TOKEN` e `MP_PLATAFORMA_WEBHOOK_SECRET`), `cadastro-cliente` (autocadastro), `plataforma-criar-cliente`, `plataforma-clientes` (excluir cliente, senha e acesso de usuários), `criar-usuario`, `resetar-senha-usuario`, `cancelar-pedidos-expirados`.
 
 ## Scripts
 

@@ -1,20 +1,24 @@
 /**
  * Faixa no topo do sistema avisando o cliente sobre prazos da assinatura:
  * dias restantes do período de teste, ou mensalidade vencendo/vencida (com a
- * data em que o acesso será suspenso por atraso).
+ * data em que o acesso será suspenso por atraso). O botão leva a "Meu plano".
  *
  * @module components/AvisoTeste
  */
 
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { CONTATO_ASSINATURA } from '@/config/plataforma'
 import { dataBloqueioPorAtraso } from '@/services/plataformaService'
+import { usePermissoes } from '@/hooks/usePermissoes'
 
 const UM_DIA = 24 * 60 * 60 * 1000
 /** Avisa a mensalidade com esta antecedência */
 const DIAS_AVISO_MENSALIDADE = 5
+const classeBotao =
+  'inline-flex h-7 items-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary-hover'
 
 const diasAte = (data: Date) => Math.max(0, Math.ceil((data.getTime() - Date.now()) / UM_DIA))
 const quando = (dias: number) => (dias === 0 ? 'hoje' : dias === 1 ? 'amanhã' : `em ${dias} dias`)
@@ -27,6 +31,8 @@ interface Aviso {
 
 export default function AvisoTeste() {
   const [aviso, setAviso] = useState<Aviso | null>(null)
+  // Só o administrador geral paga a assinatura (Meu plano); os demais falam com a OonSystems
+  const { perfil } = usePermissoes()
 
   useEffect(() => {
     let cancelado = false
@@ -57,13 +63,13 @@ export default function AvisoTeste() {
               texto: `Sua mensalidade venceu em ${vencimento.toLocaleDateString('pt-BR')}. ` +
                 `Regularize para evitar a suspensão do acesso ${quando(diasAte(bloqueio))} (${bloqueio.toLocaleDateString('pt-BR')}).`,
               urgente: true,
-              acao: 'Falar com a OonSystems',
+              acao: 'Pagar agora',
             })
           } else if (diasAte(vencimento) <= DIAS_AVISO_MENSALIDADE) {
             setAviso({
               texto: `Sua mensalidade vence ${quando(diasAte(vencimento))} (${vencimento.toLocaleDateString('pt-BR')}).`,
               urgente: false,
-              acao: 'Falar com a OonSystems',
+              acao: 'Pagar agora',
             })
           }
         }
@@ -85,12 +91,11 @@ export default function AvisoTeste() {
         <Clock className={`size-4 flex-shrink-0 ${urgente ? 'text-warning-foreground' : 'text-primary'}`} />
         {aviso.texto}
       </span>
-      <a
-        href={CONTATO_ASSINATURA}
-        className="inline-flex h-7 items-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary-hover"
-      >
-        {aviso.acao}
-      </a>
+      {perfil === 'administrador_geral' ? (
+        <Link to="/sistema/meu-plano" className={classeBotao}>{aviso.acao}</Link>
+      ) : (
+        <a href={CONTATO_ASSINATURA} className={classeBotao}>Falar com a OonSystems</a>
+      )}
     </div>
   )
 }

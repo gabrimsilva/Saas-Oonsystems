@@ -378,6 +378,10 @@ export function usePermissoes() {
     if (pagina === 'auditoria') {
       return perfil === 'administrador_geral' || perfil === 'administrador_estabelecimento'
     }
+    // Assinatura com a OonSystems
+    if (pagina === 'meu-plano') {
+      return perfil === 'administrador_geral'
+    }
 
     // Por padrão, negar acesso
     return false

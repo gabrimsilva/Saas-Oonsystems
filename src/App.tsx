@@ -67,6 +67,7 @@ const PoliticasPrivacidade = lazy(() => import("@/pages/PoliticasPrivacidade"))
 const Estabelecimentos = lazy(() => import("@/pages/Estabelecimentos"))
 const Usuarios = lazy(() => import("@/pages/Usuarios"))
 const Auditoria = lazy(() => import("@/pages/Auditoria"))
+const MeuPlano = lazy(() => import("@/pages/MeuPlano"))
 const PlataformaLayout = lazy(() => import("@/pages/plataforma/PlataformaLayout"))
 // Vitrine do design system: só existe em desenvolvimento
 const VitrineUI = import.meta.env.DEV ? lazy(() => import("@/pages/dev/VitrineUI")) : null
@@ -360,6 +361,7 @@ function AdminSystem() {
           <Route path="/estabelecimentos" element={<Estabelecimentos />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/auditoria" element={<Auditoria />} />
+          <Route path="/meu-plano" element={<MeuPlano />} />
           
           {/* Rota padrão */}
           <Route path="*" element={<Navigate to="/sistema/dashboard" replace />} />

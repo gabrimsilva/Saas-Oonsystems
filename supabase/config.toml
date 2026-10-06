@@ -423,3 +423,8 @@ verify_jwt = false
 # estoque e pagamento são sempre conferidos no banco e na API do Mercado Pago.
 [functions.catalogo-pedidos]
 verify_jwt = false
+
+# Assinatura da OonSystems (pagamento online da mensalidade) + webhook do
+# Mercado Pago (sem JWT). As ações validam o JWT dentro da função.
+[functions.assinatura]
+verify_jwt = false
