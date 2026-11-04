@@ -32,6 +32,8 @@ export interface Permissoes {
   podeAcessarAdicionais: boolean
   podeAcessarEstoque: boolean
   podeAcessarFuncionarios: boolean
+  podeAcessarUsuarios: boolean
+  podeAcessarEstabelecimentos: boolean
   podeAcessarConfiguracoes: boolean
   podeAcessarMetricas: boolean
 }
@@ -55,6 +57,8 @@ const getPermissoesPorFuncao = (funcao: Funcao): Permissoes => {
     podeAcessarAdicionais: false,
     podeAcessarEstoque: false,
     podeAcessarFuncionarios: false,
+    podeAcessarUsuarios: false,
+    podeAcessarEstabelecimentos: false,
     podeAcessarConfiguracoes: false,
     podeAcessarMetricas: false,
   }
@@ -111,6 +115,8 @@ const getPermissoesPorPerfil = (perfil: PerfilUsuario): Permissoes => {
     podeAcessarAdicionais: true,
     podeAcessarEstoque: true,
     podeAcessarFuncionarios: false,
+    podeAcessarUsuarios: false,
+    podeAcessarEstabelecimentos: false,
     podeAcessarConfiguracoes: false,
     podeAcessarMetricas: true,
   }
@@ -124,6 +130,8 @@ const getPermissoesPorPerfil = (perfil: PerfilUsuario): Permissoes => {
   return {
     ...operador,
     podeAcessarFuncionarios: true,
+    podeAcessarUsuarios: true,
+    podeAcessarEstabelecimentos: perfil === 'administrador_geral',
     podeAcessarConfiguracoes: true,
     podeAcessarMetricas: true,
   }
@@ -237,6 +245,9 @@ export function usePermissoes() {
             podeAcessarAdicionais: true,
             podeAcessarEstoque: true,
             podeAcessarFuncionarios: true,
+            // Telas do modelo multi-estabelecimento: exigem perfil em usuarios_estabelecimento
+            podeAcessarUsuarios: false,
+            podeAcessarEstabelecimentos: false,
             podeAcessarConfiguracoes: true,
             podeAcessarMetricas: true,
           })
@@ -370,10 +381,10 @@ export function usePermissoes() {
     }
     // Multi-estabelecimento
     if (pagina === 'estabelecimentos') {
-      return perfil === 'administrador_geral'
+      return permissoes.podeAcessarEstabelecimentos
     }
     if (pagina === 'usuarios') {
-      return perfil === 'administrador_geral' || perfil === 'administrador_estabelecimento'
+      return permissoes.podeAcessarUsuarios
     }
     if (pagina === 'auditoria') {
       return perfil === 'administrador_geral' || perfil === 'administrador_estabelecimento'
@@ -398,6 +409,8 @@ export function usePermissoes() {
     permissoes.podeAcessarAdicionais,
     permissoes.podeAcessarEstoque,
     permissoes.podeAcessarFuncionarios,
+    permissoes.podeAcessarUsuarios,
+    permissoes.podeAcessarEstabelecimentos,
     permissoes.podeAcessarConfiguracoes,
     permissoes.podeAcessarMetricas,
     perfil,

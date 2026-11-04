@@ -12,11 +12,27 @@ import {
   situacaoMensalidade,
   valorDoCiclo,
   vencimentoAposPagamento,
+  vencimentoDaAdesao,
   testeExpirado,
   valorMensalDoCliente,
   type ClientePlataforma,
   type Plano,
 } from './plataformaService'
+
+describe('vencimentoDaAdesao', () => {
+  it('soma um ciclo à data de adesão', () => {
+    expect(vencimentoDaAdesao('2026-11-01', 'mensal')).toBe('2026-12-01')
+    expect(vencimentoDaAdesao('2026-11-01', 'anual')).toBe('2027-11-01')
+  })
+
+  it('usa o último dia quando o mês seguinte é mais curto', () => {
+    expect(vencimentoDaAdesao('2027-01-31', 'mensal')).toBe('2027-02-28')
+  })
+
+  it('vira o ano no mensal de dezembro', () => {
+    expect(vencimentoDaAdesao('2026-12-15', 'mensal')).toBe('2027-01-15')
+  })
+})
 
 const AGORA = new Date('2026-10-01T12:00:00Z').getTime()
 const emDias = (d: number) => new Date(AGORA + d * 24 * 60 * 60 * 1000).toISOString()

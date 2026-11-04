@@ -145,7 +145,7 @@ export const ROTULO_CAMPO: Record<string, string> = {
   status: 'Status',
   plano_id: 'Plano',
   ciclo: 'Ciclo',
-  plano_inicio: 'Início do plano',
+  plano_inicio: 'Data de adesão',
   vigencia_ate: 'Vencimento',
   trial_ate: 'Teste até',
   motivo_bloqueio: 'Motivo do bloqueio',

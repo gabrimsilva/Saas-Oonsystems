@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
-import { mesmoNomeDeServico, moduloService, type Modulo } from '@/services/moduloService'
+import { liberaFuncao, mesmoNomeDeServico, moduloService, type Modulo } from '@/services/moduloService'
 import type { Plano } from '@/services/plataformaService'
 import { BotaoPrimario, BotaoSecundario, Campo, classeInput, Modal } from './comum'
 
@@ -105,7 +105,7 @@ export function ModalServicos({
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-sm text-foreground">{m.nome}</span>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
-                        {m.sistema ? 'Libera função' : 'Informativo'}
+                        {liberaFuncao(m) ? 'Libera função' : 'Informativo'}
                       </span>
                     </div>
                     {m.descricao && <p className="text-xs text-muted-foreground break-words">{m.descricao}</p>}
@@ -114,7 +114,7 @@ export function ModalServicos({
                   <button type="button" onClick={() => editar(m)} className="p-2 rounded-lg hover:bg-accent text-foreground/80 cursor-pointer" title="Editar serviço" aria-label={`Editar ${m.nome}`}>
                     <Pencil className="h-4 w-4" />
                   </button>
-                  {!m.sistema && (
+                  {!liberaFuncao(m) && (
                     <button
                       type="button"
                       onClick={() => setExcluindo(m.codigo)}

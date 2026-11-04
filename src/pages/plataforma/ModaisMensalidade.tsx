@@ -307,7 +307,7 @@ export function ModalNovaMensalidade({
       aberto
       onFechar={onFechar}
       titulo="Nova mensalidade"
-      descricao="Escolha o cliente. Em seguida defina o plano (valor), o ciclo e o primeiro vencimento."
+      descricao="Escolha o cliente. Em seguida defina o plano (valor), o ciclo e a data de adesão."
       rodape={<BotaoSecundario onClick={onFechar}>Cancelar</BotaoSecundario>}
     >
       <div className="space-y-3">

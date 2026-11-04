@@ -257,6 +257,7 @@ export default function MensalidadesPage() {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-foreground/80">
                       {c.plano_nome} <span className="text-xs text-muted-foreground">· {c.ciclo === 'anual' ? 'anual' : 'mensal'}</span>
+                      <span className="block text-xs text-muted-foreground">Adesão {formatarData(c.plano_inicio)}</span>
                     </td>
                     <td className="px-4 py-3"><TagSituacao vencimento={c.vigencia_ate} /></td>
                     <td className="px-4 py-3 text-right tabular-nums text-foreground">{formatarReais(valor)}</td>

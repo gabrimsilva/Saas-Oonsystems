@@ -18,6 +18,10 @@ export type CodigoModulo =
   | 'pedidos_online'
   | 'estoque'
   | 'metricas'
+  | 'produto'
+  | 'usuarios'
+  | 'funcionarios'
+  | 'estabelecimentos'
 
 export interface Modulo {
   codigo: string
@@ -59,7 +63,18 @@ const PERMISSOES_DO_MODULO: Record<CodigoModulo, Array<keyof Permissoes>> = {
   pedidos_online: ['podeAcessarPedidos', 'podeAcessarHistorico', 'podeAcessarAguardandoPagamento'],
   estoque: ['podeAcessarEstoque'],
   metricas: ['podeAcessarMetricas'],
+  produto: ['podeAcessarProdutos', 'podeAcessarCategorias'],
+  usuarios: ['podeAcessarUsuarios'],
+  funcionarios: ['podeAcessarFuncionarios'],
+  estabelecimentos: ['podeAcessarEstabelecimentos'],
 }
+
+/**
+ * Serviço que mostra ou bloqueia telas: os do sistema e os que têm permissões
+ * ligadas a eles, como Produto e Funcionários (que vêm do plano, não de todo cliente novo).
+ */
+export const liberaFuncao = (modulo: Pick<Modulo, 'codigo' | 'sistema'>) =>
+  modulo.sistema || Object.hasOwn(PERMISSOES_DO_MODULO, modulo.codigo)
 
 /**
  * Recursos herdados que não são mais usados no sistema: ficam desligados para

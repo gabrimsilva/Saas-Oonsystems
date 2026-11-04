@@ -32,8 +32,8 @@ export interface ClientePlataforma {
   plano_id: string | null
   plano_nome: string | null
   ciclo: CicloCobranca
-  /** Dia em que o plano começou (yyyy-mm-dd); informativo, não altera o vencimento */
-  plano_inicio: string
+  /** Data de adesão ao plano (yyyy-mm-dd); vazia enquanto o cliente não tem plano */
+  plano_inicio: string | null
   vigencia_ate: string | null
   observacoes: string | null
   criado_em: string
@@ -301,6 +301,14 @@ function somarMeses(data: Date, meses: number): Date {
   return nova
 }
 
+/** Primeiro vencimento (yyyy-mm-dd): a data de adesão (yyyy-mm-dd) mais um ciclo. */
+export function vencimentoDaAdesao(adesao: string, ciclo: CicloCobranca): string {
+  const [a, m, d] = adesao.split('-').map(Number)
+  const v = somarMeses(new Date(a, m - 1, d), ciclo === 'anual' ? 12 : 1)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${v.getFullYear()}-${pad(v.getMonth() + 1)}-${pad(v.getDate())}`
+}
+
 /**
  * Próximo vencimento depois de pagar `periodos` ciclos. Parte do vencimento
  * atual (o dia de vencimento não muda com atraso) ou, sem vencimento, da data
@@ -468,13 +476,17 @@ export const plataformaService = {
     if (error) falha('Falha ao alterar o início do plano', error)
   },
 
-  /** Troca plano/ciclo/vigência; com `aplicarModulos` os módulos do cliente passam a ser os do plano. */
+  /**
+   * Troca plano/ciclo/vigência e a data de adesão (yyyy-mm-dd; null mantém a atual).
+   * Com `aplicarModulos` os módulos do cliente passam a ser os do plano.
+   */
   async definirPlano(
     id: string,
     planoId: string | null,
     ciclo: CicloCobranca,
     vigenciaAte: string | null,
     aplicarModulos = true,
+    adesao: string | null = null,
   ): Promise<void> {
     const { error } = await supabase.rpc('plataforma_definir_plano', {
       p_tenant_id: id,
@@ -482,6 +494,7 @@ export const plataformaService = {
       p_ciclo: ciclo,
       p_vigencia_ate: vigenciaAte,
       p_aplicar_modulos: aplicarModulos,
+      p_plano_inicio: adesao,
     })
     if (error) falha('Falha ao alterar o plano', error)
   },

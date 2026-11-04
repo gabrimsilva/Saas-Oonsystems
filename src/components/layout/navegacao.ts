@@ -24,6 +24,7 @@ import {
   Store,
   TrendingUp,
   UserCog,
+  Users,
   Warehouse,
   type LucideIcon,
 } from 'lucide-react'
@@ -92,6 +93,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
     itens: [
       { id: 'metricas', titulo: 'Métricas', icone: TrendingUp },
       { id: 'usuarios', titulo: 'Usuários', icone: UserCog },
+      { id: 'funcionarios', titulo: 'Funcionários', icone: Users },
       { id: 'estabelecimentos', titulo: 'Estabelecimentos', icone: Building2 },
       { id: 'auditoria', titulo: 'Auditoria', icone: FileClock },
       { id: 'meu-plano', titulo: 'Meu plano', icone: BadgeCheck },
@@ -116,7 +118,7 @@ const PAGINAS_RELACIONADAS: Record<string, string[]> = {
   produtos: ['novo-produto', 'editar-produto', 'novo-combo', 'editar-combo'],
   categorias: ['nova-categoria', 'editar-categoria'],
   'estoque-produtos': ['estoque', 'novo-item-estoque', 'editar-item-estoque'],
-  usuarios: ['funcionarios', 'novo-funcionario', 'editar-funcionario'],
+  funcionarios: ['novo-funcionario', 'editar-funcionario'],
 }
 
 /** Título das páginas que não estão no menu */
@@ -130,7 +132,6 @@ const TITULOS_EXTRAS: Record<string, string> = {
   estoque: 'Estoque',
   'novo-item-estoque': 'Novo item de estoque',
   'editar-item-estoque': 'Editar item de estoque',
-  funcionarios: 'Funcionários',
   'novo-funcionario': 'Novo funcionário',
   'editar-funcionario': 'Editar funcionário',
   sabores: 'Sabores',

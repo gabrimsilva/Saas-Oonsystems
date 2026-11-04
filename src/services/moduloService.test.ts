@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('@/lib/supabase', () => ({ supabase: {} }))
 
-import { aplicarModulos, codigoDoServico, mesmoNomeDeServico } from './moduloService'
+import { aplicarModulos, codigoDoServico, liberaFuncao, mesmoNomeDeServico } from './moduloService'
 import type { Permissoes } from '@/hooks/usePermissoes'
 
 describe('codigoDoServico', () => {
@@ -35,6 +35,16 @@ describe('mesmoNomeDeServico', () => {
   })
 })
 
+describe('liberaFuncao', () => {
+  it('reconhece os serviços ligados a telas', () => {
+    expect(liberaFuncao({ codigo: 'pdv', sistema: true })).toBe(true)
+    expect(liberaFuncao({ codigo: 'funcionarios', sistema: false })).toBe(true)
+    expect(liberaFuncao({ codigo: 'produto', sistema: false })).toBe(true)
+    expect(liberaFuncao({ codigo: 'servico_novo', sistema: false })).toBe(false)
+    expect(liberaFuncao({ codigo: 'constructor', sistema: false })).toBe(false)
+  })
+})
+
 const TUDO: Permissoes = {
   funcao: null,
   podeAcessarDashboard: true,
@@ -50,11 +60,23 @@ const TUDO: Permissoes = {
   podeAcessarAdicionais: true,
   podeAcessarEstoque: true,
   podeAcessarFuncionarios: true,
+  podeAcessarUsuarios: true,
+  podeAcessarEstabelecimentos: true,
   podeAcessarConfiguracoes: true,
   podeAcessarMetricas: true,
 }
 
-const TODOS_MODULOS = ['pdv', 'comandas', 'pedidos_online', 'estoque', 'metricas']
+const TODOS_MODULOS = [
+  'pdv',
+  'comandas',
+  'pedidos_online',
+  'estoque',
+  'metricas',
+  'produto',
+  'usuarios',
+  'funcionarios',
+  'estabelecimentos',
+]
 
 /** Permissões esperadas com todos os módulos: tudo, menos os recursos desativados */
 const TUDO_MENOS_DESATIVADOS: Permissoes = { ...TUDO, podeAcessarSabores: false, podeAcessarAdicionais: false }
@@ -88,13 +110,30 @@ describe('aplicarModulos', () => {
     expect(r.podeAcessarAguardandoPagamento).toBe(false)
   })
 
-  it('sem nenhum módulo sobra só a base (dashboard, produtos, configurações...)', () => {
+  it('cada serviço cadastrado controla a sua tela', () => {
+    const semServico = (modulo: string) => aplicarModulos(TUDO, TODOS_MODULOS.filter((m) => m !== modulo))
+    expect(semServico('funcionarios').podeAcessarFuncionarios).toBe(false)
+    expect(semServico('usuarios').podeAcessarUsuarios).toBe(false)
+    expect(semServico('estabelecimentos').podeAcessarEstabelecimentos).toBe(false)
+    expect(semServico('produto').podeAcessarProdutos).toBe(false)
+    expect(semServico('produto').podeAcessarCategorias).toBe(false)
+    expect(semServico('produto').podeAcessarFuncionarios).toBe(true)
+  })
+
+  it('o serviço no plano não libera tela que o perfil não permite', () => {
+    const adminEstabelecimento = { ...TUDO, podeAcessarEstabelecimentos: false }
+    expect(aplicarModulos(adminEstabelecimento, TODOS_MODULOS).podeAcessarEstabelecimentos).toBe(false)
+  })
+
+  it('sem nenhum módulo sobra só a base (dashboard, configurações...)', () => {
     const r = aplicarModulos(TUDO, [])
     expect(r.podeAcessarDashboard).toBe(true)
-    expect(r.podeAcessarProdutos).toBe(true)
-    expect(r.podeAcessarCategorias).toBe(true)
     expect(r.podeAcessarConfiguracoes).toBe(true)
-    expect(r.podeAcessarFuncionarios).toBe(true)
+    expect(r.podeAcessarProdutos).toBe(false)
+    expect(r.podeAcessarCategorias).toBe(false)
+    expect(r.podeAcessarUsuarios).toBe(false)
+    expect(r.podeAcessarEstabelecimentos).toBe(false)
+    expect(r.podeAcessarFuncionarios).toBe(false)
     expect(r.podeAcessarPDV).toBe(false)
     expect(r.podeAcessarEstoque).toBe(false)
     expect(r.podeAcessarSabores).toBe(false)
