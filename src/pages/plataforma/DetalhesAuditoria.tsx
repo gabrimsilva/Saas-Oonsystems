@@ -1,7 +1,7 @@
 import type { Plano, RegistroAuditoria } from '@/services/plataformaService'
 import { formatarData, formatarReais, ROTULO_CAMPO, ROTULO_FORMA, ROTULO_STATUS_TEXTO } from './comum'
 
-const CAMPOS_DATA = new Set(['vigencia_ate', 'trial_ate', 'pago_em'])
+const CAMPOS_DATA = new Set(['plano_inicio', 'vigencia_ate', 'trial_ate', 'pago_em'])
 
 function valorLegivel(campo: string, valor: unknown, planos: Plano[]): string {
   if (valor === null || valor === undefined || valor === '') return '—'

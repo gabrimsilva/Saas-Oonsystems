@@ -20,7 +20,7 @@ import {
   type StatusCliente,
   type UsuarioCliente,
 } from '@/services/plataformaService'
-import { moduloService, type CodigoModulo, type Modulo } from '@/services/moduloService'
+import { moduloService, type Modulo } from '@/services/moduloService'
 import DetalhesAuditoria from './DetalhesAuditoria'
 import {
   BotaoPrimario,
@@ -441,6 +441,7 @@ export function ModalPlanoCliente({ cliente, planos, onFechar, onAlterado }: Pro
 // ---------------------------------------------------------------------------
 export function ModalPrazos({ cliente, onFechar, onAlterado }: PropsModal) {
   const [vigencia, setVigencia] = useState(paraInputData(cliente.vigencia_ate))
+  const [inicio, setInicio] = useState(cliente.plano_inicio)
   const [teste, setTeste] = useState(paraInputData(cliente.trial_ate))
   const { salvando, executar } = useAcao()
   const emTeste = cliente.status === 'trial'
@@ -461,6 +462,10 @@ export function ModalPrazos({ cliente, onFechar, onAlterado }: PropsModal) {
       }
       if (vigencia !== paraInputData(cliente.vigencia_ate)) {
         await plataformaService.definirVigencia(cliente.id, deInputData(vigencia))
+      }
+      if (inicio !== cliente.plano_inicio) {
+        if (!inicio) throw new Error('Informe o início do plano')
+        await plataformaService.definirInicioPlano(cliente.id, inicio)
       }
     }, 'Prazos atualizados')
     if (ok) {
@@ -510,6 +515,11 @@ export function ModalPrazos({ cliente, onFechar, onAlterado }: PropsModal) {
 
         <section className="space-y-2 border-t border-border pt-4">
           <h3 className="text-sm font-semibold text-foreground">Vigência do plano</h3>
+          {cliente.plano_id && (
+            <Campo rotulo="Início do plano" ajuda="Só para consulta: não altera o vencimento.">
+              <input type="date" className={classeInput} value={inicio} onChange={(e) => setInicio(e.target.value)} />
+            </Campo>
+          )}
           <div className="flex gap-2">
             <input type="date" className={classeInput} value={vigencia} onChange={(e) => setVigencia(e.target.value)} />
             <BotaoSecundario
@@ -778,7 +788,7 @@ export function ModalModulos({ cliente, onFechar }: Omit<PropsModal, 'onAlterado
       .catch((e) => toast.error(e instanceof Error ? e.message : 'Erro ao carregar módulos'))
   }, [cliente.id])
 
-  const alternar = async (codigo: CodigoModulo) => {
+  const alternar = async (codigo: string) => {
     if (!ligados) return
     const ligar = !ligados.includes(codigo)
     setAlternando(codigo)
@@ -858,6 +868,7 @@ export function ModalDetalhes({ cliente, planos, onFechar }: Omit<PropsModal, 'o
     ['Origem', cliente.origem === 'site' ? 'Autocadastro pelo site' : 'Cadastrado pela plataforma'],
     ['Cliente desde', formatarData(cliente.criado_em)],
     ['Plano', cliente.plano_nome ? `${cliente.plano_nome} · ${cliente.ciclo}` : 'Sem plano'],
+    ...(cliente.plano_id ? [['Início do plano', formatarData(cliente.plano_inicio)]] : []),
     ['Uso', `${cliente.qtd_estabelecimentos} estabelecimento(s) · ${cliente.qtd_usuarios} usuário(s) · ${cliente.qtd_produtos} produto(s)`],
     ['Último acesso', `${tempoDesde(cliente.ultimo_acesso)} (${formatarDataHora(cliente.ultimo_acesso)})`],
   ], [cliente])

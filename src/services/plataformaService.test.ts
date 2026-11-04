@@ -52,6 +52,7 @@ const cliente = (parcial: Partial<ClientePlataforma>): ClientePlataforma => ({
   plano_id: 'p1',
   plano_nome: 'Essencial',
   ciclo: 'mensal',
+  plano_inicio: '2026-01-01',
   vigencia_ate: emDias(60),
   observacoes: null,
   criado_em: emDias(-100),

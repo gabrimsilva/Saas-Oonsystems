@@ -2,8 +2,38 @@ import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('@/lib/supabase', () => ({ supabase: {} }))
 
-import { aplicarModulos } from './moduloService'
+import { aplicarModulos, codigoDoServico, mesmoNomeDeServico } from './moduloService'
 import type { Permissoes } from '@/hooks/usePermissoes'
+
+describe('codigoDoServico', () => {
+  it('gera o código a partir do nome, sem acentos nem símbolos', () => {
+    expect(codigoDoServico('  Emissão de NF-e ', [])).toBe('emissao_de_nf_e')
+  })
+
+  it('não repete um código existente', () => {
+    expect(codigoDoServico('Estoque', ['estoque'])).toBe('estoque_2')
+    expect(codigoDoServico('Estoque', ['estoque', 'estoque_2'])).toBe('estoque_3')
+  })
+
+  it('usa um código padrão quando o nome só tem símbolos', () => {
+    expect(codigoDoServico('***', [])).toBe('servico')
+  })
+
+  it('respeita o tamanho máximo, mesmo com sufixo', () => {
+    const base = 'a'.repeat(50)
+    expect(codigoDoServico(base, [])).toHaveLength(40)
+    const comSufixo = codigoDoServico(base, ['a'.repeat(40)])
+    expect(comSufixo).toHaveLength(40)
+    expect(comSufixo.endsWith('_2')).toBe(true)
+  })
+})
+
+describe('mesmoNomeDeServico', () => {
+  it('ignora maiúsculas, acentos e espaços nas pontas', () => {
+    expect(mesmoNomeDeServico(' Métricas ', 'metricas')).toBe(true)
+    expect(mesmoNomeDeServico('Estoque', 'Produtos')).toBe(false)
+  })
+})
 
 const TUDO: Permissoes = {
   funcao: null,

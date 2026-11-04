@@ -1,15 +1,16 @@
 /**
  * Plataforma > Planos: preços (mensal e anual), limites de estabelecimentos e
- * usuários e os módulos liberados por plano.
+ * usuários, os serviços de cada plano e o gerenciador de serviços.
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Check, Package, Pencil, Plus, Store, Trash2, Users } from 'lucide-react'
+import { Check, ListChecks, Package, Pencil, Plus, Store, Trash2, Users } from 'lucide-react'
 import { InputMoeda } from '@/components/ui/input-moeda'
 import { moduloService, type Modulo } from '@/services/moduloService'
 import { plataformaService, type DadosPlano, type Plano } from '@/services/plataformaService'
 import { useDadosPlataforma } from './PlataformaLayout'
+import { ModalServicos } from './ModalServicos'
 import { BotaoPrimario, BotaoSecundario, Campo, Carregando, classeInput, formatarReais, Modal } from './comum'
 import { confirmar } from '@/components/ui/confirmar'
 import { Layers } from 'lucide-react'
@@ -38,7 +39,7 @@ function ModalPlano({
   onFechar: () => void
   onSalvo: () => void
 }) {
-  const [form, setForm] = useState<DadosPlano>(plano ? { ...plano } : { ...PLANO_VAZIO, modulos: catalogo.map((m) => m.codigo) })
+  const [form, setForm] = useState<DadosPlano>(plano ? { ...plano } : PLANO_VAZIO)
   const [salvando, setSalvando] = useState(false)
 
   const limite = (valor: string) => (valor.trim() === '' ? null : Math.max(1, Math.floor(Number(valor) || 1)))
@@ -75,7 +76,7 @@ function ModalPlano({
       aberto
       onFechar={onFechar}
       titulo={plano ? 'Editar plano' : 'Novo plano'}
-      descricao={plano ? 'A mudança de módulos vale para quem trocar para este plano (clientes atuais mantêm os módulos que têm).' : undefined}
+      descricao={plano ? 'A mudança de serviços vale para quem trocar para este plano (clientes atuais mantêm os serviços que têm).' : undefined}
       rodape={
         <>
           <BotaoSecundario onClick={onFechar}>Cancelar</BotaoSecundario>
@@ -109,7 +110,10 @@ function ModalPlano({
           </Campo>
         </div>
         <fieldset>
-          <legend className="text-sm font-medium text-foreground/80 mb-1">Módulos incluídos</legend>
+          <legend className="text-sm font-medium text-foreground/80 mb-1">Serviços incluídos</legend>
+          {catalogo.length === 0 && (
+            <p className="text-sm text-muted-foreground">Nenhum serviço cadastrado. Crie em "Serviços", na tela de Planos.</p>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {catalogo.map((m) => (
               <label key={m.codigo} className="flex items-center gap-2 p-2 rounded-lg border border-border text-sm cursor-pointer hover:bg-accent">
@@ -132,10 +136,19 @@ export default function PlanosPage() {
   const { planos, clientes, carregando, recarregar } = useDadosPlataforma()
   const [catalogo, setCatalogo] = useState<Modulo[]>([])
   const [editando, setEditando] = useState<Plano | null | 'novo'>(null)
+  const [gerenciandoServicos, setGerenciandoServicos] = useState(false)
+
+  const carregarCatalogo = useCallback(async () => {
+    try {
+      setCatalogo(await moduloService.listarCatalogo())
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao carregar os serviços', { id: 'planos-servicos' })
+    }
+  }, [])
 
   useEffect(() => {
-    moduloService.listarCatalogo().then(setCatalogo).catch(() => setCatalogo([]))
-  }, [])
+    carregarCatalogo()
+  }, [carregarCatalogo])
 
   const nomeModulo = (codigo: string) => catalogo.find((m) => m.codigo === codigo)?.nome ?? codigo
   const clientesDoPlano = (id: string) => clientes.filter((c) => c.plano_id === id)
@@ -163,14 +176,17 @@ export default function PlanosPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Planos</h1>
-          <p className="text-sm text-muted-foreground">Preços, limites e módulos de cada plano.</p>
+          <p className="text-sm text-muted-foreground">Preços, limites e serviços de cada plano.</p>
         </div>
-        <BotaoPrimario onClick={() => setEditando('novo')}><Plus className="h-4 w-4" /> Novo plano</BotaoPrimario>
+        <div className="flex flex-wrap gap-2">
+          <BotaoSecundario onClick={() => setGerenciandoServicos(true)}><ListChecks className="h-4 w-4" /> Serviços</BotaoSecundario>
+          <BotaoPrimario onClick={() => setEditando('novo')}><Plus className="h-4 w-4" /> Novo plano</BotaoPrimario>
+        </div>
       </div>
 
       {planos.length === 0 ? (
         <div className="rounded-xl border border-border bg-card">
-          <EstadoVazio icone={Layers} titulo="Nenhum plano cadastrado" descricao="Crie um plano para definir preço e módulos liberados." />
+          <EstadoVazio icone={Layers} titulo="Nenhum plano cadastrado" descricao="Crie um plano para definir preço e serviços incluídos." />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -200,7 +216,7 @@ export default function PlanosPage() {
                 </div>
 
                 <ul className="mt-3 space-y-1 text-sm text-foreground/80 flex-1">
-                  {p.modulos.length === 0 && <li className="text-muted-foreground/70">Nenhum módulo</li>}
+                  {p.modulos.length === 0 && <li className="text-muted-foreground/70">Nenhum serviço</li>}
                   {p.modulos.map((m) => (
                     <li key={m} className="flex items-center gap-2"><Check className="h-4 w-4 text-success" />{nomeModulo(m)}</li>
                   ))}
@@ -229,6 +245,15 @@ export default function PlanosPage() {
           catalogo={catalogo}
           onFechar={() => setEditando(null)}
           onSalvo={recarregar}
+        />
+      )}
+
+      {gerenciandoServicos && (
+        <ModalServicos
+          catalogo={catalogo}
+          planos={planos}
+          onFechar={() => setGerenciandoServicos(false)}
+          onAlterado={carregarCatalogo}
         />
       )}
     </div>

@@ -20,10 +20,36 @@ export type CodigoModulo =
   | 'metricas'
 
 export interface Modulo {
-  codigo: CodigoModulo
+  codigo: string
   nome: string
   descricao: string | null
   ordem: number
+  /** Ligado a telas e travas do banco; falso = serviço informativo criado pela plataforma */
+  sistema: boolean
+}
+
+const TAMANHO_MAX_CODIGO = 40
+
+const semAcentos = (texto: string) => texto.normalize('NFD').replace(/[̀-ͯ]/g, '')
+
+/** Mesmo nome para o usuário: ignora maiúsculas, acentos e espaços nas pontas */
+export const mesmoNomeDeServico = (a: string, b: string) =>
+  semAcentos(a).trim().toLowerCase() === semAcentos(b).trim().toLowerCase()
+
+/** Código único gerado a partir do nome ("Emissão de NF" → "emissao_de_nf"). */
+export function codigoDoServico(nome: string, existentes: string[]): string {
+  const base =
+    semAcentos(nome)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, TAMANHO_MAX_CODIGO) || 'servico'
+  if (!existentes.includes(base)) return base
+  for (let n = 2; ; n++) {
+    const sufixo = `_${n}`
+    const codigo = `${base.slice(0, TAMANHO_MAX_CODIGO - sufixo.length)}${sufixo}`
+    if (!existentes.includes(codigo)) return codigo
+  }
 }
 
 /** Permissões de tela que dependem de cada módulo. */
@@ -67,10 +93,36 @@ export const moduloService = {
   async listarCatalogo(): Promise<Modulo[]> {
     const { data, error } = await supabase
       .from('modulos')
-      .select('codigo, nome, descricao, ordem')
+      .select('codigo, nome, descricao, ordem, sistema')
       .order('ordem')
+      .order('nome')
     if (error) throw new Error(`Falha ao carregar módulos: ${error.message}`)
     return (data ?? []) as Modulo[]
+  },
+
+  /** Cria um serviço informativo no fim da lista. */
+  async criarServico(nome: string, descricao: string, catalogo: Modulo[]): Promise<void> {
+    const { error } = await supabase.from('modulos').insert({
+      codigo: codigoDoServico(nome, catalogo.map((m) => m.codigo)),
+      nome: nome.trim(),
+      descricao: descricao.trim() || null,
+      ordem: Math.max(0, ...catalogo.map((m) => m.ordem)) + 10,
+    })
+    if (error) throw new Error(`Falha ao criar o serviço: ${error.message}`)
+  },
+
+  async atualizarServico(codigo: string, nome: string, descricao: string): Promise<void> {
+    const { error } = await supabase
+      .from('modulos')
+      .update({ nome: nome.trim(), descricao: descricao.trim() || null })
+      .eq('codigo', codigo)
+    if (error) throw new Error(`Falha ao salvar o serviço: ${error.message}`)
+  },
+
+  /** Exclui o serviço; ele também sai dos clientes que o têm. */
+  async excluirServico(codigo: string): Promise<void> {
+    const { error } = await supabase.from('modulos').delete().eq('codigo', codigo)
+    if (error) throw new Error(`Falha ao excluir o serviço: ${error.message}`)
   },
 
   /**
@@ -98,7 +150,7 @@ export const moduloService = {
   },
 
   /** Liga ou desliga um módulo de um cliente (uso da plataforma). */
-  async definirModulo(tenantId: string, modulo: CodigoModulo, ligado: boolean): Promise<void> {
+  async definirModulo(tenantId: string, modulo: string, ligado: boolean): Promise<void> {
     const { error } = ligado
       ? await supabase.from('tenant_modulos').insert({ tenant_id: tenantId, modulo })
       : await supabase.from('tenant_modulos').delete().eq('tenant_id', tenantId).eq('modulo', modulo)

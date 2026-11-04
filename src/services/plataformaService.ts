@@ -32,6 +32,8 @@ export interface ClientePlataforma {
   plano_id: string | null
   plano_nome: string | null
   ciclo: CicloCobranca
+  /** Dia em que o plano começou (yyyy-mm-dd); informativo, não altera o vencimento */
+  plano_inicio: string
   vigencia_ate: string | null
   observacoes: string | null
   criado_em: string
@@ -458,6 +460,12 @@ export const plataformaService = {
   async definirVigencia(id: string, vigenciaAte: string | null): Promise<void> {
     const { error } = await supabase.from('tenants').update({ vigencia_ate: vigenciaAte }).eq('id', id)
     if (error) falha('Falha ao alterar a vigência', error)
+  },
+
+  /** `inicio` no formato yyyy-mm-dd */
+  async definirInicioPlano(id: string, inicio: string): Promise<void> {
+    const { error } = await supabase.from('tenants').update({ plano_inicio: inicio }).eq('id', id)
+    if (error) falha('Falha ao alterar o início do plano', error)
   },
 
   /** Troca plano/ciclo/vigência; com `aplicarModulos` os módulos do cliente passam a ser os do plano. */
