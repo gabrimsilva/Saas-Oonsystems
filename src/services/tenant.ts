@@ -117,6 +117,25 @@ export function comTenant<T extends Record<string, unknown>>(payload: T): T & { 
 }
 
 /**
+ * Pasta de um arquivo dentro do estabelecimento ativo. A regra do banco só deixa
+ * o usuário gravar em pastas que começam pelo id de um estabelecimento dele.
+ */
+export function pastaDoEstabelecimento(pasta: string): string {
+  if (!estabelecimentoAtualId) {
+    throw new EstabelecimentoNaoSelecionadoError()
+  }
+  return `${estabelecimentoAtualId}/${pasta}`
+}
+
+/** Caminho do arquivo dentro do bucket, a partir da URL pública (null se for de outro lugar). */
+export function caminhoNoBucket(url: string, bucket: string): string | null {
+  const marcador = `/object/public/${bucket}/`
+  const inicio = url.indexOf(marcador)
+  if (inicio < 0) return null
+  return decodeURIComponent(url.slice(inicio + marcador.length).split(/[?#]/)[0])
+}
+
+/**
  * Variante para múltiplos registros (insert em lote).
  */
 export function comTenantLote<T extends Record<string, unknown>>(

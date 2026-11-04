@@ -8,7 +8,7 @@
  */
 
 import { supabase } from "@/lib/supabase"
-import { getEstabelecimentoAtivo, comTenant } from "./tenant"
+import { caminhoNoBucket, getEstabelecimentoAtivo, comTenant, pastaDoEstabelecimento } from "./tenant"
 import type { ProdutoSupabase, SaborSupabase } from '@/types/supabase'
 
 /**
@@ -446,17 +446,11 @@ export const produtoService: ProdutoService = {
       const produto = await this.buscarPorId(id)
 
       if (produto && produto.imagem_path) {
-        // Extrair nome do arquivo da URL
-        const urlParts = produto.imagem_path.split('/')
-        const fileName = urlParts[urlParts.length - 1]
+        const caminho = caminhoNoBucket(produto.imagem_path, 'produtos-imagens')
 
-        // Deletar imagem do storage
-        const { error: storageError } = await supabase.storage
-          .from('produtos-imagens')
-          .remove([`produtos/${fileName}`])
-
-        if (storageError) {
-          // Não interromper exclusão do produto
+        // Deletar imagem do storage (uma falha não interrompe a exclusão do produto)
+        if (caminho) {
+          await supabase.storage.from('produtos-imagens').remove([caminho])
         }
       }
 
@@ -552,10 +546,11 @@ export const produtoService: ProdutoService = {
    */
   async limparImagensOrfas(): Promise<void> {
     try {
-      // Buscar todos os arquivos no storage
+      // Buscar os arquivos do estabelecimento no storage
+      const pasta = pastaDoEstabelecimento('produtos')
       const { data: files, error: listError } = await supabase.storage
         .from('produtos-imagens')
-        .list('produtos')
+        .list(pasta)
 
       if (listError) {
         console.error('Erro ao listar arquivos do storage:', listError)
@@ -578,7 +573,7 @@ export const produtoService: ProdutoService = {
       // Encontrar arquivos órfãos
       const arquivosOrfaos = files
         .filter(file => !imagensEmUso.includes(file.name))
-        .map(file => `produtos/${file.name}`)
+        .map(file => `${pasta}/${file.name}`)
 
       if (arquivosOrfaos.length > 0) {
         // Deletar arquivos órfãos

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from "@/services"
+import { caminhoNoBucket, pastaDoEstabelecimento } from "@/services/tenant"
 
 export interface UseImageUploadReturn {
   uploading: boolean
@@ -30,7 +31,7 @@ export function useImageUpload(): UseImageUploadReturn {
       // Gerar nome único para o arquivo
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
-      const filePath = `${folder}/${fileName}`
+      const filePath = `${pastaDoEstabelecimento(folder)}/${fileName}`
 
       // Upload para o Supabase Storage
       const { data, error } = await supabase.storage
@@ -64,8 +65,8 @@ export function useImageUpload(): UseImageUploadReturn {
       setError(null)
       
       // Extrair o caminho do arquivo da URL
-      const url = new URL(path)
-      const filePath = url.pathname.split('/').slice(-2).join('/')
+      const filePath = caminhoNoBucket(path, bucketName)
+      if (!filePath) return
 
       const { error } = await supabase.storage
         .from(bucketName)
