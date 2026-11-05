@@ -16,8 +16,8 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000', // Desenvolvimento alternativo
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
-  // Adicionar domínio de produção quando disponível
-  // 'https://seudominio.com.br'
+  'https://oonsystems.com.br',
+  'https://www.oonsystems.com.br',
 ]
 
 /**
