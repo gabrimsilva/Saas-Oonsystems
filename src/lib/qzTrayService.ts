@@ -1,5 +1,3 @@
-import { KEYUTIL, KJUR } from 'jsrsasign'
-
 // Declarar tipo global para qz
 declare global {
   interface Window {
@@ -12,134 +10,11 @@ declare global {
  */
 class QZTrayService {
   private connected = false
-  private privateKey: string
   private get qz() {
     if (!window.qz) {
       throw new Error('QZ Tray não está carregado. Certifique-se de que o QZ Tray está rodando.')
     }
     return window.qz
-  }
-
-  constructor() {
-    // Chave privada
-    this.privateKey = `-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDoY8R/ss2UH96s
-vfA9vaMZ/ZlF8wDp1VZVu50Ps/LwzYuPDPP9Vm/iFs2JZDaXDIOeCMEAvEXzyUxA
-A+poT3N5XQuIo9nIKR0P3aJUD+Y6nG6nY8c2nmg48B2Js5a5ZH7DGXlF9OS4YZ8c
-kZnCgFms42Rfa0JzwOeO5KT25p+0l745ma6+JlImdtzPJq37lPsJajBrcyhAy+J8
-9txtYqJBQZojvRGL+MXuDk0OPq4OXTWK9kboivRw2ObTqMja5Mj1LPtYbOYeD65m
-FzqWD+mHWVxakEwAN1w21mYjth245kQGnqcnMzMDJG5m4DuRIWQhWDTGZw46RXf0
-7AVGzpzbAgMBAAECggEADN37swLGwJ7BH0YHB5jr70dfSLdRqiDU8aGvneWqgmwt
-f+ni/cVFVzqu/h5gqjb+d9SBQNXfEHmcixpyzK+PGiQT1hviAspJk/RpuNQGieFA
-FgZl/d+CFgD8vOagmYd3pok1cbFDefTbY/zcPoY8l0a7hIMCWdMCnzyITvlqOov/
-V2xgccfGA9sa5cu6Pz1mREL1E3i8kvRvCO4D1EbBGYTHXH6LsT0HQW8h4sMbaicR
-7bi3OO2w6lP3hx4cXJcGSCAUnd2xf1n+5xYHkucfSQ7pk7WYJuWQzSDzatKWl9lH
-2pAuJymyEJLbKVzVX7K+6qttw6RXFHmr0kGAFSizdQKBgQD0M+E5S7av3YYyCOxi
-GmPUE8L7gV86uXRAyyVnGOzlR0t7XDUHx1EHq8RgiytyGsEL+Aw0dIFuJG8P8cNC
-RKc/oBSqd6yr/agTLwyvVZ4HsVuSGTUIw8tEDCCOSMWlymSzVP+lxMgbHPRBNBZh
-vc+aRwko585Ec2dXLwOJU3ncXwKBgQDznctDJEuKoorllzgn37inkpR3YFEIrSm0
-hQJbxx3mU6/ORzlZXpATFQ+UJnH5xAMLfEd5tlaBFWacgvMO9RniFg/5X4TkIbI8
-Zhvm2ZBhljrIsdPFAs3MIw1XaopwmyloS2hkfPn7D6CECuEi7P9xaW9KsfepFy08
-B/uFxhURBQKBgQCQIeLH53k/GZewBnZGfN74+GT3/ubPCVClQYGk9SA1Pzw85jJi
-kfCwf2Abv2h4I3RXdSL2/uC5uoVWutINVeoE8p3f81yV8tP15qos/nKUhcjPVVNp
-Be7+Dc5VTHxjmy6ObhepppiY8CD2LyEatWZH3693VkH3Qsn2ukfzELL3LwKBgQC8
-giV+1t79b7k630C82gjw4iOwG/+YTyYuYZ3plrI0QB2R6NsfpGSn32wmn3kiY+JX
-SNul+soFKKI2Cb46nL5ii9/gf2E9hjV9NyXwA/oNCUqDcdcEY58LjzQLqI1nhSkN
-YwxsdaiZ9QWoJyL++5TOFV/g1MVnOl/uS979LMGwYQKBgBXlCa6qV7b5nPN+eeFi
-MRuTNpIDnrkKqaOQZKk4yvgBipRIquf2q8Wwvhi8ZZLmaonE9cup+ZMRYW631HQC
-Nzq/Cmbv9gSd3GCGzZF8zD2fowAIR7ZhA2p748Vypz0w1Bqe1k91J7adWeqbLUEz
-zdmdlZ08qyh72C5SsnHDG7Kr
------END PRIVATE KEY-----`
-
-    this.setupSecurity()
-  }
-
-  /**
-   * Converte hexadecimal para base64
-   */
-  private hexToBase64(hexString: string): string {
-    const bytes = []
-    for (let i = 0; i < hexString.length; i += 2) {
-      bytes.push(parseInt(hexString.substr(i, 2), 16))
-    }
-    return btoa(String.fromCharCode.apply(null, bytes as any))
-  }
-
-  /**
-   * Configura certificados de segurança para o QZ Tray
-   */
-  private setupSecurity() {
-    // Certificado público
-    const certificate = `-----BEGIN CERTIFICATE-----
-MIIECzCCAvOgAwIBAgIGAZnJc0lGMA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG
-EwJVUzELMAkGA1UECAwCTlkxEjAQBgNVBAcMCUNhbmFzdG90YTEbMBkGA1UECgwS
-UVogSW5kdXN0cmllcywgTExDMRswGQYDVQQLDBJRWiBJbmR1c3RyaWVzLCBMTEMx
-HDAaBgkqhkiG9w0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg
-RGVtbyBDZXJ0MB4XDTI1MTAwODE0NDk1OVoXDTQ1MTAwODE0NDk1OVowgaIxCzAJ
-BgNVBAYTAlVTMQswCQYDVQQIDAJOWTESMBAGA1UEBwwJQ2FuYXN0b3RhMRswGQYD
-VQQKDBJRWiBJbmR1c3RyaWVzLCBMTEMxGzAZBgNVBAsMElFaIEluZHVzdHJpZXMs
-IExMQzEcMBoGCSqGSIb3DQEJARYNc3VwcG9ydEBxei5pbzEaMBgGA1UEAwwRUVog
-VHJheSBEZW1vIENlcnQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDo
-Y8R/ss2UH96svfA9vaMZ/ZlF8wDp1VZVu50Ps/LwzYuPDPP9Vm/iFs2JZDaXDIOe
-CMEAvEXzyUxAA+poT3N5XQuIo9nIKR0P3aJUD+Y6nG6nY8c2nmg48B2Js5a5ZH7D
-GXlF9OS4YZ8ckZnCgFms42Rfa0JzwOeO5KT25p+0l745ma6+JlImdtzPJq37lPsJ
-ajBrcyhAy+J89txtYqJBQZojvRGL+MXuDk0OPq4OXTWK9kboivRw2ObTqMja5Mj1
-LPtYbOYeD65mFzqWD+mHWVxakEwAN1w21mYjth245kQGnqcnMzMDJG5m4DuRIWQh
-WDTGZw46RXf07AVGzpzbAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYD
-VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBT++OCxHW+Ne/A8MqH8JzwpWiFvXjANBgkq
-hkiG9w0BAQsFAAOCAQEAhYp+Z1G1uqaeWjsI3zWM+/MYJdGX/whXDP1DPdHgFoY+
-9jENIRaRIbzjNQz7ppY8/nVrcqE1L82Fo0Bm8TIHYDBxBmnDr11WdIePHFnI/AVm
-W5IuF/rMRqBLGFpL1ODe9AkILRIBQVQwhtv7NalV3Te3J9QWE0yEuS3Nvvy4S/uF
-Bbutm6JAbO7bJgOX4ktIPASdbZhHf3G7gM9PasAGe7axOwjbhEbyuLLOSaKn9vKz
-8nyG7JjURMhe8gfc2TJPLewOrUKIvW4f4WzsXLBWQt2qPP7RyyTvOYvI7VZDEXI7
-ZatpxfIy242cwHmNUBpXPVf1OzTlMuDLyNJvYf9/1A==
------END CERTIFICATE-----`
-
-    // Aguardar o QZ Tray estar disponível
-    if (typeof window !== 'undefined' && window.qz) {
-      try {
-        // Configurar certificado usando a API do QZ Tray
-        window.qz.security.setCertificatePromise((resolve: any) => {
-          resolve(certificate)
-        })
-
-        // Configurar algoritmo de assinatura
-        window.qz.security.setSignatureAlgorithm('SHA512')
-
-        // Configurar assinatura com a chave privada
-        window.qz.security.setSignaturePromise((toSign: string) => {
-          return (resolve: any, reject: any) => {
-            try {
-              // Verificar se jsrsasign está disponível
-              if (!KEYUTIL || !KJUR) {
-                console.error('❌ jsrsasign não está carregado')
-                reject(new Error('jsrsasign não está disponível'))
-                return
-              }
-
-              // Carregar a chave privada
-              const key = KEYUTIL.getKey(this.privateKey)
-
-              // Criar assinatura SHA512
-              const sig = new KJUR.crypto.Signature({ alg: 'SHA512withRSA' })
-              sig.init(key)
-              sig.updateString(toSign)
-              const hexSignature = sig.sign()
-
-              // Converter hexadecimal para base64
-              const base64Signature = this.hexToBase64(hexSignature)
-
-              resolve(base64Signature)
-            } catch (error) {
-              console.error('❌ Erro ao assinar:', error)
-              reject(error)
-            }
-          }
-        })
-      } catch (error) {
-        console.error('❌ Erro ao configurar segurança do QZ Tray:', error)
-      }
-    }
   }
 
   /**

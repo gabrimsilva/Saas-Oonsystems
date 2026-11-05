@@ -729,7 +729,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
                   <p className="text-sm text-primary">
-                    <strong>Importante:</strong> O QZ Tray deve estar instalado e rodando no computador.
+                    <strong>Importante:</strong> O QZ Tray deve estar instalado e rodando no computador, e vai pedir confirmação para imprimir.
                     <br />
                     Download: <a href="https://qz.io/download/" target="_blank" rel="noopener noreferrer" className="underline">https://qz.io/download/</a>
                   </p>
