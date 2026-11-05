@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { qzTrayService } from '@/lib/qzTrayService'
 import { configuracaoService } from './configuracaoService'
 import { receiptService } from './receiptService'
+import { comTenant } from './tenant'
 
 export type PrintJobStatus = 'PENDING' | 'SENT' | 'PRINTED' | 'FAILED' | 'CANCELED'
 export type PrintJobRefType = 'SALE' | 'ORDER'
@@ -57,13 +58,13 @@ class PrintJobService {
     // Criar job de impressão
     const { data: job, error } = await supabase
       .from('print_jobs')
-      .insert({
+      .insert(comTenant({
         ref_type: data.refType,
         ref_id: data.refId,
         printer_name: data.printerName,
         status: data.status || 'PENDING',
         attempts: 0
-      })
+      }))
       .select()
       .single()
 
