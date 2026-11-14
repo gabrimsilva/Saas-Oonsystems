@@ -575,8 +575,47 @@ async function confirmarPedido(body: any) {
 // ---------------------------------------------------------------------------
 const DIAS_MEUS_PEDIDOS = 90
 const LIMITE_MEUS_PEDIDOS = 20
+// Quantos telefones diferentes um mesmo IP pode consultar por hora. Repetir o
+// mesmo telefone (atualização automática da página) não conta de novo.
+const TELEFONES_POR_IP_HORA = 5
 
-async function meusPedidos(body: any) {
+async function hashCurto(texto: string) {
+  const dados = new TextEncoder().encode(`${Deno.env.get('SUPABASE_URL')}|${texto}`)
+  const hash = new Uint8Array(await crypto.subtle.digest('SHA-256', dados))
+  return Array.from(hash.slice(0, 12), (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Bloqueia quem testa muitos telefones seguidos. Guarda só hashes (nem IP nem telefone). */
+async function limitarConsulta(db: SupabaseClient, req: Request, telefone: string) {
+  const ip = (req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for')?.split(',')[0] ?? '').trim()
+  if (!ip) return
+  const prefixo = `meus_pedidos:${await hashCurto(ip)}:`
+  const chave = prefixo + (await hashCurto(telefone))
+  const umaHora = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+
+  const { data, error } = await db
+    .from('consultas_publicas')
+    .select('chave')
+    .like('chave', `${prefixo}%`)
+    .gte('criado_em', umaHora)
+  if (error) {
+    // Falha no controle não derruba a consulta do cliente
+    console.error('Falha ao ler limite de consultas', error)
+    return
+  }
+  const telefones = new Set((data ?? []).map((r) => r.chave))
+  if (telefones.has(chave)) return
+  if (telefones.size >= TELEFONES_POR_IP_HORA) {
+    throw new ErroCliente('Muitas consultas seguidas. Tente novamente em alguns minutos.', 429)
+  }
+  await db.from('consultas_publicas').insert({ chave })
+  // Limpeza ocasional do que passou de 1 dia
+  if (Math.random() < 0.05) {
+    await db.from('consultas_publicas').delete().lt('criado_em', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+  }
+}
+
+async function meusPedidos(req: Request, body: any) {
   const estabelecimentoId = String(body?.estabelecimento_id ?? '')
   const digitos = String(body?.telefone ?? '').replace(/\D/g, '')
   if (!UUID_RE.test(estabelecimentoId)) throw new ErroCliente('Loja inválida.')
@@ -585,6 +624,7 @@ async function meusPedidos(body: any) {
   const db = admin()
   // Mesmo formato gravado em criarPedido
   const telefone = formatarTelefone(digitos)
+  await limitarConsulta(db, req, `${estabelecimentoId}:${telefone}`)
   const desde = new Date(Date.now() - DIAS_MEUS_PEDIDOS * 24 * 60 * 60 * 1000).toISOString()
   const colunas = 'id, pedido_id, codigo_pedido, tipo_venda, forma_pagamento, mercado_pago_status, status, cancelado, total, criado_em, itens'
 
@@ -696,7 +736,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null)
     if (body?.action === 'criar') return await criarPedido(req, body)
     if (body?.action === 'confirmar') return await confirmarPedido(body)
-    if (body?.action === 'meus_pedidos') return await meusPedidos(body)
+    if (body?.action === 'meus_pedidos') return await meusPedidos(req, body)
     return json({ error: 'Ação inválida' }, 400)
   } catch (e) {
     if (e instanceof ErroCliente) return json({ error: e.message }, e.status)
