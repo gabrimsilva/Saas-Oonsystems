@@ -9,7 +9,7 @@ import { Users, Search, Edit, Trash2, Phone, AlertCircle, Mail, UserCheck, Bike,
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import { funcionarioService, type FuncionarioSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 type Funcionario = FuncionarioSupabase
 
@@ -103,15 +103,7 @@ export default function Funcionarios() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Users className="h-6 w-6" />
-            Funcionários
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie os funcionários do seu delivery
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Funcionários" descricao="Gerencie os funcionários do seu delivery" icone={Users} />
         <ActionButton onClick={handleNovoFuncionario} loading={saving}>
           <Plus className="h-4 w-4 mr-2" />
           Novo Funcionário
@@ -120,15 +112,7 @@ export default function Funcionarios() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Users className="h-6 w-6" />
-            Funcionários
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Gerencie os funcionários do seu delivery
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Funcionários" descricao="Gerencie os funcionários do seu delivery" icone={Users} />
         <ActionButton onClick={handleNovoFuncionario} loading={saving} className="w-full">
           <Plus className="h-4 w-4 mr-2" />
           Novo Funcionário

@@ -41,7 +41,7 @@ import GridCombos from "@/components/pdv/GridCombos"
 import { qzTrayService } from "@/lib/qzTrayService"
 import { renderizarDetalhesCombo, renderizarDetalhesComboHTML } from "@/utils/comboFormatacao"
 import { calcularDescontoEmReais } from "@/utils/descontoCalculation"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 import { Kbd } from '@/components/ui/kbd'
 import { useAtalhos } from '@/hooks/useAtalhos'
 import { DIVISAO_INICIAL, resolverDivisao } from '@/utils/pagamentoDividido'
@@ -1235,15 +1235,7 @@ export default function Comandas() {
       {/* Header */}
       <div className="text-center md:text-left">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2 justify-center md:justify-start">
-              <ClipboardList className="h-6 w-6" />
-              Comandas
-            </h1>
-            <p className="text-muted-foreground">
-              Gerencie os pedidos das mesas do estabelecimento
-            </p>
-          </div>
+          <CabecalhoPagina titulo="Comandas" descricao="Gerencie os pedidos das mesas do estabelecimento" icone={ClipboardList} />
           <Button
             onClick={() => setModalScannerAberto(true)}
             className="bg-primary hover:bg-primary-hover text-white flex items-center gap-2"

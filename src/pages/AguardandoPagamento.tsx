@@ -44,7 +44,7 @@ import {
 } from "lucide-react"
 import { supabase, getEstabelecimentoAtivo } from "@/services"
 import { lojaOnlineService } from "@/services/lojaOnlineService"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 interface PedidoAguardando {
   id: string
@@ -289,15 +289,7 @@ export default function AguardandoPagamento() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Clock className="h-6 w-6 text-warning-foreground" />
-            Aguardando pagamento
-          </h1>
-          <p className="text-muted-foreground">
-            Pedidos PIX aguardando confirmação de pagamento
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Aguardando pagamento" descricao="Pedidos PIX aguardando confirmação de pagamento" icone={Clock} />
 
         <div className="flex items-center gap-3">
           <Badge variant="outline" className="text-sm bg-warning/10 border-warning/30 text-warning-foreground">
@@ -330,15 +322,7 @@ export default function AguardandoPagamento() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Clock className="h-6 w-6 text-warning-foreground" />
-            Aguardando pagamento
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Pedidos PIX aguardando confirmação
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Aguardando pagamento" descricao="Pedidos PIX aguardando confirmação" icone={Clock} />
         
         <div className="flex flex-col gap-3">
           <Badge variant="outline" className="text-sm text-center py-2 bg-warning/10 border-warning/30 text-warning-foreground">

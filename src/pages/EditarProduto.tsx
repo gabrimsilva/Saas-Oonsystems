@@ -3,7 +3,7 @@ import { Package } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import ProdutoForm from "@/components/ProdutoForm"
 import { produtoService, tamanhoService, categoriaService, type ProdutoSupabase } from "@/services"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 interface Produto extends ProdutoSupabase {
   categoria: string
@@ -140,15 +140,7 @@ export default function EditarProduto() {
 
   return (
     <div className="w-full p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          Editar produto
-        </h1>
-        <p className="text-muted-foreground">
-          Edite as informações do produto
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Editar produto" descricao="Edite as informações do produto" icone={Package} />
 
       <ProdutoForm
         produtoParaEditar={produto}

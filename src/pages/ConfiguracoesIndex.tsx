@@ -19,6 +19,7 @@ import ConfiguracoesPagamentoPage from "@/pages/configuracoes/ConfiguracoesPagam
 import ConfiguracoesVisuaisPage from "@/pages/configuracoes/ConfiguracoesVisuaisPage"
 import ConfiguracoesImpressaoPage from "@/pages/configuracoes/ConfiguracoesImpressaoPage"
 import ConfiguracoesNotificacaoPage from "@/pages/configuracoes/ConfiguracoesNotificacaoPage"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 type ConfigPage =
   | 'index'
@@ -128,15 +129,7 @@ export default function ConfiguracoesIndex({ initialPage = 'index' }: Configurac
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Settings className="h-6 w-6" />
-          Configurações
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Gerencie as configurações do sistema
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Configurações" descricao="Gerencie as configurações do sistema" icone={Settings} />
 
       {/* Grid de Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

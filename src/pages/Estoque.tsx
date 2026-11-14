@@ -9,7 +9,7 @@ import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import VariantesModal from "@/components/VariantesModal"
 import { estoqueService, stockService, produtoService, auditoriaService, type EstoqueSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 type ItemEstoque = EstoqueSupabase & {
   quantidadeMinima: number // Alias para quantidade_minima
@@ -224,15 +224,7 @@ export default function Estoque() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Layout Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Package className="h-6 w-6" />
-            Estoque
-          </h1>
-          <p className="text-muted-foreground">
-            Controle e monitore o estoque de ingredientes e produtos
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Estoque" descricao="Controle e monitore o estoque de ingredientes e produtos" icone={Package} />
         <ActionButton onClick={handleNovoItemClick} loading={saving}>
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Item
@@ -241,15 +233,7 @@ export default function Estoque() {
 
       {/* Layout Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Package className="h-6 w-6" />
-            Estoque
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Controle e monitore o estoque de ingredientes e produtos
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Estoque" descricao="Controle e monitore o estoque de ingredientes e produtos" icone={Package} />
         <ActionButton onClick={handleNovoItemClick} loading={saving} className="w-full">
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Item

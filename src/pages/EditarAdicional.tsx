@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import AdicionalForm, { type AdicionalFormData } from "@/components/AdicionalForm"
 import { adicionalService } from "@/services"
 import toast from "react-hot-toast"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 export default function EditarAdicional() {
   const navigate = useNavigate()
@@ -77,15 +77,7 @@ export default function EditarAdicional() {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Edit className="h-6 w-6" />
-          Editar adicional
-        </h1>
-        <p className="text-muted-foreground">
-          Edite as informações do adicional
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Editar adicional" descricao="Edite as informações do adicional" icone={Edit} />
 
       {/* Formulário */}
       {adicional && (

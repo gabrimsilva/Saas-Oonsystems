@@ -13,7 +13,7 @@ import EditarEstoqueModal from "@/components/EditarEstoqueModal"
 import { stockService, produtoService, type StockItem } from "@/services"
 import { calcularStatusEstoque } from "@/services/stockService"
 import toast from "react-hot-toast"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 interface StockItemWithProduct extends StockItem {
   product_name?: string
@@ -254,15 +254,7 @@ export default function EstoqueProdutos() {
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          Estoque de produtos
-        </h1>
-        <p className="text-muted-foreground">
-          Controle de estoque com variedades (cor, fragrância, tamanho)
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Estoque de produtos" descricao="Controle de estoque com variedades (cor, fragrância, tamanho)" icone={Package} />
 
       {error && (
         <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">

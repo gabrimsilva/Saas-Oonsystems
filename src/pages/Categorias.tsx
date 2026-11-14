@@ -7,7 +7,7 @@ import { Package, Plus, Search, Edit, Trash2, Eye, EyeOff, AlertCircle } from "l
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import { categoriaService, type CategoriaSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 import { avisoComDesfazer } from '@/components/ui/desfazer'
 
 type Categoria = CategoriaSupabase
@@ -105,13 +105,7 @@ export default function Categorias() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Package className="h-6 w-6" />
-            Categorias
-          </h1>
-          <p className="text-muted-foreground">Gerencie as categorias dos seus produtos</p>
-        </div>
+        <CabecalhoPagina titulo="Categorias" descricao="Gerencie as categorias dos seus produtos" icone={Package} />
         <ActionButton
           onClick={handleNovaCategoria}
           loading={saving}
@@ -123,13 +117,7 @@ export default function Categorias() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Package className="h-6 w-6" />
-            Categorias
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">Gerencie as categorias dos seus produtos</p>
-        </div>
+        <CabecalhoPagina titulo="Categorias" descricao="Gerencie as categorias dos seus produtos" icone={Package} />
         <ActionButton
           onClick={handleNovaCategoria}
           className="w-full"

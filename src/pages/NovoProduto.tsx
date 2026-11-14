@@ -3,6 +3,7 @@ import { Package } from "lucide-react"
 import { useNavigation } from "@/contexts/NavigationContext"
 import ProdutoForm from "@/components/ProdutoForm"
 import { produtoService, tamanhoService } from "@/services"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 export default function NovoProduto() {
   const { navigateTo } = useNavigation()
@@ -64,15 +65,7 @@ export default function NovoProduto() {
 
   return (
     <div className="w-full p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          Novo produto
-        </h1>
-        <p className="text-muted-foreground">
-          Preencha as informações do novo produto
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Novo produto" descricao="Preencha as informações do novo produto" icone={Package} />
 
       {error && (
         <div className="p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">

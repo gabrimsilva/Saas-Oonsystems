@@ -32,6 +32,7 @@ import toast from "react-hot-toast"
 import { Kbd } from '@/components/ui/kbd'
 import { useAtalhos } from '@/hooks/useAtalhos'
 import type { PagamentoDivididoResolvido } from '@/utils/pagamentoDividido'
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 /**
  * Página PDV (Ponto de Venda)
@@ -514,18 +515,10 @@ export default function PDV() {
     }
 
     return (
-        <div className="container mx-auto p-6 space-y-6 pb-20 md:pb-6">
+        <div className="container mx-auto p-4 sm:p-6 space-y-6 pb-20 md:pb-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
-                        <Calculator className="h-6 w-6" />
-                        Ponto de venda (PDV)
-                    </h1>
-                    <p className="text-muted-foreground">
-                        Registre pedidos diretamente pelo sistema
-                    </p>
-                </div>
+                <CabecalhoPagina titulo="Ponto de venda (PDV)" descricao="Registre pedidos diretamente pelo sistema" icone={Calculator} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">

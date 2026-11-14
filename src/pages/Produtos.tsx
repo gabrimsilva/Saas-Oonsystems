@@ -9,6 +9,7 @@ import ProdutoCard from "@/components/ProdutoCard"
 import CategoriaTabs from "@/components/CategoriaTabs"
 import { useNavigation } from "@/contexts/NavigationContext"
 import { produtoService, categoriaService, type ProdutoSupabase, type CategoriaSupabase } from "@/services"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 type Categoria = CategoriaSupabase
 
@@ -143,15 +144,7 @@ export default function Produtos() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Package className="h-6 w-6" />
-            Produtos
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie os produtos da loja
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Produtos" descricao="Gerencie os produtos da loja" icone={Package} />
         <div className="flex space-x-2">
           <ActionButton onClick={handleNovoProdutoClick} loading={saving}>
             <Plus className="h-4 w-4 mr-2" />
@@ -171,15 +164,7 @@ export default function Produtos() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Package className="h-6 w-6" />
-            Produtos
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Gerencie os produtos da loja
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Produtos" descricao="Gerencie os produtos da loja" icone={Package} />
         
         <div className="space-y-2">
           <ActionButton onClick={handleNovoProdutoClick} loading={saving} className="w-full">

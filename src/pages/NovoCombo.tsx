@@ -3,6 +3,7 @@ import { Package2 } from "lucide-react"
 import { useNavigation } from "@/contexts/NavigationContext"
 import ComboForm from "@/components/ComboForm"
 import { comboService, type ComboSupabase } from "@/services"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 export default function NovoCombo() {
   const { navigateTo } = useNavigation()
@@ -45,15 +46,7 @@ export default function NovoCombo() {
 
   return (
     <div className="w-full p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package2 className="h-6 w-6" />
-          Novo combo
-        </h1>
-        <p className="text-muted-foreground">
-          Crie um novo combo selecionando produtos e definindo o preço
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Novo combo" descricao="Crie um novo combo selecionando produtos e definindo o preço" icone={Package2} />
 
       {error && (
         <div className="p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">

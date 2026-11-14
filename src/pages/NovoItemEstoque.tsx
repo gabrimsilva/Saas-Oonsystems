@@ -4,6 +4,7 @@ import EstoqueForm from "@/components/EstoqueForm"
 import { estoqueService } from "@/services"
 import toast from "react-hot-toast"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 export default function NovoItemEstoque() {
   const { navigateTo } = useNavigation()
@@ -30,13 +31,7 @@ export default function NovoItemEstoque() {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          Novo item de estoque
-        </h1>
-        <p className="text-muted-foreground">Adicione um novo item ao seu estoque</p>
-      </div>
+      <CabecalhoPagina titulo="Novo item de estoque" descricao="Adicione um novo item ao seu estoque" icone={Package} />
 
       {/* Formulário */}
       <EstoqueForm

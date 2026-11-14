@@ -3,7 +3,7 @@ import { Package2 } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import ComboForm from "@/components/ComboForm"
 import { comboService, type ComboSupabase } from "@/services"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 interface Combo extends ComboSupabase {
   urlImagem?: string
@@ -107,15 +107,7 @@ export default function EditarCombo() {
 
   return (
     <div className="w-full p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package2 className="h-6 w-6" />
-          Editar combo
-        </h1>
-        <p className="text-muted-foreground">
-          Edite as informações do combo
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Editar combo" descricao="Edite as informações do combo" icone={Package2} />
 
       <ComboForm
         comboParaEditar={combo}

@@ -8,6 +8,7 @@ import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import CategoriaTabs from "@/components/CategoriaTabs"
 import { saborService, categoriaService, type SaborSupabase, type CategoriaSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 type Sabor = SaborSupabase & {
   isPremium: boolean // Alias para is_premium
@@ -141,15 +142,7 @@ export default function Sabores() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Pizza className="h-6 w-6" />
-            Sabores
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie os sabores de todas as categorias
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Sabores" descricao="Gerencie os sabores de todas as categorias" icone={Pizza} />
         <ActionButton onClick={() => handleNovoSaborClick('normal')} loading={saving}>
           <Plus className="h-4 w-4 mr-2" />
           Novo Sabor
@@ -158,15 +151,7 @@ export default function Sabores() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Pizza className="h-6 w-6" />
-            Sabores
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Gerencie os sabores de todas as categorias
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Sabores" descricao="Gerencie os sabores de todas as categorias" icone={Pizza} />
 
         <ActionButton onClick={() => handleNovoSaborClick('normal')} loading={saving} className="w-full">
           <Plus className="h-4 w-4 mr-2" />

@@ -4,6 +4,7 @@ import FuncionarioForm from "@/components/FuncionarioForm"
 import { funcionarioService } from "@/services"
 import toast from "react-hot-toast"
 import { useNavigation } from "@/contexts/NavigationContext"
+import { CabecalhoPagina } from '@/components/ui/feedback'
 
 export default function NovoFuncionario() {
   const { navigateTo } = useNavigation()
@@ -59,15 +60,7 @@ export default function NovoFuncionario() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Users className="h-6 w-6" />
-          Novo funcionário
-        </h1>
-        <p className="text-muted-foreground">
-          Cadastre um novo funcionário no sistema
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Novo funcionário" descricao="Cadastre um novo funcionário no sistema" icone={Users} />
 
       <FuncionarioForm
         onSubmit={handleSubmit}

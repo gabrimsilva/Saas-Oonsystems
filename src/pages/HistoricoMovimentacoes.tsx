@@ -25,7 +25,7 @@ import {
 import { stockService, produtoService, type StockMovement } from "@/services"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 interface MovementWithProduct extends StockMovement {
@@ -228,15 +228,7 @@ export default function HistoricoMovimentacoes() {
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          Histórico de movimentações
-        </h1>
-        <p className="text-muted-foreground">
-          Consulte todas as entradas, saídas e ajustes de estoque
-        </p>
-      </div>
+      <CabecalhoPagina titulo="Histórico de movimentações" descricao="Consulte todas as entradas, saídas e ajustes de estoque" icone={Package} />
 
       {error && (
         <div className="flex items-center gap-2 p-4 bg-destructive/5 border border-destructive/30 rounded-lg text-destructive">

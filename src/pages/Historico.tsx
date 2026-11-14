@@ -62,7 +62,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 import { EstadoVazio } from '@/components/ui/feedback'
 import { dataParaUrl, lerDataUrl, lerFiltroUrl, useFiltrosNaUrl } from '@/hooks/useFiltrosNaUrl'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
@@ -700,15 +700,7 @@ export default function Historico() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <History className="h-6 w-6" />
-            Histórico de pedidos
-          </h1>
-          <p className="text-muted-foreground">
-            Todos os pedidos já finalizados
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Histórico de pedidos" descricao="Todos os pedidos já finalizados" icone={History} />
 
         <div className="flex items-center gap-3">
           <Badge variant="outline" className="text-sm">
@@ -730,15 +722,7 @@ export default function Historico() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <History className="h-6 w-6" />
-            Histórico de pedidos
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Todos os pedidos já finalizados
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Histórico de pedidos" descricao="Todos os pedidos já finalizados" icone={History} />
         
         <div className="flex flex-col gap-3">
           <Badge variant="outline" className="text-sm text-center py-2">

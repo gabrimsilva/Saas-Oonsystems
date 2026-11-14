@@ -8,7 +8,7 @@ import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog"
 import CategoriaTabs from "@/components/CategoriaTabs"
 import { categoriaService, adicionalService, type CategoriaSupabase, type AdicionalSupabase } from "@/services"
 import { useNavigation } from "@/contexts/NavigationContext"
-import { CarregandoPagina } from '@/components/ui/feedback'
+import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 type Categoria = CategoriaSupabase
 
@@ -98,15 +98,7 @@ export default function Adicionais() {
     <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <Plus className="h-6 w-6" />
-            Adicionais
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie os adicionais disponíveis para cada categoria
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Adicionais" descricao="Gerencie os adicionais disponíveis para cada categoria" icone={Plus} />
         <ActionButton onClick={handleNovoAdicionalClick} loading={saving}>
           <Plus className="h-4 w-4 mr-2" />
           Novo Adicional
@@ -115,15 +107,7 @@ export default function Adicionais() {
 
       {/* Header Mobile */}
       <div className="md:hidden space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
-            <Plus className="h-6 w-6" />
-            Adicionais
-          </h1>
-          <p className="text-muted-foreground text-sm mt-2">
-            Gerencie os adicionais disponíveis para cada categoria
-          </p>
-        </div>
+        <CabecalhoPagina titulo="Adicionais" descricao="Gerencie os adicionais disponíveis para cada categoria" icone={Plus} />
         <ActionButton onClick={handleNovoAdicionalClick} loading={saving} className="w-full">
           <Plus className="h-4 w-4 mr-2" />
           Novo Adicional
