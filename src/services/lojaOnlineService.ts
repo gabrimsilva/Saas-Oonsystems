@@ -85,6 +85,21 @@ export interface StatusPedidoCatalogo {
   checkout_url: string | null
 }
 
+/** Pedido listado em "Meus pedidos" (pedido_id null = já finalizado pela loja) */
+export interface MeuPedidoCatalogo {
+  pedido_id: string | null
+  codigo_pedido: string
+  status_pedido: string
+  status_pagamento: string | null
+  pagamento_online: boolean
+  cancelado: boolean
+  tipo_venda: TipoVenda | null
+  forma_pagamento: string
+  total: number
+  criado_em: string
+  itens: Array<{ nome: string; quantidade: number; subtotal: number }>
+}
+
 export const CONFIG_PUBLICA_PADRAO: ConfigCatalogoPublica = {
   estabelecimento_id: null,
   pedidos_ativos: false,
@@ -182,6 +197,15 @@ export const lojaOnlineService = {
     })
     if (error) throw new Error(await mensagemDeErro(error))
     return data as StatusPedidoCatalogo
+  },
+
+  /** Pedidos do catálogo feitos com este telefone nesta loja (últimos 90 dias) */
+  async buscarMeusPedidos(estabelecimentoId: string, telefone: string): Promise<MeuPedidoCatalogo[]> {
+    const { data, error } = await supabase.functions.invoke('catalogo-pedidos', {
+      body: { action: 'meus_pedidos', estabelecimento_id: estabelecimentoId, telefone }
+    })
+    if (error) throw new Error(await mensagemDeErro(error))
+    return (data?.pedidos ?? []) as MeuPedidoCatalogo[]
   },
 
   // ------------------------------------------------------------------ painel

@@ -56,6 +56,7 @@ const HistoricoVendas = lazy(() => import("@/pages/HistoricoVendas"))
 const HistoricoComandas = lazy(() => import("@/pages/HistoricoComandas"))
 const CatalogoPage = lazy(() => import("@/pages/CatalogoPage"))
 const PedidoCatalogoStatus = lazy(() => import("@/pages/PedidoCatalogoStatus"))
+const MeusPedidosCatalogo = lazy(() => import("@/pages/MeusPedidosCatalogo"))
 const CheckoutWrapper = lazy(() => import("@/components/CheckoutWrapper"))
 const ProcessandoPedido = lazy(() => import("@/pages/ProcessandoPedido"))
 const MeusPedidos = lazy(() => import("@/pages/MeusPedidos"))
@@ -461,6 +462,17 @@ function SlugPedidoStatusPage() {
   )
 }
 
+function SlugMeusPedidosPage() {
+  const { slug } = useParams<{ slug: string }>()
+  return (
+    <EstabelecimentoPublicoProvider slug={slug}>
+      <Suspense fallback={<LoadingSpinner />}>
+        <MeusPedidosCatalogo />
+      </Suspense>
+    </EstabelecimentoPublicoProvider>
+  )
+}
+
 function SlugAvaliarPage() {
   const { slug } = useParams<{ slug: string }>()
   return (
@@ -646,6 +658,7 @@ function App() {
             <Route path="/:slug/checkout" element={<SlugCheckoutPage />} />
             <Route path="/:slug/pedido/:pedidoId" element={<SlugPedidoStatusPage />} />
             <Route path="/:slug/avaliar" element={<SlugAvaliarPage />} />
+            <Route path="/:slug/meus-pedidos" element={<SlugMeusPedidosPage />} />
             <Route path="/:slug" element={<SlugCatalogoPage />} />
 
             {/* Redirecionar rotas não encontradas para a página principal */}

@@ -20,7 +20,7 @@ import {
 } from "@/services/lojaOnlineService"
 import { useEstabelecimentoPublico } from "@/contexts/EstabelecimentoPublicoContext"
 import { useCarrinhoCatalogo, chaveItem, type ItemCarrinhoCatalogo } from "@/hooks/useCarrinhoCatalogo"
-import { Info, ShoppingCart } from "lucide-react"
+import { Info, Package, ShoppingCart } from "lucide-react"
 import { chaveTelefoneLoja } from '@/services/tenant'
 
 const FORMAS_NA_ENTREGA: FormaPagamentoPedido[] = ['pix', 'dinheiro', 'cartao_debito', 'cartao_credito']
@@ -276,6 +276,19 @@ export default function CatalogoPage() {
         {error && (
           <div className="bg-destructive/5 border border-destructive/30 rounded-lg p-4 mb-6">
             <p className="text-destructive text-center">{error}</p>
+          </div>
+        )}
+
+        {/* Acompanhar pedidos feitos pelo catálogo */}
+        {pedidosAtivos && estabelecimento && (
+          <div className="flex justify-end mb-4">
+            <a
+              href={`/${estabelecimento.slug}/meus-pedidos`}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-primary hover:border-primary/40 hover:text-primary-hover transition-colors"
+            >
+              <Package className="h-4 w-4" />
+              Meus pedidos
+            </a>
           </div>
         )}
 

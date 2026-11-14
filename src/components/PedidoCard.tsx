@@ -255,7 +255,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
 
       {/* Modal com detalhes completos */}
       <Dialog open={showDetalhesModal} onOpenChange={setShowDetalhesModal}>
-        <DialogContent className="max-w-none w-[calc(100vw-18rem)] h-[calc(100vh-2rem)] max-h-none left-[16rem] right-auto top-4 translate-x-0 translate-y-0 flex flex-col ml-4 mr-4">
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 p-4 sm:max-w-5xl sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <span>Detalhes do Pedido #{idCurto}</span>
@@ -266,9 +266,9 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 pr-4 min-h-0">
+          <ScrollArea className="flex-1 min-h-0 pr-3">
             {/* Layout em 2 colunas */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Coluna Esquerda - Informações do Cliente e Entrega */}
               <div className="space-y-6">
                 {/* Dados Pessoais */}
@@ -278,16 +278,16 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                     Dados Pessoais
                   </h3>
                   <div className="space-y-2 bg-muted/50 p-4 rounded-lg border border-border">
-                    <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                       <span className="text-muted-foreground font-medium">Nome:</span>
                       <span className="font-medium text-foreground">{pedido.cliente_nome} {pedido.cliente_sobrenome}</span>
                     </div>
-                    <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                       <span className="text-muted-foreground font-medium">Telefone:</span>
                       <span className="font-medium text-foreground">{pedido.cliente_telefone}</span>
                     </div>
                     {pedido.cliente_email && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Email:</span>
                         <span className="font-medium text-foreground">{pedido.cliente_email}</span>
                       </div>
@@ -306,7 +306,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                     Dados de Entrega
                   </h3>
                   <div className="space-y-2 bg-muted/50 p-4 rounded-lg border border-border">
-                    <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                       <span className="text-muted-foreground font-medium">Tipo:</span>
                       <span className="font-medium text-foreground">
                         {pedido.entrega_domicilio ? 'Entrega a Domicílio' : 'Retirada no Local'}
@@ -314,7 +314,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                     </div>
                     {pedido.entrega_domicilio && pedido.cliente_endereco && (
                       <>
-                        <div className="grid grid-cols-[120px_1fr] gap-2">
+                        <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                           <span className="text-muted-foreground font-medium">Endereço:</span>
                           <span className="font-medium text-foreground">
                             {pedido.cliente_endereco}, {pedido.cliente_numero}
@@ -322,19 +322,19 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                           </span>
                         </div>
                         {pedido.cliente_bairro && (
-                          <div className="grid grid-cols-[120px_1fr] gap-2">
+                          <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                             <span className="text-muted-foreground font-medium">Bairro:</span>
                             <span className="font-medium text-foreground">{pedido.cliente_bairro}</span>
                           </div>
                         )}
                         {pedido.cliente_cidade && (
-                          <div className="grid grid-cols-[120px_1fr] gap-2">
+                          <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                             <span className="text-muted-foreground font-medium">Cidade:</span>
                             <span className="font-medium text-foreground">{pedido.cliente_cidade} - {pedido.cliente_estado}</span>
                           </div>
                         )}
                         {pedido.cliente_cep && (
-                          <div className="grid grid-cols-[120px_1fr] gap-2">
+                          <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                             <span className="text-muted-foreground font-medium">CEP:</span>
                             <span className="font-medium text-foreground">{pedido.cliente_cep}</span>
                           </div>
@@ -351,13 +351,13 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                     Informações do Pedido
                   </h3>
                   <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
-                    <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                       <span className="text-muted-foreground font-medium">Data/Hora:</span>
                       <span className="font-medium text-foreground">
                         {new Date(pedido.criado_em).toLocaleDateString('pt-BR')} às {formatarHora(pedido.criado_em)}
                       </span>
                     </div>
-                    <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                       <span className="text-muted-foreground font-medium">Pagamento:</span>
                       <span className="font-medium text-foreground">
                         {pedido.forma_pagamento_dividido ? (
@@ -379,7 +379,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                       </span>
                     </div>
                     {pedido.precisa_troco && pedido.valor_troco && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Troco para:</span>
                         <span className="font-medium text-foreground">R$ {pedido.valor_troco.toFixed(2).replace('.', ',')}</span>
                       </div>
@@ -488,7 +488,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
           {/* Footer fixo com totais - Compacto */}
           <div className="border-t pt-3 flex-shrink-0">
             <div className="bg-muted/50 p-3 rounded-lg">
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal:</span>
                   <span className="font-medium">R$ {pedido.subtotal.toFixed(2).replace('.', ',')}</span>

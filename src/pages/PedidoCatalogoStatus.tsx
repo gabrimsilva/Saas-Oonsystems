@@ -186,6 +186,11 @@ export default function PedidoCatalogoStatus() {
               Já paguei, atualizar
             </Button>
           )}
+          {estabelecimento && (
+            <Button variant="outline" className="w-full" asChild>
+              <a href={`/${estabelecimento.slug}/meus-pedidos`}>Acompanhar meus pedidos</a>
+            </Button>
+          )}
           <Button variant="ghost" className="w-full" onClick={voltar}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Voltar ao catálogo
           </Button>

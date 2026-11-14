@@ -996,7 +996,7 @@ export default function Historico() {
 
       {/* Modal de Detalhes */}
       <Dialog open={showDetalhesModal} onOpenChange={setShowDetalhesModal}>
-        <DialogContent className="max-w-none w-[calc(100vw-18rem)] h-[calc(100vh-2rem)] max-h-none left-[16rem] right-auto top-4 translate-x-0 translate-y-0 flex flex-col ml-4 mr-4">
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 p-4 sm:max-w-5xl sm:p-6">
           <DialogHeader>
             <div className="flex items-center gap-3">
               <DialogTitle className="flex items-center gap-2">
@@ -1019,9 +1019,9 @@ export default function Historico() {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 pr-4 min-h-0">
+          <ScrollArea className="flex-1 min-h-0 pr-3">
             {pedidoSelecionado && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Coluna Esquerda - Informações do Cliente e Entrega */}
                 <div className="space-y-6">
                   {/* Dados Pessoais */}
@@ -1031,16 +1031,16 @@ export default function Historico() {
                       Dados Pessoais
                     </h3>
                     <div className="space-y-2 bg-muted/50 p-4 rounded-lg border border-border">
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Nome:</span>
                         <span className="font-medium text-foreground">{pedidoSelecionado.cliente_nome} {pedidoSelecionado.cliente_sobrenome}</span>
                       </div>
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Telefone:</span>
                         <span className="font-medium text-foreground">{pedidoSelecionado.cliente_telefone}</span>
                       </div>
                       {pedidoSelecionado.cliente_email && (
-                        <div className="grid grid-cols-[120px_1fr] gap-2">
+                        <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                           <span className="text-muted-foreground font-medium">Email:</span>
                           <span className="font-medium text-foreground">{pedidoSelecionado.cliente_email}</span>
                         </div>
@@ -1059,7 +1059,7 @@ export default function Historico() {
                       Dados de Entrega
                     </h3>
                     <div className="space-y-2 bg-muted/50 p-4 rounded-lg border border-border">
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Tipo:</span>
                         <span className="font-medium text-foreground">
                           {pedidoSelecionado.entrega_domicilio ? 'Entrega a Domicílio' : 'Retirada no Local'}
@@ -1067,7 +1067,7 @@ export default function Historico() {
                       </div>
                       {pedidoSelecionado.entrega_domicilio && pedidoSelecionado.cliente_endereco && (
                         <>
-                          <div className="grid grid-cols-[120px_1fr] gap-2">
+                          <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                             <span className="text-muted-foreground font-medium">Endereço:</span>
                             <span className="font-medium text-foreground">
                               {pedidoSelecionado.cliente_endereco}, {pedidoSelecionado.cliente_numero}
@@ -1075,13 +1075,13 @@ export default function Historico() {
                             </span>
                           </div>
                           {pedidoSelecionado.cliente_bairro && (
-                            <div className="grid grid-cols-[120px_1fr] gap-2">
+                            <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                               <span className="text-muted-foreground font-medium">Bairro:</span>
                               <span className="font-medium text-foreground">{pedidoSelecionado.cliente_bairro}</span>
                             </div>
                           )}
                           {pedidoSelecionado.cliente_cidade && (
-                            <div className="grid grid-cols-[120px_1fr] gap-2">
+                            <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                               <span className="text-muted-foreground font-medium">Cidade:</span>
                               <span className="font-medium text-foreground">{pedidoSelecionado.cliente_cidade} - {pedidoSelecionado.cliente_estado}</span>
                             </div>
@@ -1098,19 +1098,19 @@ export default function Historico() {
                       Informações do Pedido
                     </h3>
                     <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Data/Hora:</span>
                         <span className="font-medium text-foreground">
                           {formatarData(pedidoSelecionado.criado_em)} às {formatarHora(pedidoSelecionado.criado_em)}
                         </span>
                       </div>
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Movido para histórico:</span>
                         <span className="font-medium text-foreground">
                           {formatarData(pedidoSelecionado.movido_em)} às {formatarHora(pedidoSelecionado.movido_em)}
                         </span>
                       </div>
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Pagamento:</span>
                         <span className="font-medium text-foreground">
                           {pedidoSelecionado.forma_pagamento_dividido ? (
@@ -1132,7 +1132,7 @@ export default function Historico() {
                         </span>
                       </div>
                       {pedidoSelecionado.precisa_troco && pedidoSelecionado.valor_troco && (
-                        <div className="grid grid-cols-[120px_1fr] gap-2">
+                        <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                           <span className="text-muted-foreground font-medium">Troco para:</span>
                           <span className="font-medium text-foreground">R$ {pedidoSelecionado.valor_troco.toFixed(2).replace('.', ',')}</span>
                         </div>
@@ -1153,12 +1153,12 @@ export default function Historico() {
                         <h4 className="font-medium text-destructive flex items-center gap-2">
                           ⚠️ Pedido Cancelado
                         </h4>
-                        <div className="grid grid-cols-[120px_1fr] gap-2">
+                        <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                           <span className="text-destructive font-medium">Motivo:</span>
                           <span className="font-medium text-destructive">{pedidoSelecionado.motivo_cancelamento}</span>
                         </div>
                         {pedidoSelecionado.cancelado_em && (
-                          <div className="grid grid-cols-[120px_1fr] gap-2">
+                          <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                             <span className="text-destructive font-medium">Cancelado em:</span>
                             <span className="font-medium text-destructive">
                               {formatarData(pedidoSelecionado.cancelado_em)} às {formatarHora(pedidoSelecionado.cancelado_em)}
@@ -1167,13 +1167,13 @@ export default function Historico() {
                         )}
                         {pedidoSelecionado.requer_extorno && (
                           <>
-                            <div className="grid grid-cols-[120px_1fr] gap-2">
+                            <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                               <span className="text-destructive font-medium">Valor do Extorno:</span>
                               <span className="font-medium text-destructive">
                                 R$ {(pedidoSelecionado.valor_extorno || 0).toFixed(2).replace('.', ',')}
                               </span>
                             </div>
-                            <div className="grid grid-cols-[120px_1fr] gap-2">
+                            <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                               <span className="text-destructive font-medium">Forma de Pagamento:</span>
                               <span className="font-medium text-destructive">
                                 {formatarFormaPagamento(pedidoSelecionado.forma_pagamento_extorno || '')}
@@ -1273,7 +1273,7 @@ export default function Historico() {
           {/* Footer fixo com totais - Compacto */}
           <div className="border-t pt-3 flex-shrink-0">
             <div className="bg-muted/50 p-3 rounded-lg">
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal:</span>
                   <span className="font-medium">R$ {pedidoSelecionado?.subtotal.toFixed(2).replace('.', ',')}</span>

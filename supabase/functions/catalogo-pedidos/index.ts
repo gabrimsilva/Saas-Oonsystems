@@ -5,6 +5,7 @@
 //                                     "Aguardando pagamento" e é criada a preferência do Checkout Pro;
 //                                     senão vai direto para o Kanban ("Pedido criado").
 // POST { action: 'confirmar', ... } → consulta o pagamento no Mercado Pago e atualiza o pedido
+// POST { action: 'meus_pedidos' }  → pedidos do catálogo de um telefone nesta loja (últimos 90 dias)
 // POST ?webhook=1&e=<estab_id>     → notificação do Mercado Pago (mesmo processamento do 'confirmar')
 //
 // Deploy com verify_jwt = false: o webhook do Mercado Pago não envia JWT. Nenhuma
@@ -569,6 +570,89 @@ async function confirmarPedido(body: any) {
   })
 }
 
+// ---------------------------------------------------------------------------
+// meus_pedidos: o cliente acompanha os pedidos da loja pelo telefone
+// ---------------------------------------------------------------------------
+const DIAS_MEUS_PEDIDOS = 90
+const LIMITE_MEUS_PEDIDOS = 20
+
+async function meusPedidos(body: any) {
+  const estabelecimentoId = String(body?.estabelecimento_id ?? '')
+  const digitos = String(body?.telefone ?? '').replace(/\D/g, '')
+  if (!UUID_RE.test(estabelecimentoId)) throw new ErroCliente('Loja inválida.')
+  if (digitos.length < 10 || digitos.length > 13) throw new ErroCliente('Telefone inválido.')
+
+  const db = admin()
+  // Mesmo formato gravado em criarPedido
+  const telefone = formatarTelefone(digitos)
+  const desde = new Date(Date.now() - DIAS_MEUS_PEDIDOS * 24 * 60 * 60 * 1000).toISOString()
+  const colunas = 'id, pedido_id, codigo_pedido, tipo_venda, forma_pagamento, mercado_pago_status, status, cancelado, total, criado_em, itens'
+
+  // Em aberto (tabela pedidos) e finalizados (movidos para historico_geral)
+  const [ativos, finalizados] = await Promise.all([
+    db.from('pedidos').select(colunas)
+      .eq('estabelecimento_id', estabelecimentoId)
+      .eq('origem', 'catalogo')
+      .eq('cliente_telefone', telefone)
+      .gte('criado_em', desde)
+      .order('criado_em', { ascending: false })
+      .limit(LIMITE_MEUS_PEDIDOS),
+    db.from('historico_geral').select('pedido_id, codigo_pedido, forma_pagamento, status, total, criado_em, itens')
+      .eq('estabelecimento_id', estabelecimentoId)
+      .like('pedido_id', 'CAT-%')
+      .eq('cliente_telefone', telefone)
+      .gte('criado_em', desde)
+      .order('criado_em', { ascending: false })
+      .limit(LIMITE_MEUS_PEDIDOS),
+  ])
+  if (ativos.error) throw ativos.error
+  if (finalizados.error) throw finalizados.error
+
+  const itensPublicos = (itens: any) =>
+    (Array.isArray(itens) ? itens : []).map((i: any) => ({
+      nome: i.produto?.nome,
+      quantidade: i.quantidade,
+      subtotal: i.subtotal,
+    }))
+
+  const emAberto = (ativos.data ?? []).map((p: any) => ({
+    pedido_id: p.id as string | null,
+    codigo_pedido: p.codigo_pedido,
+    status_pedido: p.status,
+    status_pagamento: p.mercado_pago_status,
+    pagamento_online: p.mercado_pago_status !== null,
+    cancelado: !!p.cancelado,
+    tipo_venda: p.tipo_venda,
+    forma_pagamento: p.forma_pagamento,
+    total: Number(p.total),
+    criado_em: p.criado_em,
+    itens: itensPublicos(p.itens),
+  }))
+  const codigosAbertos = new Set(emAberto.map((p) => p.codigo_pedido))
+  const concluidos = (finalizados.data ?? [])
+    .filter((p: any) => !codigosAbertos.has(p.codigo_pedido))
+    .map((p: any) => ({
+      pedido_id: null,
+      codigo_pedido: p.codigo_pedido,
+      status_pedido: p.status || 'Finalizado',
+      status_pagamento: null,
+      pagamento_online: false,
+      cancelado: false,
+      tipo_venda: null,
+      forma_pagamento: p.forma_pagamento,
+      total: Number(p.total),
+      criado_em: p.criado_em,
+      itens: itensPublicos(p.itens),
+    }))
+
+  const pedidos = [...emAberto, ...concluidos]
+    .sort((a, b) => new Date(b.criado_em).getTime() - new Date(a.criado_em).getTime())
+    .slice(0, LIMITE_MEUS_PEDIDOS)
+
+  // Resposta pública: nada de telefone, e-mail ou sobrenome
+  return json({ pedidos })
+}
+
 async function webhook(url: URL, req: Request) {
   const estabelecimentoId = url.searchParams.get('e') ?? ''
   const body = await req.json().catch(() => ({}))
@@ -612,6 +696,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null)
     if (body?.action === 'criar') return await criarPedido(req, body)
     if (body?.action === 'confirmar') return await confirmarPedido(body)
+    if (body?.action === 'meus_pedidos') return await meusPedidos(body)
     return json({ error: 'Ação inválida' }, 400)
   } catch (e) {
     if (e instanceof ErroCliente) return json({ error: e.message }, e.status)

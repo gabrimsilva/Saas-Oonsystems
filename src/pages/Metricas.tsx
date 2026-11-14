@@ -33,7 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { BarChart3, CalendarIcon, TrendingUp, DollarSign, ShoppingCart, Package, Receipt, Store } from "lucide-react"
+import { BarChart3, CalendarIcon, TrendingUp, DollarSign, ShoppingCart, Package, Receipt, Store, Truck, ClipboardList } from "lucide-react"
 import { CartaoIndicador, TituloSecao } from '@/components/ui/indicador'
 import { format, subDays, startOfDay, endOfDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -91,7 +91,7 @@ function periodoInicial(): { periodo: string; inicio: Date; fim: Date } {
 }
 
 export default function Metricas() {
-  const { perfil } = usePermissoes()
+  const { perfil, permissoes } = usePermissoes()
   const ehAdminGeral = perfil === 'administrador_geral'
 
   const [inicial] = useState(periodoInicial)
@@ -924,27 +924,54 @@ export default function Metricas() {
         </div>
       </div>
 
-      {/* Loja física */}
-      {(filtroTipoVenda === "TODOS" || filtroTipoVenda === "PDV") && (
-        <div className="space-y-3">
-          <TituloSecao icone={Store}>Loja física</TituloSecao>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <CartaoIndicador
-              titulo="Faturamento PDV"
-              valor={formatarMoeda(metricas?.faturamentoPDV || 0)}
-              descricao={`${metricas?.quantidadeVendasPDV || 0} vendas realizadas`}
-              icone={DollarSign}
-              tom="primario"
-            />
-            <CartaoIndicador
-              titulo="Vendas PDV"
-              valor={metricas?.quantidadeVendasPDV || 0}
-              descricao={`Ticket médio: ${formatarMoeda(metricas?.quantidadeVendasPDV ? (metricas?.faturamentoPDV || 0) / metricas.quantidadeVendasPDV : 0)}`}
-              icone={ShoppingCart}
-            />
+      {/* Faturamento por canal: um bloco para cada módulo do plano */}
+      {(() => {
+        const canais = [
+          {
+            chave: 'PDV',
+            ativo: permissoes.podeAcessarPDV,
+            titulo: 'Loja física (PDV)',
+            icone: Store,
+            faturamento: metricas?.faturamentoPDV || 0,
+            quantidade: metricas?.quantidadeVendasPDV || 0,
+          },
+          {
+            chave: 'DELIVERY',
+            ativo: permissoes.podeAcessarPedidos,
+            titulo: 'Pedidos online (Delivery)',
+            icone: Truck,
+            faturamento: metricas?.faturamentoDelivery || 0,
+            quantidade: metricas?.quantidadeVendasDelivery || 0,
+          },
+          {
+            chave: 'COMANDA',
+            ativo: permissoes.podeAcessarComandas,
+            titulo: 'Comandas',
+            icone: ClipboardList,
+            faturamento: metricas?.faturamentoComandas || 0,
+            quantidade: metricas?.quantidadeVendasComandas || 0,
+          },
+        ].filter(c => c.ativo && (filtroTipoVenda === 'TODOS' || filtroTipoVenda === c.chave))
+
+        if (canais.length === 0) return null
+        return (
+          <div className="space-y-3">
+            <TituloSecao icone={Store}>Faturamento por canal</TituloSecao>
+            <div className={`grid gap-4 sm:grid-cols-2 ${canais.length >= 3 ? 'xl:grid-cols-3' : ''}`}>
+              {canais.map(canal => (
+                <CartaoIndicador
+                  key={canal.chave}
+                  titulo={canal.titulo}
+                  valor={formatarMoeda(canal.faturamento)}
+                  descricao={`${canal.quantidade} ${canal.quantidade === 1 ? 'venda' : 'vendas'} · Ticket médio: ${formatarMoeda(canal.quantidade ? canal.faturamento / canal.quantidade : 0)}`}
+                  icone={canal.icone}
+                  tom="primario"
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* Gráficos */}
       <Tabs defaultValue="vendas" className="space-y-4">
