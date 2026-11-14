@@ -811,9 +811,9 @@ export default function HistoricoComandas() {
 
       {/* Modal de Detalhes */}
       <Dialog open={showDetalhesModal} onOpenChange={setShowDetalhesModal}>
-        <DialogContent className="max-w-none w-[calc(100vw-18rem)] h-[calc(100vh-2rem)] max-h-none left-[16rem] right-auto top-4 translate-x-0 translate-y-0 flex flex-col ml-4 mr-4">
+        <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 p-4 sm:max-w-5xl sm:p-6">
           <DialogHeader>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 pr-8">
               <DialogTitle className="flex items-center gap-2">
                 <ClipboardList className="h-5 w-5" />
                 Detalhes da Comanda #{comandaSelecionada?.numero_comanda}
@@ -834,9 +834,9 @@ export default function HistoricoComandas() {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 pr-4 min-h-0">
+          <ScrollArea className="flex-1 min-h-0 pr-3">
             {/* Layout em 2 colunas */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Coluna Esquerda - Informações da Comanda */}
               <div className="space-y-6">
                 {/* Informações do Pedido */}
@@ -847,7 +847,7 @@ export default function HistoricoComandas() {
                   </h3>
                   <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
                     {comandaSelecionada?.criado_em && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Criado em:</span>
                         <span className="font-medium text-foreground">
                           {formatarData(comandaSelecionada.criado_em)} às {formatarHora(comandaSelecionada.criado_em)}
@@ -855,14 +855,14 @@ export default function HistoricoComandas() {
                       </div>
                     )}
                     {comandaSelecionada?.finalizado_em && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Finalizado em:</span>
                         <span className="font-medium text-foreground">
                           {formatarData(comandaSelecionada.finalizado_em)} às {formatarHora(comandaSelecionada.finalizado_em)}
                         </span>
                       </div>
                     )}
-                    <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                       <span className="text-muted-foreground font-medium">Pagamento:</span>
                       <span className="font-medium text-foreground">
                         {comandaSelecionada?.forma_pagamento_dividido ? (
@@ -884,13 +884,13 @@ export default function HistoricoComandas() {
                       </span>
                     </div>
                     {comandaSelecionada?.criador?.email && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Criado por:</span>
                         <span className="font-medium text-foreground">{comandaSelecionada.criador.email}</span>
                       </div>
                     )}
                     {comandaSelecionada?.finalizador?.email && (
-                      <div className="grid grid-cols-[120px_1fr] gap-2">
+                      <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                         <span className="text-muted-foreground font-medium">Finalizado por:</span>
                         <span className="font-medium text-foreground">{comandaSelecionada.finalizador.email}</span>
                       </div>
@@ -976,7 +976,7 @@ export default function HistoricoComandas() {
           {/* Footer fixo com totais - Compacto */}
           <div className="border-t pt-3 flex-shrink-0">
             <div className="bg-muted/50 p-3 rounded-lg">
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal:</span>
                   <span className="font-medium">R$ {comandaSelecionada?.subtotal.toFixed(2).replace('.', ',')}</span>

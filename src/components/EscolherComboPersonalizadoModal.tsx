@@ -450,7 +450,7 @@ export default function EscolherComboPersonalizadoModal({
         }
       `}</style>
       <AlertDialog open={isOpen} onOpenChange={onClose}>
-        <AlertDialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100%-20px)] sm:w-auto box-border max-md:!p-0 max-md:!overflow-hidden">
+        <AlertDialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[calc(100%-20px)] box-border max-md:!p-0 max-md:!overflow-hidden">
           {/* Botão fechar mobile */}
           <button
             onClick={onClose}

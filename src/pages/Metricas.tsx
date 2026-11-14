@@ -48,7 +48,7 @@ interface MetricasResumo {
   quantidadeVendas: number
   ticketMedio: number
   quantidadeProdutosVendidos: number
-  
+
   // Métricas por tipo de venda
   faturamentoPDV: number
   quantidadeVendasPDV: number
@@ -60,7 +60,7 @@ interface MetricasResumo {
   faturamentoComandas: number
   quantidadeVendasComandas: number
   ticketMedioComandas: number
-  
+
   // Análises
   produtosMaisVendidos: { nome: string; quantidade: number; total: number }[]
   vendasPorDia: { data: string; total: number; quantidade: number }[]
@@ -70,6 +70,43 @@ interface MetricasResumo {
 
 // Paleta categórica validada (daltonismo e contraste) — ordem fixa por série
 const COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300']
+
+/** Eixo de valores: "R$ 950", "R$ 12 mil", "R$ 1,2 mi" */
+const moedaCurta = (valor: number) =>
+  `R$ ${new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 }).format(valor)}`
+
+/** Corta rótulos longos do eixo; o nome completo aparece no tooltip */
+const encurtar = (texto: string, max: number) =>
+  texto && texto.length > max ? `${texto.slice(0, max - 1)}…` : texto
+
+/** Nome curto da forma de pagamento para o eixo ("Cartão de Débito" → "Débito") */
+const formaCurta = (forma: string) => forma.replace(/^Cart[ãa]o de /i, '')
+
+/** Tooltip do Recharts com as cores do tema (claro/escuro) */
+const ESTILO_TOOLTIP = {
+  contentStyle: {
+    background: 'var(--card)',
+    border: '1px solid var(--border)',
+    borderRadius: 8,
+    color: 'var(--card-foreground)',
+    fontSize: 12,
+  },
+  labelStyle: { color: 'var(--card-foreground)', fontWeight: 600 },
+  itemStyle: { color: 'var(--card-foreground)' },
+}
+
+/** Legenda da pizza: "Nome · 42%" (sem rótulos fora do círculo, que cortam no celular) */
+const legendaComPercentual = (dados: { total: number }[]) => {
+  const soma = dados.reduce((acc, d) => acc + d.total, 0)
+  return (nome: string, entrada: any) => {
+    const valor = Number(entrada?.payload?.total ?? entrada?.payload?.value ?? 0)
+    const pct = soma > 0 ? Math.round((valor / soma) * 100) : 0
+    return <span className="text-xs text-foreground">{nome} · {pct}%</span>
+  }
+}
+
+/** Altura do gráfico de barras horizontais conforme a quantidade de itens */
+const alturaBarras = (itens: number) => Math.max(160, itens * 34 + 24)
 
 /** Intervalo de datas de um período pré-definido ("7" = últimos 7 dias); null para "custom" */
 function intervaloDoPeriodo(valor: string): [Date, Date] | null {
@@ -101,7 +138,7 @@ export default function Metricas() {
   const [metricas, setMetricas] = useState<MetricasResumo | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeChartPagamento, setActiveChartPagamento] = useState<"total" | "quantidade">("total")
-  
+
   // Filtros opcionais
   const [filtroFormaPagamento, setFiltroFormaPagamento] = useState<string>(() => lerFiltroUrl("pagamento") ?? "TODAS")
   const [filtroTipoVenda, setFiltroTipoVenda] = useState<string>(() => lerFiltroUrl("tipo") ?? "TODOS")
@@ -144,7 +181,7 @@ export default function Metricas() {
   const handlePeriodoChange = (value: string) => {
     setPeriodo(value)
     const hoje = new Date()
-    
+
     switch (value) {
       case "0":
         setDataInicio(hoje)
@@ -177,7 +214,7 @@ export default function Metricas() {
   const carregarMetricas = async () => {
     try {
       setLoading(true)
-      
+
       const inicio = startOfDay(dataInicio).toISOString()
       const fim = endOfDay(dataFim).toISOString()
 
@@ -384,7 +421,7 @@ export default function Metricas() {
           // Calcular precoTotal = quantidade * preco (se precoTotal não existir)
           const precoUnitario = item.produto?.preco || item.precoUnitario || 0
           const precoTotal = item.precoTotal || (quantidade * precoUnitario)
-          
+
           const atual = produtosMap.get(nome) || { quantidade: 0, total: 0 }
           produtosMap.set(nome, {
             quantidade: atual.quantidade + quantidade,
@@ -416,14 +453,14 @@ export default function Metricas() {
           })
         })
       })
-      
+
       const produtosMaisVendidos = Array.from(produtosMap.entries())
         .map(([nome, dados]) => ({ nome, ...dados }))
         .sort((a, b) => b.quantidade - a.quantidade)
 
       // Faturamento por dia
       const vendasPorDiaMap = new Map<string, { total: number; quantidade: number }>()
-      
+
       vendasData.forEach(venda => {
         const data = format(new Date(venda.created_at), "dd/MM", { locale: ptBR })
         const atual = vendasPorDiaMap.get(data) || { total: 0, quantidade: 0 }
@@ -442,7 +479,7 @@ export default function Metricas() {
           quantidade: atual.quantidade + 1
         })
       })
-      
+
       const vendasPorDia = Array.from(vendasPorDiaMap.entries())
         .map(([data, dados]) => ({ data, ...dados }))
         .sort((a, b) => {
@@ -463,7 +500,7 @@ export default function Metricas() {
           // Calcular precoTotal = quantidade * preco (se precoTotal não existir)
           const precoUnitario = item.produto?.preco || item.precoUnitario || 0
           const precoTotal = item.precoTotal || (quantidade * precoUnitario)
-          
+
           const atual = categoriasMap.get(categoria) || { total: 0, quantidade: 0 }
           categoriasMap.set(categoria, {
             total: atual.total + precoTotal,
@@ -493,7 +530,7 @@ export default function Metricas() {
           })
         })
       })
-      
+
       const vendasPorCategoria = Array.from(categoriasMap.entries())
         .map(([categoria, dados]) => ({ categoria, ...dados }))
         .sort((a, b) => b.total - a.total)
@@ -518,7 +555,7 @@ export default function Metricas() {
       }
 
       const formasPagamentoMap = new Map<string, { total: number; quantidade: number }>()
-      
+
       // Adicionar dados de sales
       // Venda dividida soma cada parte na sua forma de pagamento
       vendasData.forEach(venda => {
@@ -553,7 +590,7 @@ export default function Metricas() {
           quantidade: atual.quantidade + 1
         })
       })
-      
+
       const faturamentoPorFormaPagamento = Array.from(formasPagamentoMap.entries())
         .map(([forma, dados]) => ({ forma, ...dados }))
         .sort((a, b) => b.total - a.total)
@@ -587,7 +624,7 @@ export default function Metricas() {
           .from('produtos')
           .select('id, custo')
           .in('id', Array.from(produtoIdsVendas))
-        
+
         const { data: custosData } = await custosQuery
         custosData?.forEach((p: any) => {
           custosMapProdutos.set(p.id, parseFloat(p.custo) || 0)
@@ -816,7 +853,7 @@ export default function Metricas() {
               )}
 
               <div className="flex items-center justify-end">
-                <RelatorioMetricas 
+                <RelatorioMetricas
                   metricas={metricas}
                   dataInicio={dataInicio}
                   dataFim={dataFim}
@@ -854,7 +891,7 @@ export default function Metricas() {
               </Select>
 
               {(filtroFormaPagamento !== "TODAS" || filtroTipoVenda !== "TODOS") && (
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
                     setFiltroFormaPagamento("TODAS")
@@ -1019,20 +1056,22 @@ export default function Metricas() {
                     axisLine={false}
                     tickMargin={8}
                   />
-                  <YAxis 
+                  <YAxis
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `R$ ${value}`}
+                    width={64}
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => moedaCurta(Number(value))}
                   />
                   <ChartTooltip
                     content={<ChartTooltipContent />}
                   />
                   <Legend />
-                  <Line 
-                    dataKey="total" 
+                  <Line
+                    dataKey="total"
                     name="Faturamento (R$)"
                     type="monotone"
-                    stroke="var(--color-total)" 
+                    stroke="var(--color-total)"
                     strokeWidth={3}
                     dot={{
                       fill: "var(--color-total)",
@@ -1068,6 +1107,8 @@ export default function Metricas() {
                     color: "var(--chart-1)",
                   },
                 } satisfies ChartConfig}
+                className="aspect-auto w-full"
+                style={{ height: alturaBarras(Math.min(metricas?.produtosMaisVendidos.length || 0, 10)) }}
               >
                 <BarChart
                   accessibilityLayer
@@ -1085,20 +1126,14 @@ export default function Metricas() {
                     tickLine={false}
                     tickMargin={4}
                     axisLine={false}
-                    width={90}
+                    width={112}
                     interval={0}
-                    tick={{ fontSize: 10 }}
-                    tickFormatter={(value) => {
-                      // Truncar para 12 caracteres (mobile friendly)
-                      if (value.length > 12) {
-                        return value.substring(0, 12) + '...'
-                      }
-                      return value
-                    }}
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => encurtar(String(value), 16)}
                   />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
+                    content={<ChartTooltipContent />}
                   />
                   <Bar dataKey="quantidade" fill="var(--color-quantidade)" radius={5} />
                 </BarChart>
@@ -1124,6 +1159,8 @@ export default function Metricas() {
                     color: "var(--chart-1)",
                   },
                 } satisfies ChartConfig}
+                className="aspect-auto w-full"
+                style={{ height: alturaBarras(metricas?.produtosMaisVendidos.length || 0) }}
               >
                 <BarChart
                   accessibilityLayer
@@ -1141,20 +1178,14 @@ export default function Metricas() {
                     tickLine={false}
                     tickMargin={4}
                     axisLine={false}
-                    width={90}
+                    width={112}
                     interval={0}
-                    tick={{ fontSize: 10 }}
-                    tickFormatter={(value) => {
-                      // Truncar para 12 caracteres (mobile friendly)
-                      if (value.length > 12) {
-                        return value.substring(0, 12) + '...'
-                      }
-                      return value
-                    }}
+                    tick={{ fontSize: 11 }}
+                    tickFormatter={(value) => encurtar(String(value), 16)}
                   />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
+                    content={<ChartTooltipContent />}
                   />
                   <Bar dataKey="total" fill="var(--color-total)" radius={5} />
                 </BarChart>
@@ -1183,22 +1214,28 @@ export default function Metricas() {
                     <Pie
                       data={metricas?.vendasPorCategoria || []}
                       cx="50%"
-                      cy="50%"
-                      outerRadius={80}
+                      cy="45%"
+                      innerRadius="45%"
+                      outerRadius="75%"
+                      paddingAngle={1}
                       fill="var(--chart-1)"
                       dataKey="total"
                       nameKey="categoria"
-                      label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(0)}%)`}
                     >
                       {metricas?.vendasPorCategoria.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value: number) => formatarMoeda(value)}
-                      labelStyle={{ color: '#000' }}
+                      {...ESTILO_TOOLTIP}
                     />
-                    <Legend />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: 12, lineHeight: '20px' }}
+                      formatter={legendaComPercentual(metricas?.vendasPorCategoria || [])}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1211,13 +1248,24 @@ export default function Metricas() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={metricas?.vendasPorCategoria || []}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="categoria" />
-                    <YAxis />
-                    <Tooltip labelStyle={{ color: '#000' }} />
-                    <Legend />
-                    <Bar dataKey="quantidade" fill="var(--chart-1)" name="Quantidade" />
+                  <BarChart
+                    data={metricas?.vendasPorCategoria || []}
+                    margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                    <XAxis
+                      dataKey="categoria"
+                      interval={0}
+                      tick={{ fontSize: 11 }}
+                      tickLine={false}
+                      angle={(metricas?.vendasPorCategoria.length || 0) > 3 ? -35 : 0}
+                      textAnchor={(metricas?.vendasPorCategoria.length || 0) > 3 ? 'end' : 'middle'}
+                      height={(metricas?.vendasPorCategoria.length || 0) > 3 ? 64 : 30}
+                      tickFormatter={(value) => encurtar(String(value), 12)}
+                    />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                    <Tooltip cursor={{ fill: 'var(--muted)' }} {...ESTILO_TOOLTIP} />
+                    <Bar dataKey="quantidade" fill="var(--chart-1)" name="Quantidade" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -1235,7 +1283,7 @@ export default function Metricas() {
                 </div>
                 <div className="flex">
                   {["total", "quantidade"].map((key) => {
-                    const totalValue = metricas?.faturamentoPorFormaPagamento?.reduce((acc, curr) => 
+                    const totalValue = metricas?.faturamentoPorFormaPagamento?.reduce((acc, curr) =>
                       acc + (key === "total" ? curr.total : curr.quantidade), 0) || 0
                     return (
                       <button
@@ -1283,18 +1331,17 @@ export default function Metricas() {
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
-                      tickFormatter={(value) => value.slice(0, 10)}
+                      interval={0}
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(value) => encurtar(formaCurta(String(value)), 12)}
                     />
                     <ChartTooltip
                       content={
-                        <ChartTooltipContent
-                          className="w-[150px]"
-                          nameKey="views"
-                        />
+                        <ChartTooltipContent className="w-[160px]" />
                       }
                     />
-                    <Bar 
-                      dataKey={activeChartPagamento} 
+                    <Bar
+                      dataKey={activeChartPagamento}
                       fill={`var(--color-${activeChartPagamento})`}
                       radius={8}
                     />
@@ -1314,22 +1361,28 @@ export default function Metricas() {
                     <Pie
                       data={metricas?.faturamentoPorFormaPagamento || []}
                       cx="50%"
-                      cy="50%"
-                      outerRadius={80}
+                      cy="45%"
+                      innerRadius="45%"
+                      outerRadius="75%"
+                      paddingAngle={1}
                       fill="var(--chart-1)"
                       dataKey="total"
                       nameKey="forma"
-                      label={({ name, percent }: any) => `${name} (${(percent * 100).toFixed(0)}%)`}
                     >
                       {metricas?.faturamentoPorFormaPagamento.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value: number) => formatarMoeda(value)}
-                      labelStyle={{ color: '#000' }}
+                      {...ESTILO_TOOLTIP}
                     />
-                    <Legend />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: 12, lineHeight: '20px' }}
+                      formatter={legendaComPercentual(metricas?.faturamentoPorFormaPagamento || [])}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>

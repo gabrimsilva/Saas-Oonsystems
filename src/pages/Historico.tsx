@@ -998,7 +998,7 @@ export default function Historico() {
       <Dialog open={showDetalhesModal} onOpenChange={setShowDetalhesModal}>
         <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 p-4 sm:max-w-5xl sm:p-6">
           <DialogHeader>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 pr-8">
               <DialogTitle className="flex items-center gap-2">
                 <History className="h-5 w-5" />
                 Detalhes do Pedido #{pedidoSelecionado?.codigo_pedido || pedidoSelecionado?.pedido_id.slice(-4)}

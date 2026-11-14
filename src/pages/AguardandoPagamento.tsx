@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 import toast from "react-hot-toast"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -75,6 +76,7 @@ interface PedidoAguardando {
 }
 
 export default function AguardandoPagamento() {
+  const tabelaRef = useTabelaResponsiva()
   const [pedidos, setPedidos] = useState<PedidoAguardando[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -391,7 +393,7 @@ export default function AguardandoPagamento() {
 
       {/* Tabela */}
       {pedidos.length > 0 && (
-        <div className="border rounded-lg overflow-hidden">
+        <div ref={tabelaRef} className="tabela-responsiva border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <Table className="min-w-full">
               <TableHeader>

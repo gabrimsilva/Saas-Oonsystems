@@ -17,6 +17,7 @@ import {
   TableRow 
 } from '@/components/ui/table'
 import { AlertCircle, Package, Loader2 } from 'lucide-react'
+import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 
 interface ProdutoConsumo {
   nome: string
@@ -32,6 +33,7 @@ interface ListaConsumoInternoProps {
 }
 
 export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsumoInternoProps) {
+  const tabelaRef = useTabelaResponsiva()
   const [produtos, setProdutos] = useState<ProdutoConsumo[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
@@ -161,7 +163,7 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
             <p className="text-muted-foreground">Nenhum produto consumido neste período</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div ref={tabelaRef} className="tabela-responsiva overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-border">

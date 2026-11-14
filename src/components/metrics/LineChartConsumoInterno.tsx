@@ -176,21 +176,20 @@ export default function LineChartConsumoInterno({ dataInicio: dataInicioExterno,
             <ResponsiveContainer width="100%" height={350}>
               <LineChart
                 data={dados}
-                margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+                margin={{ top: 5, right: 12, left: -16, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis
                   dataKey="periodo"
-                  stroke="#666"
-                  style={{ fontSize: '12px' }}
+                  stroke="var(--muted-foreground)"
+                  style={{ fontSize: '11px' }}
                   angle={dados.length > 20 ? -45 : 0}
                   textAnchor={dados.length > 20 ? 'end' : 'middle'}
                   height={dados.length > 20 ? 80 : 30}
                 />
                 <YAxis
-                  stroke="#666"
-                  style={{ fontSize: '12px' }}
-                  label={{ value: 'Unidades', angle: -90, position: 'insideLeft' }}
+                  stroke="var(--muted-foreground)"
+                  style={{ fontSize: '11px' }}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend

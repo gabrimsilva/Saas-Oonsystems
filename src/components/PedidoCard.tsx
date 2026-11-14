@@ -257,7 +257,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
       <Dialog open={showDetalhesModal} onOpenChange={setShowDetalhesModal}>
         <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col gap-4 p-4 sm:max-w-5xl sm:p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
+            <DialogTitle className="flex flex-wrap items-center gap-2 pr-8">
               <span>Detalhes do Pedido #{idCurto}</span>
               <PrintOrder pedido={pedido} compact />
             </DialogTitle>
