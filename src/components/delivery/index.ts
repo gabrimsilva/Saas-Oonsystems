@@ -1,7 +1,0 @@
-export { default as BotaoVoltarTopo } from './BotaoVoltarTopo'
-export { default as BotaoWhatsApp } from './BotaoWhatsApp'
-export { default as BotoesFlutantes } from './BotoesFlutantes'
-export { default as FiltroCategorias } from './FiltroCategorias'
-export { default as GridProdutos } from './GridProdutos'
-export { default as SecaoCategoria } from './SecaoCategoria'
-export { default as CatalogoProdutoCard } from './CatalogoProdutoCard'

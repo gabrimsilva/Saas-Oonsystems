@@ -5,14 +5,10 @@
 // Hooks de formatação e validação
 export { useFormatacao } from './useFormatacao'
 export { useValidacao } from './useValidacao'
-export { useBuscaCEP } from './useBuscaCEP'
 
 // Hooks de carrinho
-export { useCarrinho } from './useCarrinho'
 export { useCarrinhoPDV } from './useCarrinhoPDV'
 
-// Hooks de checkout
-export { useValidacaoCheckout } from './useValidacaoCheckout'
 
 // Hooks de pedidos
 export { useRealtimePedidos } from './useRealtimePedidos'
@@ -21,7 +17,6 @@ export { usePedidoExpandido } from './usePedidoExpandido'
 export { useAutoArquivarPedidos } from './useAutoArquivarPedidos'
 
 // Hooks de finalização
-export { useFinalizarPedido } from './useFinalizarPedido'
 export { useFinalizarPedidoPDV } from './useFinalizarPedidoPDV'
 
 // Hooks de filtros e busca

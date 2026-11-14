@@ -1,6 +1,0 @@
-export { default as FormularioRetirada } from './FormularioRetirada'
-export { default as ResumoPedido } from './ResumoPedido'
-export { default as FormasPagamento } from './FormasPagamento'
-export { useCheckoutLogic } from './useCheckoutLogic'
-export * from './checkoutUtils'
-export type * from './types'
