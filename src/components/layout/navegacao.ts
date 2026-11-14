@@ -119,7 +119,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
 
 /** Páginas internas que pertencem a um item do menu (formulários de criação/edição) */
 const PAGINAS_RELACIONADAS: Record<string, string[]> = {
-  produtos: ['novo-produto', 'editar-produto', 'novo-combo', 'editar-combo'],
+  produtos: ['novo-produto', 'editar-produto'],
   categorias: ['nova-categoria', 'editar-categoria'],
   'estoque-produtos': ['estoque', 'novo-item-estoque', 'editar-item-estoque'],
   funcionarios: ['novo-funcionario', 'editar-funcionario'],
@@ -129,8 +129,6 @@ const PAGINAS_RELACIONADAS: Record<string, string[]> = {
 const TITULOS_EXTRAS: Record<string, string> = {
   'novo-produto': 'Novo produto',
   'editar-produto': 'Editar produto',
-  'novo-combo': 'Novo combo',
-  'editar-combo': 'Editar combo',
   'nova-categoria': 'Nova categoria',
   'editar-categoria': 'Editar categoria',
   estoque: 'Estoque',
@@ -138,8 +136,6 @@ const TITULOS_EXTRAS: Record<string, string> = {
   'editar-item-estoque': 'Editar item de estoque',
   'novo-funcionario': 'Novo funcionário',
   'editar-funcionario': 'Editar funcionário',
-  sabores: 'Sabores',
-  adicionais: 'Adicionais',
 }
 
 export function itemAtivo(itemId: string, paginaAtual: string): boolean {

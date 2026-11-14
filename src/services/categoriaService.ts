@@ -80,9 +80,6 @@ export interface CategoriaService {
    */
   contarItensVinculados(categoriaId: string): Promise<{
     produtos: number
-    sabores: number
-    bordas: number
-    adicionais: number
     total: number
   }>
 
@@ -280,49 +277,15 @@ export const categoriaService: CategoriaService = {
    */
   async contarItensVinculados(categoriaId: string): Promise<{
     produtos: number
-    sabores: number
-    bordas: number
-    adicionais: number
     total: number
   }> {
-    // Contar produtos
-    const { count: produtosCount } = await supabase
+    const { count } = await supabase
       .from('produtos')
       .select('*', { count: 'exact', head: true })
       .eq('categoria_id', categoriaId)
 
-    // Contar sabores normais
-    const { count: saboresCount } = await supabase
-      .from('sabores')
-      .select('*', { count: 'exact', head: true })
-      .eq('categoria_id', categoriaId)
-      .eq('tipo_sabor', 'normal')
-
-    // Contar bordas
-    const { count: bordasCount } = await supabase
-      .from('sabores')
-      .select('*', { count: 'exact', head: true })
-      .eq('categoria_id', categoriaId)
-      .eq('tipo_sabor', 'borda')
-
-    // Contar adicionais
-    const { count: adicionaisCount } = await supabase
-      .from('adicionais')
-      .select('*', { count: 'exact', head: true })
-      .eq('categoria_id', categoriaId)
-
-    const produtos = produtosCount || 0
-    const sabores = saboresCount || 0
-    const bordas = bordasCount || 0
-    const adicionais = adicionaisCount || 0
-
-    return {
-      produtos,
-      sabores,
-      bordas,
-      adicionais,
-      total: produtos + sabores + bordas + adicionais
-    }
+    const produtos = count || 0
+    return { produtos, total: produtos }
   },
 
   /**

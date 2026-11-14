@@ -64,29 +64,18 @@ export default function TestePrintOrder({ fontSizes: propFontSizes }: {
       {
         quantidade: 1,
         produto: {
-          nome: "Pizza Margherita",
+          nome: "Camiseta Básica - M",
           preco: 35.00,
-          categoria: "Pizzas"
+          categoria: "Roupas"
         },
-        tamanhoSelecionado: {
-          nome: "Grande",
-          tamanho: "35cm",
-          valor: 35.00
-        },
-        saboresSelecionados: [
-          { nome: "Margherita" }
-        ],
-        bordaSelecionada: {
-          nome: "Catupiry",
-          valor: 0
-        }
+        observacoes: "Embalar para presente"
       },
       {
-        quantidade: 1,
+        quantidade: 2,
         produto: {
-          nome: "Refrigerante 2L",
-          preco: 10.00,
-          categoria: "Bebidas"
+          nome: "Meia Esportiva",
+          preco: 5.00,
+          categoria: "Acessórios"
         }
       }
     ]
@@ -104,16 +93,16 @@ export default function TestePrintOrder({ fontSizes: propFontSizes }: {
         <p className="text-sm text-muted-foreground">
           Use este botão para testar a funcionalidade de impressão com um pedido de exemplo.
         </p>
-        
+
         <div className="flex flex-wrap gap-2">
-          <Button 
+          <Button
             onClick={() => setMostrarTeste(!mostrarTeste)}
             variant="outline"
             className="flex-shrink-0"
           >
             {mostrarTeste ? 'Ocultar' : 'Mostrar'} Preview de Impressão
           </Button>
-          
+
           {mostrarTeste && (
             <div className="flex-shrink-0">
               <PrintOrder pedido={pedidoTeste} />

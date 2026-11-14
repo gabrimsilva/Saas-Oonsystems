@@ -14,14 +14,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { useDebounce } from "@/hooks/useDebounce"
 import { DEBOUNCE_DELAYS } from "@/constants/timers"
-import { produtoService, categoriaService, tamanhoService, comboService, stockService, type CategoriaSupabase } from "@/services"
+import { produtoService, categoriaService, stockService, type CategoriaSupabase } from "@/services"
 import FiltrosProdutos from "@/components/pdv/FiltrosProdutos"
 import GridProdutos from "@/components/pdv/GridProdutos"
-import GridCombos from "@/components/pdv/GridCombos"
 import CarrinhoPDV from "@/components/pdv/CarrinhoPDV"
 import ModalFinalizarPedido from "@/components/pdv/ModalFinalizarPedido"
-import EscolherSaborModal from "@/components/EscolherSaborModal"
-import EscolherComboPersonalizadoModal from "@/components/EscolherComboPersonalizadoModal"
 import BuscaUnificadaPDV from "@/components/pdv/BuscaUnificadaPDV"
 import SelecionarVarianteModal from "@/components/pdv/SelecionarVarianteModal"
 import ModalDescontoItem from "@/components/pdv/ModalDescontoItem"
@@ -36,17 +33,15 @@ import { CabecalhoPagina } from '@/components/ui/feedback'
 
 /**
  * Página PDV (Ponto de Venda)
- * 
+ *
  * Permite registrar pedidos diretamente pelo sistema, com suporte a:
  * - Busca e filtro de produtos por categoria
- * - Adição de produtos simples e com personalizações (sabores, bordas, tamanhos)
+ * - Adição de produtos (com variantes de estoque, quando houver)
  * - Gerenciamento de carrinho
- * - Combos promocionais
  * - Dados do cliente e finalização de pedido
  */
 export default function PDV() {
     const [produtos, setProdutos] = useState<ProdutoPDV[]>([])
-    const [combos, setCombos] = useState<any[]>([])
     const [categorias, setCategorias] = useState<CategoriaSupabase[]>([])
     const [categoriaAtiva, setCategoriaAtiva] = useState('todos')
     const [searchTerm, setSearchTerm] = useState('')
@@ -58,14 +53,11 @@ export default function PDV() {
 
     // Estados dos modals (sem modal de cliente)
     const [modalFinalizarAberto, setModalFinalizarAberto] = useState(false)
-    const [modalSaborAberto, setModalSaborAberto] = useState(false)
-    const [modalComboPersonalizadoAberto, setModalComboPersonalizadoAberto] = useState(false)
     const [modalVarianteAberto, setModalVarianteAberto] = useState(false)
     const [modalDescontoAberto, setModalDescontoAberto] = useState(false)
     const [itemDescontoIndex, setItemDescontoIndex] = useState<number>(0)
     const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoPDV | null>(null)
-    const [comboSelecionado, setComboSelecionado] = useState<any>(null)
-    
+
     // Estado para mensagens
     const [mensagemDialog, setMensagemDialog] = useState<{ titulo: string; descricao: string } | null>(null)
 
@@ -75,8 +67,6 @@ export default function PDV() {
         adicionarAoCarrinho,
         removerDoCarrinho,
         adicionarComPersonalizacao,
-        adicionarComboSimples,
-        adicionarComboPersonalizado,
         limparCarrinho,
         calcularSubtotal,
         aplicarDescontoItem,
@@ -107,10 +97,9 @@ export default function PDV() {
         try {
             setLoading(true)
 
-            const [produtosData, categoriasData, combosData] = await Promise.all([
+            const [produtosData, categoriasData] = await Promise.all([
                 produtoService.buscarTodos(),
-                categoriaService.buscarAtivas(),
-                comboService.buscarTodos()
+                categoriaService.buscarAtivas()
             ])
 
             // Mapear produtos para incluir aliases
@@ -120,13 +109,10 @@ export default function PDV() {
                     ...produto,
                     categoria: produto.categoria_nome || 'outros',
                     urlImagem: produto.imagem_path || '/placeholder-food.svg',
-                    precoPromocional: produto.preco_promocional,
-                    saboresDisponiveis: produto.sabores_disponiveis,
-                    quantidadeSabores: produto.quantidade_sabores
+                    precoPromocional: produto.preco_promocional
                 }))
 
             setProdutos(produtosComAlias)
-            setCombos(combosData.filter(combo => combo.ativo))
 
             // Filtrar e ordenar categorias ativas
             const categoriasAtivas = categoriasData
@@ -165,12 +151,9 @@ export default function PDV() {
         return matchCategoria && matchSearch
     })
 
-    // Filtrar combos (só mostrar quando não há filtros ativos)
-    const combosFiltrados = (categoriaAtiva === 'todos' && debouncedSearchTerm === '') ? combos : []
-
     // Helper: Encontrar índice de um item simples (sem personalizações) no carrinho
     const encontrarItemSimples = (produtoId: string): number => {
-        return carrinho.findIndex(item => 
+        return carrinho.findIndex(item =>
             item.produto.id === produtoId &&
             (!item.saboresSelecionados || item.saboresSelecionados.length === 0) &&
             !item.bordaSelecionada &&
@@ -199,7 +182,7 @@ export default function PDV() {
             }
             // Adicionar diretamente ao carrinho sem verificar variantes
             adicionarComPersonalizacao(
-                produto, 
+                produto,
                 [], // sem sabores
                 null, // sem borda
                 undefined, // sem tamanho
@@ -211,7 +194,7 @@ export default function PDV() {
         }
 
         // FLUXO MANUAL (clique no produto) - verificar variantes e abrir modal
-        
+
         // Verificar se produto tem variantes de estoque
         try {
             const stockItem = await stockService.buscarPorProduto(produto.id)
@@ -228,89 +211,20 @@ export default function PDV() {
             console.error('Erro ao verificar variantes:', error)
         }
 
-        // SEMPRE verificar se o produto tem tamanhos cadastrados
-        // Não depender apenas da flag da categoria
-        let produtoTemTamanhos = false
-        try {
-            const tamanhos = await tamanhoService.buscarPorProduto(produto.id)
-            produtoTemTamanhos = tamanhos && tamanhos.length > 0
-        } catch (error) {
-            console.error('Erro ao verificar tamanhos:', error)
-        }
-
-        // Se tem tamanhos, abrir modal
-        if (produtoTemTamanhos) {
-            setProdutoSelecionado(produto)
-            setModalSaborAberto(true)
-            return
-        }
-
-        // Verificar se o PRODUTO realmente tem sabores configurados
-        const produtoTemSabores = produto.saboresDisponiveis && (
-            (produto.quantidade_sabores && produto.quantidade_sabores > 0) ||
-            (produto.quantidadeSabores && produto.quantidadeSabores > 0)
-        )
-
-        // Verificar se a categoria do produto tem configurações especiais
-        const categoriaDoProduto = categorias.find(cat => cat.id === produto.categoria_id)
-
-        // Verificar se o produto permite adicionais E a categoria tem adicionais
-        type ProdutoComExtras = ProdutoPDV & { permite_adicionais?: boolean }
-        type CategoriaComExtras = typeof categoriaDoProduto & { tem_adicionais?: boolean }
-        const produtoTemAdicionais = (produto as ProdutoComExtras).permite_adicionais &&
-            (categoriaDoProduto as CategoriaComExtras)?.tem_adicionais
-
-        // Se o produto tem sabores ou adicionais, abrir modal de personalização
-        if (produtoTemSabores || produtoTemAdicionais) {
-            setProdutoSelecionado(produto)
-            setModalSaborAberto(true)
+        // Produto sem variantes: soma no item que já está no carrinho ou cria um novo
+        const indexExistente = encontrarItemSimples(produto.id)
+        if (indexExistente !== -1) {
+            adicionarAoCarrinho(produto, indexExistente)
         } else {
-            // Produto simples - verificar se já existe no carrinho
-            const indexExistente = encontrarItemSimples(produto.id)
-            if (indexExistente !== -1) {
-                // Produto já existe como item simples - incrementar quantidade
-                adicionarAoCarrinho(produto, indexExistente)
-            } else {
-                // Novo item - adicionar ao carrinho
-                adicionarComPersonalizacao(
-                    produto, 
-                    [], // sem sabores
-                    null, // sem borda
-                    undefined, // sem tamanho
-                    1, // quantidade
-                    [], // sem adicionais
-                    undefined // sem observações
-                )
-            }
+            adicionarComPersonalizacao(produto, [], null, undefined, 1, [], undefined)
         }
-    }
-
-    // Handler para adicionar produto com personalizações
-    const handleAdicionarComPersonalizacao = (
-        saboresSelecionados: any[],
-        bordaSelecionada: any | null,
-        tamanhoSelecionado?: any,
-        quantidade: number = 1,
-        adicionaisSelecionados?: any[],
-        observacoes?: string
-    ) => {
-        if (!produtoSelecionado) return
-        adicionarComPersonalizacao(
-            produtoSelecionado, 
-            saboresSelecionados, 
-            bordaSelecionada, 
-            tamanhoSelecionado, 
-            quantidade, 
-            adicionaisSelecionados, 
-            observacoes
-        )
     }
 
     // Handler para confirmar seleção de variante
     const handleConfirmarVariante = (variantId: string, variantLabel: string) => {
         console.log('🔍 [PDV.handleConfirmarVariante] Recebido:', { variantId, variantLabel })
         if (!produtoSelecionado) return
-        
+
         // Adicionar produto com variante ao carrinho
         adicionarComPersonalizacao(
             produtoSelecionado,
@@ -324,51 +238,6 @@ export default function PDV() {
             variantLabel
         )
         console.log('✅ [PDV.handleConfirmarVariante] Produto adicionado ao carrinho com variante:', variantLabel)
-    }
-
-    // Handler para adicionar combo ao carrinho
-    const handleAdicionarCombo = async (combo: ComboSupabase) => {
-        try {
-            // Verificar se o combo tem produtos que precisam de personalização
-            const produtosCombo = await comboService.buscarProdutosCombo(combo.id)
-
-            const temProdutoComPersonalizacao = await Promise.all(
-                produtosCombo.map(async (produto) => {
-                    if (produto.sabores_disponiveis || produto.quantidade_sabores > 0) {
-                        return true
-                    }
-                    try {
-                        const tamanhos = await tamanhoService.buscarPorProduto(produto.id)
-                        return tamanhos && tamanhos.length > 0
-                    } catch (error) {
-                        console.error('Erro ao verificar tamanhos do produto:', error)
-                        return false
-                    }
-                })
-            )
-
-            const precisaPersonalizacao = temProdutoComPersonalizacao.some(Boolean)
-
-            if (precisaPersonalizacao) {
-                setComboSelecionado(combo)
-                setModalComboPersonalizadoAberto(true)
-            } else {
-                // Combo simples - adicionar diretamente sem observações
-                adicionarComboSimples(combo, undefined)
-            }
-        } catch (error) {
-            console.error('Erro ao verificar produtos do combo:', error)
-            setMensagemDialog({
-                titulo: 'Erro',
-                descricao: 'Erro ao adicionar combo. Tente novamente.'
-            })
-        }
-    }
-
-    // Handler para adicionar combo personalizado
-    const handleAdicionarComboPersonalizado = (produtosPersonalizados: any[], quantidade: number, observacoes?: string) => {
-        if (!comboSelecionado) return
-        adicionarComboPersonalizado(comboSelecionado, produtosPersonalizados, quantidade, observacoes)
     }
 
     // Handler para abrir modal de desconto
@@ -406,10 +275,6 @@ export default function PDV() {
                 categoria: resultado.produto.categoria_nome,
                 imagem_path: resultado.produto.imagem_path || '',
                 urlImagem: resultado.produto.imagem_path || '',
-                sabores_disponiveis: resultado.produto.sabores_disponiveis || false,
-                saboresDisponiveis: resultado.produto.sabores_disponiveis || false,
-                quantidade_sabores: resultado.produto.quantidade_sabores || 0,
-                quantidadeSabores: resultado.produto.quantidade_sabores || 0,
                 ativo: resultado.produto.ativo,
                 criado_em: resultado.produto.criado_em,
                 atualizado_em: resultado.produto.atualizado_em
@@ -418,7 +283,7 @@ export default function PDV() {
             // Se for VARIANTE específica, adicionar com a variante
             if (resultado.tipo === 'variante' && resultado.variante) {
                 toast.success(`${resultado.produto.nome} - ${resultado.variante.label}`, { id: 'barcode-search' })
-                
+
                 // Adicionar diretamente ao carrinho com a variante selecionada
                 adicionarComPersonalizacao(
                     produtoPDV,
@@ -437,7 +302,7 @@ export default function PDV() {
             // Se for produto (código genérico), adicionar direto também
             // DIFERENÇA: fromBarcode = true para pular modal de variantes
             toast.success(`${resultado.produto.nome}`, { id: 'barcode-search' })
-            
+
             // Adicionar produto ao carrinho DIRETO (sem modal, mesmo com variantes)
             await handleAdicionarProduto(produtoPDV, undefined, true)
         } catch (error) {
@@ -459,7 +324,7 @@ export default function PDV() {
             })
             return
         }
-        
+
         setModalFinalizarAberto(true)
     }
 
@@ -576,13 +441,6 @@ export default function PDV() {
                         </div>
                     </div>
 
-                    {combosFiltrados.length > 0 && (
-                        <GridCombos
-                            combos={combosFiltrados}
-                            onAdicionarCombo={handleAdicionarCombo}
-                        />
-                    )}
-
                     <GridProdutos
                         produtos={produtosFiltrados}
                         onAdicionarAoCarrinho={handleAdicionarProduto}
@@ -639,31 +497,6 @@ export default function PDV() {
                 }}
                 produto={produtoSelecionado}
                 onConfirmar={handleConfirmarVariante}
-            />
-
-            {/* Modal de Seleção de Sabores */}
-            <EscolherSaborModal
-                isOpen={modalSaborAberto}
-                onClose={() => {
-                    setModalSaborAberto(false)
-                    setProdutoSelecionado(null)
-                }}
-                produto={produtoSelecionado}
-                categoria={produtoSelecionado ? categorias.find(cat => cat.id === produtoSelecionado.categoria_id) || null : null}
-                onConfirm={handleAdicionarComPersonalizacao}
-                variant="default"
-            />
-
-            {/* Modal de Combo Personalizado */}
-            <EscolherComboPersonalizadoModal
-                isOpen={modalComboPersonalizadoAberto}
-                combo={comboSelecionado}
-                onClose={() => {
-                    setModalComboPersonalizadoAberto(false)
-                    setComboSelecionado(null)
-                }}
-                onConfirm={handleAdicionarComboPersonalizado}
-                variant="default"
             />
 
             {/* Modal de Desconto do Item */}

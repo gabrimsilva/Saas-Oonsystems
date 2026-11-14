@@ -51,14 +51,14 @@ export default function Categorias() {
     try {
       setSaving(true)
       setError(null)
-      
+
       // Verificar itens vinculados antes de excluir
       const itens = await categoriaService.contarItensVinculados(categoria.id)
       if (itens.total > 0) {
-        setError(`Não é possível excluir esta categoria pois existem ${itens.total} itens vinculados.`)
+        setError(`Não é possível excluir esta categoria pois existem ${itens.total} produtos nela.`)
         return
       }
-      
+
       await categoriaService.excluir(categoria.id)
       await carregarCategorias()
     } catch (err) {
@@ -181,32 +181,12 @@ export default function Categorias() {
                 {/* Nome da categoria */}
                 <div className="mb-3">
                   <h3 className="font-semibold text-lg text-foreground mb-2">{categoria.nome}</h3>
-                  
+
                   {/* Badges - Desktop: inline, Mobile: wrap */}
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <span className={`text-xs font-medium px-2 py-1 rounded ${getStatusColor(categoria.ativa)}`}>
                       {categoria.ativa ? 'Ativa' : 'Inativa'}
                     </span>
-                    {(categoria as any).tem_sabores && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                        Sabores
-                      </span>
-                    )}
-                    {(categoria as any).tem_borda && (
-                      <span className="text-xs bg-warning/15 text-warning-foreground px-2 py-1 rounded">
-                        Borda
-                      </span>
-                    )}
-                    {(categoria as any).tem_tamanhos && (
-                      <span className="text-xs bg-success/10 text-success px-2 py-1 rounded">
-                        Tamanhos
-                      </span>
-                    )}
-                    {(categoria as any).tem_adicionais && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                        Adicionais
-                      </span>
-                    )}
                   </div>
                 </div>
 

@@ -28,16 +28,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
-import { produtoService, categoriaService, tamanhoService, comandaService, comboService, configuracaoService, estoqueService, stockService } from "@/services"
-import type { CategoriaSupabase, ComboSupabase } from "@/types/supabase"
+import { produtoService, categoriaService, comandaService, configuracaoService, estoqueService, stockService } from "@/services"
+import type { CategoriaSupabase } from "@/types/supabase"
 import { type ProdutoPDV } from "@/components/pdv/types"
-import EscolherSaborModal from "@/components/EscolherSaborModal"
-import EscolherComboPersonalizadoModal from "@/components/EscolherComboPersonalizadoModal"
 import SelecionarVarianteModal from "@/components/pdv/SelecionarVarianteModal"
 import BarcodeScanner from "@/components/BarcodeScanner"
 import FiltrosProdutos from "@/components/pdv/FiltrosProdutos"
 import GridProdutos from "@/components/pdv/GridProdutos"
-import GridCombos from "@/components/pdv/GridCombos"
 import { qzTrayService } from "@/lib/qzTrayService"
 import { renderizarDetalhesCombo, renderizarDetalhesComboHTML } from "@/utils/comboFormatacao"
 import { calcularDescontoEmReais } from "@/utils/descontoCalculation"
@@ -88,7 +85,6 @@ export default function Comandas() {
 
   // Estados dos produtos
   const [produtos, setProdutos] = useState<ProdutoPDV[]>([])
-  const [combos, setCombos] = useState<ComboSupabase[]>([])
   const [categorias, setCategorias] = useState<CategoriaSupabase[]>([])
   const [categoriaAtiva, setCategoriaAtiva] = useState('todos')
   const [searchTerm, setSearchTerm] = useState('')
@@ -96,11 +92,8 @@ export default function Comandas() {
   const [loading, setLoading] = useState(true)
 
   // Estados dos modals
-  const [modalSaborAberto, setModalSaborAberto] = useState(false)
-  const [modalComboPersonalizadoAberto, setModalComboPersonalizadoAberto] = useState(false)
   const [modalVarianteAberto, setModalVarianteAberto] = useState(false)
   const [produtoSelecionado, setProdutoSelecionado] = useState<ProdutoPDV | null>(null)
-  const [comboSelecionado, setComboSelecionado] = useState<ComboSupabase | null>(null)
   const [modalFinalizarAberto, setModalFinalizarAberto] = useState(false)
   const [divisaoComanda, setDivisaoComanda] = useState(DIVISAO_INICIAL)
   const [modalScannerAberto, setModalScannerAberto] = useState(false)
@@ -154,9 +147,8 @@ export default function Comandas() {
   const carregarDados = async () => {
     try {
       setLoading(true)
-      const [produtosData, combosData, categoriasData] = await Promise.all([
+      const [produtosData, categoriasData] = await Promise.all([
         produtoService.buscarTodos(),
-        comboService.buscarTodos(),
         categoriaService.buscarAtivas()
       ])
 
@@ -166,14 +158,10 @@ export default function Comandas() {
           ...produto,
           categoria: produto.categoria_nome || 'outros',
           urlImagem: produto.imagem_path || '/placeholder-food.svg',
-          precoPromocional: produto.preco_promocional,
-          saboresDisponiveis: produto.sabores_disponiveis,
-          quantidadeSabores: produto.quantidade_sabores
+          precoPromocional: produto.preco_promocional
         }))
 
       setProdutos(produtosComAlias)
-      const combosAtivos = combosData.filter(combo => combo.ativo)
-      setCombos(combosAtivos)
 
       const categoriasAtivas = categoriasData
         .filter(cat => cat.ativa)
@@ -194,18 +182,12 @@ export default function Comandas() {
     return matchCategoria && matchSearch
   })
 
-  // Filtrar combos (só mostrar quando não há filtros ativos)
-  const combosFiltrados = (categoriaAtiva === 'todos' && debouncedSearchTerm === '') ? combos : []
-
   // Adicionar produto à comanda
   const handleAdicionarProduto = async (produto: ProdutoPDV) => {
     if (comandaSelecionada === null) {
       toast.error('Selecione uma comanda primeiro!')
       return
     }
-
-    // Verificar se a categoria do produto tem configurações especiais
-    const categoria = categorias.find(cat => cat.id === produto.categoria_id)
 
     // PRIMEIRO: Verificar se produto tem variantes de estoque
     try {
@@ -223,137 +205,65 @@ export default function Comandas() {
       console.error('Erro ao verificar variantes:', error)
     }
 
-    // Verificar se o PRODUTO realmente tem sabores configurados
-    const produtoTemSabores = produto.sabores_disponiveis && (
-      (produto.quantidade_sabores && produto.quantidade_sabores > 0) ||
-      ((produto as any).quantidadeSabores && (produto as any).quantidadeSabores > 0)
-    )
+    // Produto sem variantes: soma no item que já está na comanda ou cria um novo
+    const precoUnitario = Number(produto.preco_promocional || produto.preco)
 
-    // Verificar se o produto permite adicionais E a categoria tem adicionais
-    const produtoTemAdicionais = (produto as any).permite_adicionais && (categoria as any)?.tem_adicionais
+    setComandas(prev => {
+      return prev.map(comanda => {
+        if (comanda.numero === comandaSelecionada) {
+          // Procurar por item simples (sem personalizações) do mesmo produto
+          const itemExistente = comanda.itens.find(item =>
+            item.produto.id === produto.id &&
+            (!item.saboresSelecionados || item.saboresSelecionados.length === 0) &&
+            !item.bordaSelecionada &&
+            !item.tamanhoSelecionado &&
+            (!item.adicionaisSelecionados || item.adicionaisSelecionados.length === 0) &&
+            !item.observacoes &&
+            !item.variantId
+          )
 
-    // SEMPRE verificar se tem tamanhos cadastrados no produto
-    // Não depender apenas da flag da categoria
-    let temTamanhos = false
-    try {
-      const tamanhos = await tamanhoService.buscarPorProduto(produto.id)
-      temTamanhos = tamanhos && tamanhos.length > 0
-    } catch (error) {
-      console.error('Erro ao verificar tamanhos:', error)
-    }
-
-    // Só abre modal se o PRODUTO tiver personalizações, não apenas a categoria
-    if (produtoTemSabores || temTamanhos || produtoTemAdicionais) {
-      setProdutoSelecionado(produto)
-      setModalSaborAberto(true)
-    } else {
-      // Produto simples - verificar se já existe e incrementar ou criar novo
-      if (comandaSelecionada === null) return
-
-      const precoUnitario = Number(produto.preco_promocional || produto.preco)
-
-      setComandas(prev => {
-        return prev.map(comanda => {
-          if (comanda.numero === comandaSelecionada) {
-            // Procurar por item simples (sem personalizações) do mesmo produto
-            const itemExistente = comanda.itens.find(item => 
-              item.produto.id === produto.id &&
-              (!item.saboresSelecionados || item.saboresSelecionados.length === 0) &&
-              !item.bordaSelecionada &&
-              !item.tamanhoSelecionado &&
-              (!item.adicionaisSelecionados || item.adicionaisSelecionados.length === 0) &&
-              !item.observacoes &&
-              !item.variantId
-            )
-
-            if (itemExistente) {
-              // Item simples já existe - incrementar quantidade
-              const novosItens = comanda.itens.map(item => {
-                if (item.id === itemExistente.id) {
-                  const novaQuantidade = item.quantidade + 1
-                  return {
-                    ...item,
-                    quantidade: novaQuantidade,
-                    precoTotal: (item.precoUnitario || 0) * novaQuantidade
-                  }
+          if (itemExistente) {
+            // Item simples já existe - incrementar quantidade
+            const novosItens = comanda.itens.map(item => {
+              if (item.id === itemExistente.id) {
+                const novaQuantidade = item.quantidade + 1
+                return {
+                  ...item,
+                  quantidade: novaQuantidade,
+                  precoTotal: (item.precoUnitario || 0) * novaQuantidade
                 }
-                return item
-              })
-              return {
-                ...comanda,
-                itens: novosItens,
-                total: calcularTotalComanda(novosItens),
-                aberta: true
               }
-            } else {
-              // Novo item - criar como antes
-              const novoItem: ItemComanda = {
-                id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                produto: produto,
-                quantidade: 1,
-                precoUnitario: Number(precoUnitario),
-                precoTotal: Number(precoUnitario),
-                observacoes: undefined
-              }
-              const novosItens = [...comanda.itens, novoItem]
-              return {
-                ...comanda,
-                itens: novosItens,
-                total: calcularTotalComanda(novosItens),
-                aberta: true
-              }
+              return item
+            })
+            return {
+              ...comanda,
+              itens: novosItens,
+              total: calcularTotalComanda(novosItens),
+              aberta: true
+            }
+          } else {
+            // Novo item - criar como antes
+            const novoItem: ItemComanda = {
+              id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              produto: produto,
+              quantidade: 1,
+              precoUnitario: Number(precoUnitario),
+              precoTotal: Number(precoUnitario),
+              observacoes: undefined
+            }
+            const novosItens = [...comanda.itens, novoItem]
+            return {
+              ...comanda,
+              itens: novosItens,
+              total: calcularTotalComanda(novosItens),
+              aberta: true
             }
           }
-          return comanda
-        })
+        }
+        return comanda
       })
-      toast.success('Produto adicionado à comanda!')
-    }
-  }
-
-  // Handler para adicionar combo ao carrinho
-  const handleAdicionarCombo = async (combo: ComboSupabase) => {
-    if (comandaSelecionada === null) {
-      toast.error('Selecione uma comanda primeiro!')
-      return
-    }
-
-    try {
-      // Verificar se o combo tem produtos que precisam de personalização
-      const produtosCombo = await comboService.buscarProdutosCombo(combo.id)
-
-      const temProdutoComPersonalizacao = await Promise.all(
-        produtosCombo.map(async (produto) => {
-          if (produto.sabores_disponiveis || produto.quantidade_sabores > 0) {
-            return true
-          }
-          try {
-            const tamanhos = await tamanhoService.buscarPorProduto(produto.id)
-            return tamanhos && tamanhos.length > 0
-          } catch (error) {
-            console.error('Erro ao verificar tamanhos do produto:', error)
-            return false
-          }
-        })
-      )
-
-      const precisaPersonalizacao = temProdutoComPersonalizacao.some(Boolean)
-
-      if (precisaPersonalizacao) {
-        setComboSelecionado(combo)
-        setModalComboPersonalizadoAberto(true)
-      } else {
-        // Combo simples - adicionar diretamente sem observações
-        adicionarComboSimples(combo, undefined)
-      }
-    } catch (error) {
-      console.error('Erro ao verificar produtos do combo:', error)
-      setMensagemDialog({
-        titulo: 'Erro',
-        descricao: 'Erro ao adicionar combo. Tente novamente.',
-        tipo: 'erro'
-      })
-    }
+    })
+    toast.success('Produto adicionado à comanda!')
   }
 
   // Handler para buscar produto por código de barras
@@ -382,10 +292,6 @@ export default function Comandas() {
         categoria: resultado.produto.categoria_nome,
         imagem_path: resultado.produto.imagem_path || '',
         urlImagem: resultado.produto.imagem_path || '',
-        sabores_disponiveis: resultado.produto.sabores_disponiveis || false,
-        saboresDisponiveis: resultado.produto.sabores_disponiveis || false,
-        quantidade_sabores: resultado.produto.quantidade_sabores || 0,
-        quantidadeSabores: resultado.produto.quantidade_sabores || 0,
         ativo: resultado.produto.ativo,
         criado_em: resultado.produto.criado_em,
         atualizado_em: resultado.produto.atualizado_em
@@ -405,173 +311,6 @@ export default function Comandas() {
       console.error('Erro ao buscar por código de barras:', error)
       toast.error('Erro ao buscar produto', { id: 'barcode-search' })
     }
-  }
-
-  // Adicionar combo simples (sem personalização)
-  const adicionarComboSimples = (combo: ComboSupabase, observacoes?: string) => {
-    if (comandaSelecionada === null) return
-
-    const precoUnitario = Number(combo.preco_combo || 0)
-
-    setComandas(prev => {
-      const novasComandas = prev.map(comanda => {
-        if (comanda.numero === comandaSelecionada) {
-          const novoItem: ItemComanda = {
-            id: `combo-${Date.now()}-${Math.random()}`,
-            produto: {
-              id: combo.id,
-              nome: combo.nome,
-              descricao: `${combo.descricao || ''} - Economize ${combo.desconto?.toFixed(1) || 0}%`,
-              preco: combo.preco_combo,
-              preco_promocional: undefined,
-              categoria_id: undefined,
-              categoria_nome: 'combo',
-              categoria: 'combo',
-              imagem_path: combo.url_imagem || '',
-              urlImagem: combo.url_imagem || '',
-              sabores_disponiveis: false,
-              saboresDisponiveis: false,
-              quantidade_sabores: 0,
-              quantidadeSabores: 0,
-              ativo: combo.ativo,
-              criado_em: combo.criado_em,
-              atualizado_em: combo.atualizado_em
-            } as ProdutoPDV,
-            quantidade: 1,
-            precoUnitario: Number(precoUnitario),
-            precoTotal: Number(precoUnitario),
-            observacoes,
-            isCombo: true
-          }
-
-          const novosItens = [...comanda.itens, novoItem]
-          const novoTotal = calcularTotalComanda(novosItens)
-
-          return {
-            ...comanda,
-            itens: novosItens,
-            total: novoTotal,
-            aberta: true
-          }
-        }
-        return comanda
-      })
-
-      return novasComandas
-    })
-
-    toast.success('Combo adicionado à comanda!')
-  }
-
-  // Adicionar combo personalizado
-  const handleAdicionarComboPersonalizado = (produtosPersonalizados: any[], quantidade: number, observacoes?: string) => {
-    if (!comboSelecionado || comandaSelecionada === null) return
-
-    const precoUnitario = Number(comboSelecionado.preco_combo || 0)
-
-    setComandas(prev => {
-      const novasComandas = prev.map(comanda => {
-        if (comanda.numero === comandaSelecionada) {
-          const novoItem: ItemComanda = {
-            id: `combo-${Date.now()}-${Math.random()}`,
-            produto: {
-              id: comboSelecionado.id,
-              nome: comboSelecionado.nome,
-              descricao: `${comboSelecionado.descricao || ''} - Economize ${comboSelecionado.desconto?.toFixed(1) || 0}%`,
-              preco: comboSelecionado.preco_combo,
-              preco_promocional: undefined,
-              categoria_id: undefined,
-              categoria_nome: 'combo',
-              categoria: 'combo',
-              imagem_path: comboSelecionado.url_imagem || '',
-              urlImagem: comboSelecionado.url_imagem || '',
-              sabores_disponiveis: false,
-              saboresDisponiveis: false,
-              quantidade_sabores: 0,
-              quantidadeSabores: 0,
-              ativo: comboSelecionado.ativo,
-              criado_em: comboSelecionado.criado_em,
-              atualizado_em: comboSelecionado.atualizado_em
-            } as ProdutoPDV,
-            quantidade,
-            precoUnitario: Number(precoUnitario),
-            precoTotal: Number(precoUnitario * quantidade),
-            observacoes: observacoes, // Observações do combo inteiro
-            isCombo: true,
-            produtosCombo: produtosPersonalizados
-          }
-
-          const novosItens = [...comanda.itens, novoItem]
-          const novoTotal = calcularTotalComanda(novosItens)
-
-          return {
-            ...comanda,
-            itens: novosItens,
-            total: novoTotal,
-            aberta: true
-          }
-        }
-        return comanda
-      })
-
-      return novasComandas
-    })
-
-    toast.success('Combo personalizado adicionado à comanda!')
-  }
-
-  // Adicionar item com personalização
-  const handleAdicionarComPersonalizacao = (
-    saboresSelecionados: any[],
-    bordaSelecionada: any | null,
-    tamanhoSelecionado?: any,
-    quantidade: number = 1,
-    adicionaisSelecionados?: any[],
-    observacoes?: string
-  ) => {
-    if (!produtoSelecionado || comandaSelecionada === null) return
-
-    let precoBase = Number(tamanhoSelecionado?.valor || produtoSelecionado.preco_promocional || produtoSelecionado.preco)
-    const precoBorda = Number(bordaSelecionada?.preco || 0)
-    const precoSabores = saboresSelecionados.reduce((total, sabor) => total + Number(sabor.preco || 0), 0)
-    const precoAdicionais = adicionaisSelecionados?.reduce((total, adicional) =>
-      total + (Number(adicional.valor) * Number(adicional.quantidade)), 0) || 0
-
-    const precoUnitario = precoBase + precoBorda + precoSabores + precoAdicionais
-
-    const novoItem: ItemComanda = {
-      id: `${Date.now()}-${Math.random()}`,
-      produto: produtoSelecionado,
-      quantidade,
-      precoUnitario: Number(precoUnitario),
-      precoTotal: Number(precoUnitario * quantidade),
-      saboresSelecionados,
-      bordaSelecionada,
-      tamanhoSelecionado,
-      adicionaisSelecionados,
-      observacoes
-    }
-
-    setComandas(prev => {
-      const novasComandas = prev.map(comanda => {
-        if (comanda.numero === comandaSelecionada) {
-          const novosItens = [...comanda.itens, novoItem]
-          const novoTotal = calcularTotalComanda(novosItens)
-
-          return {
-            ...comanda,
-            itens: novosItens,
-            total: novoTotal,
-            aberta: true
-          }
-        }
-        return comanda
-      })
-
-      return novasComandas
-    })
-
-    toast.success('Produto adicionado à comanda!')
   }
 
   // Confirmar seleção de variante
@@ -612,7 +351,7 @@ export default function Comandas() {
     // Fechar modal e limpar estado
     setModalVarianteAberto(false)
     setProdutoSelecionado(null)
-    
+
     toast.success(`${produtoSelecionado.nome} - ${variantLabel} adicionado à comanda!`)
   }
 
@@ -669,7 +408,7 @@ export default function Comandas() {
       if (visualizandoComanda === comandaParaLimpar) {
         setVisualizandoComanda(null)
       }
-      
+
       if (comandaSelecionada === comandaParaLimpar) {
         setComandaSelecionada(null)
       }
@@ -734,7 +473,7 @@ export default function Comandas() {
   // Imprimir comanda
   const imprimirComanda = async (numeroComanda: number) => {
     const comanda = comandas.find(c => c.numero === numeroComanda)
-    
+
     if (!comanda || comanda.itens.length === 0) {
       setMensagemDialog({
         titulo: 'Erro',
@@ -764,7 +503,7 @@ export default function Comandas() {
       const usarQZTray = configUsarQZ?.valor === 'true'
       const impressoraPadrao = configImpressora?.valor || ''
       const densidadeImpressao = parseInt(configDensidade?.valor || '3')
-      
+
       const fontSizes = {
         base: parseInt(fontBase?.valor || '11'),
         storeName: parseInt(fontStoreName?.valor || '16'),
@@ -800,7 +539,7 @@ export default function Comandas() {
       // Tentar imprimir com fallback automático
       if (usarQZTray && impressoraPadrao) {
         const resultado = await qzTrayService.printHTMLWithFallback(impressoraPadrao, htmlThermal)
-        
+
         if (resultado.method === 'qz') {
           setMensagemDialog({
             titulo: 'Sucesso!',
@@ -854,7 +593,7 @@ export default function Comandas() {
     tipo_desconto: 'valor' | 'percentual' = 'valor'
   ): string => {
     const fontWeight = 200 + (densidadeImpressao * 100)
-    
+
     const formatarHora = (data: Date) => {
       return data.toLocaleString('pt-BR', {
         day: '2-digit',
@@ -867,10 +606,10 @@ export default function Comandas() {
 
     // Calcular desconto se houver
     const temDesconto = desconto > 0
-    const descontoCalculado = temDesconto 
+    const descontoCalculado = temDesconto
       ? calcularDescontoEmReais(desconto, tipo_desconto, comanda.total)
       : 0
-    const subtotalComDesconto = temDesconto 
+    const subtotalComDesconto = temDesconto
       ? comanda.total - descontoCalculado
       : comanda.total
 
@@ -878,15 +617,15 @@ export default function Comandas() {
 <html>
 <head>
   <style>
-    @page { 
-      size: 70mm auto; 
-      margin: 0; 
+    @page {
+      size: 70mm auto;
+      margin: 0;
     }
-    @media print { 
-      body { 
-        margin: 0; 
-        -webkit-print-color-adjust: exact; 
-      } 
+    @media print {
+      body {
+        margin: 0;
+        -webkit-print-color-adjust: exact;
+      }
     }
     body {
       width: 70mm;
@@ -899,72 +638,72 @@ export default function Comandas() {
       margin: 0;
       font-weight: ${fontWeight};
     }
-    .header { 
-      text-align: center; 
-      margin-bottom: 6px; 
+    .header {
+      text-align: center;
+      margin-bottom: 6px;
     }
-    .store-name { 
-      font-size: ${fontSizes.storeName}px; 
-      font-weight: ${Math.min(fontWeight + 200, 900)}; 
-      letter-spacing: 1px; 
+    .store-name {
+      font-size: ${fontSizes.storeName}px;
+      font-weight: ${Math.min(fontWeight + 200, 900)};
+      letter-spacing: 1px;
     }
-    .store-address, .store-contact { 
-      font-size: ${fontSizes.itemSub}px; 
+    .store-address, .store-contact {
+      font-size: ${fontSizes.itemSub}px;
     }
-    .section-title { 
-      font-weight: ${Math.min(fontWeight + 200, 900)}; 
+    .section-title {
+      font-weight: ${Math.min(fontWeight + 200, 900)};
       font-size: ${fontSizes.sectionTitle}px;
-      margin-top: 6px; 
-      margin-bottom: 4px; 
+      margin-top: 6px;
+      margin-bottom: 4px;
     }
-    .divider { 
-      border-top: 2px solid #000; 
-      margin: 6px 0; 
+    .divider {
+      border-top: 2px solid #000;
+      margin: 6px 0;
     }
-    .info-block { 
-      font-size: ${fontSizes.base}px; 
+    .info-block {
+      font-size: ${fontSizes.base}px;
     }
-    .info-row { 
-      margin-bottom: 2px; 
+    .info-row {
+      margin-bottom: 2px;
     }
-    .items { 
-      margin-top: 4px; 
+    .items {
+      margin-top: 4px;
     }
-    .item { 
-      display: block; 
-      margin-bottom: 4px; 
-      width: 100%; 
+    .item {
+      display: block;
+      margin-bottom: 4px;
+      width: 100%;
     }
-    .item-head { 
-      display:flex; 
-      justify-content:space-between; 
+    .item-head {
+      display:flex;
+      justify-content:space-between;
       align-items: flex-start;
     }
-    .qty-name { 
+    .qty-name {
       flex: 1;
-      max-width: 58%; 
-      white-space: normal; 
+      max-width: 58%;
+      white-space: normal;
       padding-right: 1mm;
     }
-    .price { 
-      text-align: right; 
+    .price {
+      text-align: right;
       white-space: nowrap;
       min-width: 32%;
     }
-    .item-sub { 
-      font-size: ${fontSizes.itemSub}px; 
-      margin-left: 2mm; 
-      margin-top: 2px; 
+    .item-sub {
+      font-size: ${fontSizes.itemSub}px;
+      margin-left: 2mm;
+      margin-top: 2px;
     }
-    .totals { 
-      margin-top: 6px; 
-      font-size: ${fontSizes.totals}px; 
+    .totals {
+      margin-top: 6px;
+      font-size: ${fontSizes.totals}px;
     }
-    .totals .line { 
-      display:flex; 
-      justify-content:space-between; 
+    .totals .line {
+      display:flex;
+      justify-content:space-between;
       align-items: flex-start;
-      margin-bottom:2px; 
+      margin-bottom:2px;
     }
     .totals .line > div:first-child {
       flex: 1;
@@ -976,20 +715,20 @@ export default function Comandas() {
       text-align: right;
       min-width: 32%;
     }
-    .totals .total { 
-      font-weight: ${Math.min(fontWeight + 200, 900)}; 
-      font-size: ${fontSizes.totalFinal}px; 
+    .totals .total {
+      font-weight: ${Math.min(fontWeight + 200, 900)};
+      font-size: ${fontSizes.totalFinal}px;
     }
-    .footer { 
-      text-align:center; 
-      margin-top:8px; 
-      font-size: ${fontSizes.itemSub}px; 
+    .footer {
+      text-align:center;
+      margin-top:8px;
+      font-size: ${fontSizes.itemSub}px;
     }
-    .order-id { 
-      font-size: ${fontSizes.totalFinal}px; 
-      font-weight: ${Math.min(fontWeight + 200, 900)}; 
-      text-align:center; 
-      margin:6px 0; 
+    .order-id {
+      font-size: ${fontSizes.totalFinal}px;
+      font-weight: ${Math.min(fontWeight + 200, 900)};
+      text-align:center;
+      margin:6px 0;
     }
     .warning-box {
       background-color: #fff3cd;
@@ -1008,28 +747,28 @@ export default function Comandas() {
     <div class="store-address">${enderecoEstabelecimento}</div>
     <div class="store-contact">Tel: ${telefoneEstabelecimento}</div>
   </div>
-  
+
   <div class="divider"></div>
-  
+
   <div class="order-id">COMANDA #${comanda.numero}</div>
-  
+
   <div class="warning-box">
     ⚠️ COMANDA NÃO FINALIZADA - NÃO PAGO
   </div>
-  
+
   <div class="info-block">
     <div class="info-row"><strong>Data/Hora:</strong> ${formatarHora(new Date())}</div>
     <div class="info-row"><strong>Status:</strong> Em aberto</div>
   </div>
-  
+
   <div class="divider"></div>
-  
+
   <div class="section-title">Itens</div>
   <div class="items">
     ${comanda.itens.map((item: ItemComanda) => {
       const detalhesCombo = renderizarDetalhesComboHTML(item)
       const categoria = item.produto?.categoria_nome || item.produto?.categoria || ''
-      
+
       return `
     <div class="item">
       <div class="item-head">
@@ -1049,9 +788,9 @@ export default function Comandas() {
     `
     }).join('')}
   </div>
-  
+
   <div class="divider"></div>
-  
+
   <div class="totals">
     <div class="line">
       <div>Subtotal:</div>
@@ -1073,7 +812,7 @@ export default function Comandas() {
       <div>R$ ${(temDesconto ? subtotalComDesconto : comanda.total).toFixed(2).replace('.', ',')}</div>
     </div>
   </div>
-  
+
   <div class="divider"></div>
 </body>
 </html>
@@ -1195,7 +934,7 @@ export default function Comandas() {
       setModalFinalizarAberto(false)
       setFormaPagamento('dinheiro')
       setComandaSelecionada(null)
-      
+
       setTimeout(() => {
         setMensagemDialog({
           titulo: 'Sucesso!',
@@ -1207,9 +946,9 @@ export default function Comandas() {
     } catch (error) {
       console.error('Erro ao finalizar comanda:', error)
       setModalFinalizarAberto(false)
-      
+
       const mensagemErro = error instanceof Error ? error.message : 'Erro ao finalizar comanda. Tente novamente.'
-      
+
       setTimeout(() => {
         setMensagemDialog({
           titulo: 'Erro',
@@ -1294,12 +1033,6 @@ export default function Comandas() {
                 onAdicionarAoCarrinho={handleAdicionarProduto}
               />
 
-              {combosFiltrados.length > 0 && (
-                <GridCombos
-                  combos={combosFiltrados}
-                  onAdicionarCombo={handleAdicionarCombo}
-                />
-              )}
             </>
           )}
         </div>
@@ -1374,17 +1107,17 @@ export default function Comandas() {
                         <p className="font-medium text-sm truncate">
                           {item.produto.nome}
                         </p>
-                        
+
                         {/* Exibir variante se houver */}
                         {item.variantLabel && (
                           <p className="text-xs text-muted-foreground font-medium">
                             Variante: {item.variantLabel}
                           </p>
                         )}
-                        
+
                         {/* Renderizar detalhes do combo se for um combo */}
                         {renderizarDetalhesCombo(item)}
-                        
+
                         {/* Renderizar detalhes normais se não for combo */}
                         {!item.produtosCombo && (
                           <>
@@ -1418,7 +1151,7 @@ export default function Comandas() {
                             )}
                           </>
                         )}
-                        
+
                         <p className="text-xs text-muted-foreground">
                           R$ {(item.precoUnitario || 0).toFixed(2).replace('.', ',')} x {item.quantidade}
                         </p>
@@ -1574,30 +1307,6 @@ export default function Comandas() {
           </Card>
         </div>
       </div>
-
-      {/* Modal de Personalização */}
-      <EscolherSaborModal
-        isOpen={modalSaborAberto}
-        onClose={() => {
-          setModalSaborAberto(false)
-          setProdutoSelecionado(null)
-        }}
-        produto={produtoSelecionado}
-        categoria={produtoSelecionado ? categorias.find(cat => cat.id === produtoSelecionado.categoria_id) || null : null}
-        onConfirm={handleAdicionarComPersonalizacao}
-        variant="default"
-      />
-
-      {/* Modal de Combo Personalizado */}
-      <EscolherComboPersonalizadoModal
-        isOpen={modalComboPersonalizadoAberto}
-        combo={comboSelecionado}
-        onClose={() => {
-          setModalComboPersonalizadoAberto(false)
-          setComboSelecionado(null)
-        }}
-        onConfirm={handleAdicionarComboPersonalizado}
-      />
 
       {/* Modal de Seleção de Variante */}
       <SelecionarVarianteModal
@@ -1777,17 +1486,17 @@ export default function Comandas() {
                       <p className="font-medium text-sm truncate">
                         {item.produto.nome}
                       </p>
-                      
+
                       {/* Exibir variante se houver */}
                       {item.variantLabel && (
                         <p className="text-xs text-muted-foreground font-medium">
                           Variante: {item.variantLabel}
                         </p>
                       )}
-                      
+
                       {/* Renderizar detalhes do combo se for um combo */}
                       {renderizarDetalhesCombo(item)}
-                      
+
                       {/* Renderizar detalhes normais se não for combo */}
                       {!item.produtosCombo && (
                         <>
@@ -1821,7 +1530,7 @@ export default function Comandas() {
                           )}
                         </>
                       )}
-                      
+
                       <p className="text-xs text-muted-foreground">
                         R$ {(item.precoUnitario || 0).toFixed(2).replace('.', ',')} x {item.quantidade}
                       </p>
@@ -1875,8 +1584,8 @@ export default function Comandas() {
       </AlertDialog>
 
       {/* AlertDialog para mensagens de sucesso/erro */}
-      <AlertDialog 
-        open={!!mensagemDialog} 
+      <AlertDialog
+        open={!!mensagemDialog}
         onOpenChange={(open) => {
           if (!open) {
             setMensagemDialog(null)
@@ -1891,7 +1600,7 @@ export default function Comandas() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={() => {
                 setMensagemDialog(null)
               }}

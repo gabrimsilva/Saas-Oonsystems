@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Package } from "lucide-react"
 import { useNavigation } from "@/contexts/NavigationContext"
 import ProdutoForm from "@/components/ProdutoForm"
-import { produtoService, tamanhoService } from "@/services"
+import { produtoService } from "@/services"
 import { CabecalhoPagina } from '@/components/ui/feedback'
 
 export default function NovoProduto() {
@@ -33,22 +33,7 @@ export default function NovoProduto() {
         ativo: true
       }
 
-      const produtoCriado = await produtoService.criar(produtoParaSalvar)
-
-      if (novoProduto.saboresSelecionados && novoProduto.saboresSelecionados.length > 0) {
-        await produtoService.associarSabores(produtoCriado.id, novoProduto.saboresSelecionados)
-      }
-
-      if (novoProduto.tamanhos && novoProduto.tamanhos.length > 0) {
-        const tamanhosParaCriar = novoProduto.tamanhos.map((t: any, index: number) => ({
-          nome: t.nome,
-          valor: parseFloat(t.valor),
-          tamanho: t.tamanho,
-          ordem: index,
-          ativo: true
-        }))
-        await tamanhoService.criarMultiplos(produtoCriado.id, tamanhosParaCriar)
-      }
+      await produtoService.criar(produtoParaSalvar)
 
       navigateTo('produtos')
     } catch (err) {

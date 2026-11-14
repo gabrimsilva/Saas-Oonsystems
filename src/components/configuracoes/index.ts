@@ -1,5 +1,0 @@
-export { ConfiguracoesGerais } from './ConfiguracoesGerais'
-export { HorarioFuncionamento } from './HorarioFuncionamento'
-export { FormasPagamentoConfig } from './FormasPagamentoConfig'
-export { ConfiguracoesVisuais } from './ConfiguracoesVisuais'
-export { ConfiguracoesNotificacao } from './ConfiguracoesNotificacao'

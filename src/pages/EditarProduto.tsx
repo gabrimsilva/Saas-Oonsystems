@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Package } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import ProdutoForm from "@/components/ProdutoForm"
-import { produtoService, tamanhoService, categoriaService, type ProdutoSupabase } from "@/services"
+import { produtoService, categoriaService, type ProdutoSupabase } from "@/services"
 import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
 
 interface Produto extends ProdutoSupabase {
@@ -96,19 +96,6 @@ export default function EditarProduto() {
       // Atualizar produto
       await produtoService.atualizar(produtoId!, produtoParaSalvar)
       console.log('✅ Produto atualizado com sucesso')
-
-      // Atualizar tamanhos (se definido)
-      if (produtoAtualizado.tamanhos !== undefined) {
-        const tamanhosParaCriar = (produtoAtualizado.tamanhos || []).map((t: any, index: number) => ({
-          nome: t.nome,
-          valor: parseFloat(t.valor),
-          tamanho: t.tamanho,
-          ordem: index,
-          ativo: true
-        }))
-        await tamanhoService.criarMultiplos(produtoId!, tamanhosParaCriar)
-        console.log('✅ Tamanhos atualizados com sucesso')
-      }
 
       console.log('🎉 Produto atualizado completamente!')
       navigate('/sistema/produtos')

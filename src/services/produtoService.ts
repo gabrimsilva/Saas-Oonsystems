@@ -2,14 +2,14 @@
  * Serviço para gerenciamento de produtos
  *
  * Este serviço encapsula todas as operações relacionadas a produtos,
- * incluindo gerenciamento de imagens e associação com sabores.
+ * incluindo gerenciamento de imagens.
  *
  * @module services/produtoService
  */
 
 import { supabase } from "@/lib/supabase"
 import { caminhoNoBucket, getEstabelecimentoAtivo, comTenant, pastaDoEstabelecimento } from "./tenant"
-import type { ProdutoSupabase, SaborSupabase } from '@/types/supabase'
+import type { ProdutoSupabase } from '@/types/supabase'
 
 /**
  * Interface do serviço de produtos
@@ -55,20 +55,6 @@ export interface ProdutoService {
    * @param id - ID do produto
    */
   excluir(id: string): Promise<void>
-
-  /**
-   * Busca sabores associados a um produto
-   * @param produtoId - ID do produto
-   * @returns Promise com array de sabores
-   */
-  buscarSaboresProduto(produtoId: string): Promise<SaborSupabase[]>
-
-  /**
-   * Associa sabores a um produto
-   * @param produtoId - ID do produto
-   * @param saborIds - Array de IDs dos sabores
-   */
-  associarSabores(produtoId: string, saborIds: string[]): Promise<void>
 
   /**
    * Remove imagens órfãs do storage
@@ -467,77 +453,6 @@ export const produtoService: ProdutoService = {
     } catch (err) {
       console.error('Erro ao excluir produto:', err)
       throw err instanceof Error ? err : new Error('Erro desconhecido ao excluir produto')
-    }
-  },
-
-  /**
-   * Busca sabores associados ao produto
-   */
-  async buscarSaboresProduto(produtoId: string): Promise<SaborSupabase[]> {
-    try {
-      // Buscar IDs dos sabores associados
-      const { data: produtoSabores, error: produtoSaboresError } = await supabase
-        .from('produto_sabores')
-        .select('sabor_id')
-        .eq('produto_id', produtoId)
-
-      if (produtoSaboresError) {
-        console.error('Erro ao buscar associações produto-sabores:', produtoSaboresError)
-        throw new Error(`Falha ao buscar associações: ${produtoSaboresError.message}`)
-      }
-
-      if (!produtoSabores || produtoSabores.length === 0) {
-        return []
-      }
-
-      // Extrair IDs dos sabores
-      const saborIds = produtoSabores.map(ps => ps.sabor_id)
-
-      // Buscar sabores pelos IDs
-      const { data: sabores, error: saboresError } = await supabase
-        .from('sabores')
-        .select('*')
-        .in('id', saborIds)
-        .eq('ativo', true)
-        .order('nome', { ascending: true })
-
-      if (saboresError) {
-        console.error('Erro ao buscar sabores:', saboresError)
-        throw new Error(`Falha ao buscar sabores: ${saboresError.message}`)
-      }
-
-      return sabores || []
-    } catch (error) {
-      console.error('Erro ao buscar sabores do produto:', error)
-      throw error instanceof Error ? error : new Error('Erro desconhecido ao buscar sabores')
-    }
-  },
-
-  /**
-   * Associa sabores a um produto (remove associações antigas)
-   */
-  async associarSabores(produtoId: string, saborIds: string[]): Promise<void> {
-    // Remover associações existentes
-    await supabase
-      .from('produto_sabores')
-      .delete()
-      .eq('produto_id', produtoId)
-
-    // Criar novas associações
-    if (saborIds.length > 0) {
-      const associacoes = saborIds.map(saborId => comTenant({
-        produto_id: produtoId,
-        sabor_id: saborId
-      }))
-
-      const { error } = await supabase
-        .from('produto_sabores')
-        .insert(associacoes)
-
-      if (error) {
-        console.error('Erro ao associar sabores:', error)
-        throw new Error(`Falha ao associar sabores: ${error.message}`)
-      }
     }
   },
 

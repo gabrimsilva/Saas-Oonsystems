@@ -26,8 +26,6 @@ const EditarFuncionario = lazy(() => import("@/pages/EditarFuncionario"))
 const Produtos = lazy(() => import("@/pages/Produtos"))
 const NovoProduto = lazy(() => import("@/pages/NovoProduto"))
 const EditarProduto = lazy(() => import("@/pages/EditarProduto"))
-const NovoCombo = lazy(() => import("@/pages/NovoCombo"))
-const EditarCombo = lazy(() => import("@/pages/EditarCombo"))
 const Pedidos = lazy(() => import("@/pages/Pedidos"))
 const Historico = lazy(() => import("@/pages/Historico"))
 const AguardandoPagamento = lazy(() => import("@/pages/AguardandoPagamento"))
@@ -36,15 +34,6 @@ const EstoqueProdutos = lazy(() => import("@/pages/EstoqueProdutos"))
 const HistoricoMovimentacoes = lazy(() => import("@/pages/HistoricoMovimentacoes"))
 const NovoItemEstoque = lazy(() => import("@/pages/NovoItemEstoque"))
 const EditarItemEstoque = lazy(() => import("@/pages/EditarItemEstoque"))
-const Sabores = lazy(() => import("@/pages/Sabores"))
-const NovoSabor = lazy(() => import("@/pages/NovoSabor"))
-const EditarSabor = lazy(() => import("@/pages/EditarSabor"))
-const SaboresBorda = lazy(() => import("@/pages/SaboresBorda"))
-const NovoSaborBorda = lazy(() => import("@/pages/NovoSaborBorda"))
-const EditarSaborBorda = lazy(() => import("@/pages/EditarSaborBorda"))
-const Adicionais = lazy(() => import("@/pages/Adicionais"))
-const NovoAdicional = lazy(() => import("@/pages/NovoAdicional"))
-const EditarAdicional = lazy(() => import("@/pages/EditarAdicional"))
 const Categorias = lazy(() => import("@/pages/Categorias"))
 const NovaCategoria = lazy(() => import("@/pages/NovaCategoria"))
 const EditarCategoria = lazy(() => import("@/pages/EditarCategoria"))
@@ -312,8 +301,6 @@ function AdminSystem() {
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/novo-produto" element={<NovoProduto />} />
           <Route path="/editar-produto/:id" element={<EditarProduto />} />
-          <Route path="/novo-combo" element={<NovoCombo />} />
-          <Route path="/editar-combo/:id" element={<EditarCombo />} />
           
           {/* Pedidos */}
           <Route path="/pedidos" element={<Pedidos />} />
@@ -326,22 +313,7 @@ function AdminSystem() {
           <Route path="/historico-movimentacoes" element={<HistoricoMovimentacoes />} />
           <Route path="/novo-item-estoque" element={<NovoItemEstoque />} />
           <Route path="/editar-item-estoque/:id" element={<EditarItemEstoque />} />
-          
-          {/* Sabores */}
-          <Route path="/sabores" element={<Sabores />} />
-          <Route path="/novo-sabor" element={<NovoSabor />} />
-          <Route path="/editar-sabor/:id" element={<EditarSabor />} />
-          
-          {/* Sabores de Borda */}
-          <Route path="/sabores-borda" element={<SaboresBorda />} />
-          <Route path="/novo-sabor-borda" element={<NovoSaborBorda />} />
-          <Route path="/editar-sabor-borda/:id" element={<EditarSaborBorda />} />
-          
-          {/* Adicionais */}
-          <Route path="/adicionais" element={<Adicionais />} />
-          <Route path="/novo-adicional" element={<NovoAdicional />} />
-          <Route path="/editar-adicional/:id" element={<EditarAdicional />} />
-          
+
           {/* Categorias */}
           <Route path="/categorias" element={<Categorias />} />
           <Route path="/nova-categoria" element={<NovaCategoria />} />

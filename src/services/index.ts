@@ -40,26 +40,6 @@ import { produtoService } from './produtoService'
 export { produtoService }
 export type { ProdutoService } from './produtoService'
 
-// Services de sabores
-import { saborService } from './saborService'
-export { saborService }
-export type { SaborService } from './saborService'
-
-// Services de adicionais
-import { adicionalService } from './adicionalService'
-export { adicionalService }
-export type { AdicionalService } from './adicionalService'
-
-// Services de tamanhos
-import { tamanhoService } from './tamanhoService'
-export { tamanhoService }
-export type { TamanhoService } from './tamanhoService'
-
-// Services de combos
-import { comboService } from './comboService'
-export { comboService }
-export type { ComboService } from './comboService'
-
 // Services de autenticação
 import { authService } from './authService'
 export { authService }
@@ -106,11 +86,6 @@ export type { IComandaService } from './comandaService'
 import { historicoComandaService } from './historicoComandaService'
 export { historicoComandaService }
 export type { IHistoricoComandaService } from './historicoComandaService'
-
-// Services de IA
-import { openaiService } from './openaiService'
-export { openaiService }
-export type { IAConfig, Mensagem, DadosExtraidos } from './openaiService'
 
 // Services de perfil de administradores
 import { profileService } from './profileService'
@@ -210,17 +185,12 @@ export default {
   cliente: clienteService,
   configuracao: configuracaoService,
   produto: produtoService,
-  sabor: saborService,
-  adicional: adicionalService,
-  tamanho: tamanhoService,
-  combo: comboService,
   auth: authService,
   funcionario: funcionarioService,
   estoque: estoqueService,
   stock: stockService,
   comanda: comandaService,
   historicoComanda: historicoComandaService,
-  openai: openaiService,
   profile: profileService,
   venda: vendaService,
   consumoInterno: consumoInternoService,

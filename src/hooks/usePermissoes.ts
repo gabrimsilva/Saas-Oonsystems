@@ -349,20 +349,11 @@ export function usePermissoes() {
     if (pagina === 'historico-comandas') {
       return permissoes.podeAcessarHistoricoComandas
     }
-    if (pagina === 'produtos' || pagina === 'novo-produto' || pagina === 'editar-produto' || pagina === 'novo-combo' || pagina === 'editar-combo') {
+    if (pagina === 'produtos' || pagina === 'novo-produto' || pagina === 'editar-produto') {
       return permissoes.podeAcessarProdutos
     }
     if (pagina === 'categorias' || pagina === 'nova-categoria' || pagina === 'editar-categoria') {
       return permissoes.podeAcessarCategorias
-    }
-    if (pagina === 'sabores' || pagina === 'novo-sabor' || pagina === 'editar-sabor') {
-      return permissoes.podeAcessarSabores
-    }
-    if (pagina === 'sabores-borda' || pagina === 'novo-sabor-borda' || pagina === 'editar-sabor-borda') {
-      return permissoes.podeAcessarSabores
-    }
-    if (pagina === 'adicionais' || pagina === 'novo-adicional' || pagina === 'editar-adicional') {
-      return permissoes.podeAcessarAdicionais
     }
     if (pagina === 'estoque' || pagina === 'estoque-produtos' || pagina === 'novo-item-estoque' || pagina === 'editar-item-estoque') {
       return permissoes.podeAcessarEstoque

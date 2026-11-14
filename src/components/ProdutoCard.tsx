@@ -36,8 +36,8 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
         {/* Imagem do produto */}
         <div className="relative w-20 h-20 flex-shrink-0 bg-muted/50 rounded-lg flex items-center justify-center overflow-hidden">
           {produto.urlImagem ? (
-            <img 
-              src={produto.urlImagem} 
+            <img
+              src={produto.urlImagem}
               alt={produto.nome}
               className="w-full h-full object-contain"
             />
@@ -67,11 +67,11 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
                 )}
               </div>
             </div>
-            
+
             {/* Botões de ação Desktop */}
             <div className="flex space-x-1 flex-shrink-0 ml-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => onEditar(produto)}
                 className="h-8 w-8 p-0"
@@ -80,8 +80,8 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
               </Button>
               <ConfirmDeleteDialog
                 trigger={
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     className="h-8 w-8 p-0"
                   >
@@ -95,13 +95,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
             </div>
           </div>
 
-          {/* Informações adicionais */}
-          {produto.saboresDisponiveis && produto.quantidadeSabores && (
-            <p className="text-sm text-muted-foreground mb-1">
-              Até {produto.quantidadeSabores} sabor{produto.quantidadeSabores > 1 ? 'es' : ''}
-            </p>
-          )}
-          
+
           {/* Descrição */}
           <p className="text-sm text-muted-foreground line-clamp-2 mb-1" title={produto.descricao}>
             {produto.descricao}
@@ -132,8 +126,8 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
         {/* Imagem do produto */}
         <div className="relative h-32 bg-muted/50 flex items-center justify-center overflow-hidden">
           {produto.urlImagem ? (
-            <img 
-              src={produto.urlImagem} 
+            <img
+              src={produto.urlImagem}
               alt={produto.nome}
               className="w-full h-full object-contain"
             />
@@ -142,7 +136,7 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
               <Package className="h-8 w-8 text-muted-foreground/70" />
             </div>
           )}
-          
+
           {/* Badge da categoria */}
           <div className="absolute top-2 left-2 flex gap-1">
             <span className={`text-xs font-medium px-2 py-1 rounded ${getCategoriaColor(produto.categoria)}`}>
@@ -163,14 +157,8 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
             <h3 className="font-semibold text-base line-clamp-1" title={produto.nome}>
               {produto.nome}
             </h3>
-            
-            {/* Informações adicionais */}
-            {produto.saboresDisponiveis && produto.quantidadeSabores && (
-              <p className="text-sm text-muted-foreground">
-                Até {produto.quantidadeSabores} sabor{produto.quantidadeSabores > 1 ? 'es' : ''}
-              </p>
-            )}
-            
+
+
             {/* Descrição */}
             <p className="text-sm text-muted-foreground line-clamp-2" title={produto.descricao}>
               {produto.descricao}
@@ -197,8 +185,8 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
 
           {/* Botões Mobile */}
           <div className="mt-4 space-y-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => onEditar(produto)}
               className="w-full"
@@ -208,8 +196,8 @@ export default function ProdutoCard({ produto, onEditar, onExcluir }: ProdutoCar
             </Button>
             <ConfirmDeleteDialog
               trigger={
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="w-full text-destructive hover:text-destructive hover:bg-destructive/5"
                 >
