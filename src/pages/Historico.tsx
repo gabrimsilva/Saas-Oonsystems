@@ -697,13 +697,13 @@ export default function Historico() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <History className="h-6 w-6" />
-            Histórico de Pedidos
+            Histórico de pedidos
           </h1>
           <p className="text-muted-foreground">
             Todos os pedidos já finalizados
@@ -733,7 +733,7 @@ export default function Historico() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <History className="h-6 w-6" />
-            Histórico de Pedidos
+            Histórico de pedidos
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
             Todos os pedidos já finalizados
@@ -930,7 +930,7 @@ export default function Historico() {
                           className={`text-xs ${
                             pedido.entrega_domicilio 
                               ? 'bg-[color:var(--secondary-foreground)] hover:bg-[color:var(--secondary-foreground)]/90 text-white border-[color:var(--secondary-foreground)]' 
-                              : 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900'
+                              : 'bg-foreground hover:bg-foreground/90 text-background border-foreground'
                           }`}
                         >
                           {pedido.entrega_domicilio ? "Entrega" : "Retirada"}
@@ -1028,7 +1028,7 @@ export default function Historico() {
                   <div>
                     <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                       <User className="w-5 h-5 text-primary" />
-                      Dados Pessoais
+                      Dados pessoais
                     </h3>
                     <div className="space-y-2 bg-muted/50 p-4 rounded-lg border border-border">
                       <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
@@ -1095,7 +1095,7 @@ export default function Historico() {
                   <div>
                     <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                       <Package className="w-5 h-5 text-warning-foreground" />
-                      Informações do Pedido
+                      Informações do pedido
                     </h3>
                     <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
                       <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
@@ -1151,7 +1151,7 @@ export default function Historico() {
                     {pedidoSelecionado.cancelado && (
                       <div className="bg-destructive/5 border border-destructive/30 p-4 rounded-lg space-y-2 mt-4">
                         <h4 className="font-medium text-destructive flex items-center gap-2">
-                          ⚠️ Pedido Cancelado
+                          ⚠️ Pedido cancelado
                         </h4>
                         <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
                           <span className="text-destructive font-medium">Motivo:</span>
@@ -1190,7 +1190,7 @@ export default function Historico() {
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <Package className="w-5 h-5 text-destructive" />
-                    Itens do Pedido
+                    Itens do pedido
                   </h3>
                   <div className="space-y-3">
                     {pedidoSelecionado.itens.map((item: any, index: number) => (

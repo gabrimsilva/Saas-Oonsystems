@@ -81,7 +81,7 @@ const FormasPagamento = ({ dadosCliente, handleInputChange, configuracoes, entre
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="w-5 h-5" />
-          Forma de Pagamento
+          Forma de pagamento
         </CardTitle>
       </CardHeader>
       <CardContent>

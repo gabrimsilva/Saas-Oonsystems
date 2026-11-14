@@ -45,7 +45,7 @@ export default function ConfiguracoesImpressaoPage() {
   return (
     <div className="container mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Configurações de Impressão</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Impressão</h2>
         <p className="text-muted-foreground">
           Configure a impressora térmica e impressão automática
         </p>

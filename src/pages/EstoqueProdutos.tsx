@@ -252,12 +252,12 @@ export default function EstoqueProdutos() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
-          Estoque de Produtos
+          Estoque de produtos
         </h1>
         <p className="text-muted-foreground">
           Controle de estoque com variedades (cor, fragrância, tamanho)
@@ -362,7 +362,7 @@ export default function EstoqueProdutos() {
       {/* Scanner de Código de Barras */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Entrada Rápida por Código de Barras</CardTitle>
+          <CardTitle className="text-base">Entrada rápida por código de barras</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <BuscaUnificadaPDV

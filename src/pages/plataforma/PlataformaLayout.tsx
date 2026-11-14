@@ -168,7 +168,7 @@ export default function PlataformaLayout() {
   return (
     <div className="min-h-screen bg-background lg:flex">
       {/* Menu fixo (desktop) */}
-      <aside className="hidden lg:block w-64 flex-shrink-0 border-r border-sidebar-border bg-sidebar sticky top-0 h-screen">{menu}</aside>
+      <aside className="hidden lg:block w-64 flex-shrink-0 border-r border-sidebar-border bg-sidebar sticky top-0 h-dvh">{menu}</aside>
 
       {/* Menu deslizante (celular) */}
       <Sheet open={menuAberto} onOpenChange={setMenuAberto}>

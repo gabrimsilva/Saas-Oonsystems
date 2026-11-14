@@ -286,13 +286,13 @@ export default function AguardandoPagamento() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Clock className="h-6 w-6 text-warning-foreground" />
-            Aguardando Pagamento
+            Aguardando pagamento
           </h1>
           <p className="text-muted-foreground">
             Pedidos PIX aguardando confirmação de pagamento
@@ -333,7 +333,7 @@ export default function AguardandoPagamento() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Clock className="h-6 w-6 text-warning-foreground" />
-            Aguardando Pagamento
+            Aguardando pagamento
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
             Pedidos PIX aguardando confirmação
@@ -507,7 +507,7 @@ export default function AguardandoPagamento() {
                   <div className="flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-warning-foreground mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-warning-foreground">Pagamento PIX Pendente</h4>
+                      <h4 className="font-medium text-warning-foreground">Pagamento PIX pendente</h4>
                       <p className="text-sm text-warning-foreground mt-1">
                         Este pedido está aguardando a confirmação do pagamento via PIX.
                         O status será atualizado automaticamente quando o pagamento for aprovado.
@@ -523,7 +523,7 @@ export default function AguardandoPagamento() {
                 <div>
                   <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    Dados Pessoais
+                    Dados pessoais
                   </h3>
                   <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
                     <div className="flex justify-between">
@@ -547,7 +547,7 @@ export default function AguardandoPagamento() {
                 <div>
                   <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    Dados de Entrega
+                    Dados de entrega
                   </h3>
                   <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
                     <div className="flex justify-between">
@@ -584,7 +584,7 @@ export default function AguardandoPagamento() {
 
                 {/* Itens do Pedido */}
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-foreground">Itens do Pedido</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Itens do pedido</h3>
                   <div className="space-y-3">
                     {pedidoSelecionado.itens.map((item: any, index: number) => (
                       <div key={index} className="border border-border p-3 rounded-lg">
@@ -670,7 +670,7 @@ export default function AguardandoPagamento() {
       <AlertDialog open={showConfirmarLimpeza} onOpenChange={setShowConfirmarLimpeza}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancelar Pedidos Expirados</AlertDialogTitle>
+            <AlertDialogTitle>Cancelar pedidos expirados</AlertDialogTitle>
             <AlertDialogDescription>
               Deseja cancelar todos os pedidos PIX que estão aguardando há mais de 10 minutos?
               <br /><br />

@@ -87,7 +87,7 @@ export default function DialogCancelarPedido({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
-            Cancelar Pedido
+            Cancelar pedido
           </DialogTitle>
           <DialogDescription>
             Informe os detalhes do cancelamento. Esta ação não poderá ser desfeita.

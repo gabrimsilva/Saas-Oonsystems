@@ -516,12 +516,12 @@ export default function HistoricoVendas() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Receipt className="h-6 w-6" />
-          Histórico de Vendas
+          Histórico de vendas
         </h1>
         <p className="text-muted-foreground">
           Consulte todas as vendas realizadas no PDV
@@ -670,7 +670,7 @@ export default function HistoricoVendas() {
       {/* Tabela de Vendas */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Vendas Realizadas</CardTitle>
+          <CardTitle className="text-base">Vendas realizadas</CardTitle>
         </CardHeader>
         <CardContent>
           {vendasFiltradas.length === 0 ? (
@@ -792,7 +792,7 @@ export default function HistoricoVendas() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <FileClock className="h-5 w-5" />
-                Vendas Faturadas (A Prazo)
+                Vendas faturadas (a prazo)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

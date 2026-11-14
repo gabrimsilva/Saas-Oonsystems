@@ -157,7 +157,7 @@ export default function ModalCliente({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Dados do Cliente
+            Dados do cliente
           </DialogTitle>
           <DialogDescription>
             Preencha as informações do cliente
@@ -226,7 +226,7 @@ export default function ModalCliente({
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    Endereço de Entrega
+                    Endereço de entrega
                   </h3>
                   <div className="grid max-md:grid-cols-1 grid-cols-3 gap-4">
                     <div className="max-md:col-span-1 col-span-2">

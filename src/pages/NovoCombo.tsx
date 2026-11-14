@@ -48,7 +48,7 @@ export default function NovoCombo() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package2 className="h-6 w-6" />
-          Novo Combo
+          Novo combo
         </h1>
         <p className="text-muted-foreground">
           Crie um novo combo selecionando produtos e definindo o preço

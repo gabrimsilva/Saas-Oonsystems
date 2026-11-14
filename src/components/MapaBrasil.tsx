@@ -240,7 +240,7 @@ export default function MapaBrasil({ locations }: MapaBrasilProps) {
       {/* Top Estados */}
       {Object.keys(dadosPorEstado).length > 0 && (
         <div className="bg-card border border-border rounded-lg p-4">
-          <h4 className="text-sm font-semibold text-foreground/80 mb-3">Top Estados</h4>
+          <h4 className="text-sm font-semibold text-foreground/80 mb-3">Top estados</h4>
           <div className="space-y-2">
             {Object.entries(dadosPorEstado)
               .sort(([, a], [, b]) => b - a)

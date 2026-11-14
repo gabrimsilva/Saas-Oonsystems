@@ -59,7 +59,7 @@ export default function EstoqueForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Item</CardTitle>
+          <CardTitle>Informações do item</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

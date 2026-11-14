@@ -305,7 +305,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6 bg-gray-50/30">
+      <div className="p-6 space-y-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">Carregando dados...</p>
@@ -324,7 +324,7 @@ export default function Dashboard() {
     )
   }
   return (
-    <div className="container mx-auto p-6 space-y-4 bg-gray-50/30">
+    <div className="container mx-auto p-4 sm:p-6 space-y-4">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
@@ -431,7 +431,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-xl text-foreground flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-foreground/80" />
-              Produtos Mais Vendidos
+              Produtos mais vendidos
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Os produtos mais vendidos no período selecionado
@@ -440,7 +440,7 @@ export default function Dashboard() {
           <CardContent>
             {produtosFavoritos.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground/40" />
                 <p>Nenhuma venda registrada no período selecionado</p>
               </div>
             ) : (

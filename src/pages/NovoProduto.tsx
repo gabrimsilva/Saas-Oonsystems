@@ -67,7 +67,7 @@ export default function NovoProduto() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
-          Novo Produto
+          Novo produto
         </h1>
         <p className="text-muted-foreground">
           Preencha as informações do novo produto

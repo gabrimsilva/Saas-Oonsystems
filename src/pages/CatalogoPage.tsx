@@ -368,7 +368,7 @@ export default function CatalogoPage() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer nomeEstabelecimento={configuracao.nomeEstabelecimento} />
 
       {/* Botão Voltar ao Topo */}
       <BotaoVoltarTopo />

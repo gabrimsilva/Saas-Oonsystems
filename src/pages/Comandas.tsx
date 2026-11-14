@@ -1231,7 +1231,7 @@ export default function Comandas() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6 bg-gray-50/30 pb-20 md:pb-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6 pb-20 md:pb-6">
       {/* Header */}
       <div className="text-center md:text-left">
         <div className="flex items-center justify-between">
@@ -1260,7 +1260,7 @@ export default function Comandas() {
         <div className="lg:col-span-2 space-y-6">
           {/* Seleção de Comanda */}
           <Card className="p-4">
-            <h2 className="text-lg font-semibold mb-4">Selecione uma Comanda</h2>
+            <h2 className="text-lg font-semibold mb-4">Selecione uma comanda</h2>
             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2">
               {comandas.map((comanda) => (
                 <button
@@ -1356,12 +1356,12 @@ export default function Comandas() {
 
             {!comandaSelecionada ? (
               <div className="text-center py-8 text-muted-foreground">
-                <ClipboardList className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <ClipboardList className="h-12 w-12 mx-auto mb-4 text-muted-foreground/40" />
                 <p>Selecione uma comanda para começar</p>
               </div>
             ) : comandaAtual && comandaAtual.itens.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <Plus className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <Plus className="h-12 w-12 mx-auto mb-4 text-muted-foreground/40" />
                 <p>Adicione produtos à comanda</p>
               </div>
             ) : (
@@ -1550,7 +1550,7 @@ export default function Comandas() {
 
           {/* Comandas Abertas */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold mb-3">Comandas Abertas</h3>
+            <h3 className="text-sm font-semibold mb-3">Comandas abertas</h3>
             <div className="space-y-2">
               {comandas.filter(c => c.aberta).length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
@@ -1622,7 +1622,7 @@ export default function Comandas() {
       <Dialog open={modalScannerAberto} onOpenChange={setModalScannerAberto}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Buscar Produto por Código de Barras</DialogTitle>
+            <DialogTitle>Buscar produto por código de barras</DialogTitle>
             <DialogDescription>
               Use o leitor de código de barras ou digite manualmente
             </DialogDescription>
@@ -1866,7 +1866,7 @@ export default function Comandas() {
       <AlertDialog open={!!comandaParaLimpar} onOpenChange={() => setComandaParaLimpar(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Limpeza</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar limpeza</AlertDialogTitle>
             <AlertDialogDescription>
               Deseja realmente limpar a comanda {comandaParaLimpar}? Todos os itens serão removidos e esta ação não pode ser desfeita.
             </AlertDialogDescription>

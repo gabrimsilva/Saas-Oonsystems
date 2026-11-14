@@ -58,11 +58,11 @@ export default function NovoFuncionario() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Users className="h-6 w-6" />
-          Novo Funcionário
+          Novo funcionário
         </h1>
         <p className="text-muted-foreground">
           Cadastre um novo funcionário no sistema

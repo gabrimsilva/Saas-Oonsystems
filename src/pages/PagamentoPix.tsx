@@ -475,7 +475,7 @@ export default function PagamentoPix() {
         <Card className="max-w-md w-full mx-4">
           <CardContent className="pt-6 text-center">
             <CheckCircle className="w-20 h-20 text-success mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento Confirmado!</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento confirmado!</h2>
             <p className="text-muted-foreground mb-4">
               Seu pagamento via PIX foi confirmado com sucesso.
             </p>
@@ -496,7 +496,7 @@ export default function PagamentoPix() {
             <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">❌</span>
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento Não Realizado</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Pagamento não realizado</h2>
             <p className="text-muted-foreground mb-6">
               O pagamento não foi confirmado. Por favor, tente novamente.
             </p>
@@ -520,7 +520,7 @@ export default function PagamentoPix() {
             <div className="w-20 h-20 bg-warning/15 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock className="w-10 h-10 text-warning-foreground" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Tempo Expirado</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Tempo expirado</h2>
             <p className="text-muted-foreground mb-6">
               O tempo para pagamento expirou e o pedido foi cancelado automaticamente.
             </p>

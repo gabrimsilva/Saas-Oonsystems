@@ -57,11 +57,7 @@ const HistoricoComandas = lazy(() => import("@/pages/HistoricoComandas"))
 const CatalogoPage = lazy(() => import("@/pages/CatalogoPage"))
 const PedidoCatalogoStatus = lazy(() => import("@/pages/PedidoCatalogoStatus"))
 const MeusPedidosCatalogo = lazy(() => import("@/pages/MeusPedidosCatalogo"))
-const CheckoutWrapper = lazy(() => import("@/components/CheckoutWrapper"))
-const ProcessandoPedido = lazy(() => import("@/pages/ProcessandoPedido"))
-const MeusPedidos = lazy(() => import("@/pages/MeusPedidos"))
 const AvaliarEstabelecimento = lazy(() => import("@/pages/AvaliarEstabelecimento"))
-const PagamentoPix = lazy(() => import("@/pages/PagamentoPix"))
 const Metricas = lazy(() => import("@/pages/Metricas"))
 const TermosUso = lazy(() => import("@/pages/TermosUso"))
 const PoliticasPrivacidade = lazy(() => import("@/pages/PoliticasPrivacidade"))
@@ -247,7 +243,7 @@ function AdminSystem() {
         <div className="min-h-screen bg-muted/50 flex items-center justify-center p-6">
           <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-8 text-center">
             <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-2">Acesso Negado</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Acesso negado</h2>
             <p className="text-muted-foreground mb-6">
               Você não tem permissão para acessar esta página.
             </p>
@@ -357,6 +353,8 @@ function AdminSystem() {
           <Route path="/configuracoes-horario" element={<Configuracoes initialPage="horario" />} />
           <Route path="/configuracoes-pagamento" element={<Configuracoes initialPage="pagamento" />} />
           <Route path="/configuracoes-visuais" element={<Configuracoes initialPage="visuais" />} />
+          <Route path="/configuracoes-impressao" element={<Configuracoes initialPage="impressao" />} />
+          <Route path="/configuracoes-notificacao" element={<Configuracoes initialPage="notificacao" />} />
 
           {/* Multi-estabelecimento */}
           <Route path="/estabelecimentos" element={<Estabelecimentos />} />
@@ -388,46 +386,18 @@ function LoginPage() {
   )
 }
 
-// Componente da página de checkout
-function CustomerCheckoutPage() {
-  const handleNavigate = (page: 'delivery' | 'checkout') => {
-    if (page === 'delivery') {
-      window.location.href = '/'
-    }
-  }
-
+// Link do delivery antigo, sem a loja no endereço
+function LinkAntigoPage() {
   return (
-    <EstabelecimentoPublicoProvider slug={undefined}>
-      <Suspense fallback={<LoadingSpinner />}>
-        <CheckoutWrapper onNavigate={handleNavigate} />
-      </Suspense>
-    </EstabelecimentoPublicoProvider>
-  )
-}
-
-// Componente da página de meus pedidos
-function MeusPedidosPage() {
-  const handleVoltar = () => {
-    window.location.href = '/'
-  }
-
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <MeusPedidos onVoltar={handleVoltar} />
-    </Suspense>
-  )
-}
-
-// Componente da página de avaliação
-function AvaliarEstabelecimentoPage() {
-  const handleVoltar = () => {
-    window.location.href = '/'
-  }
-
-  return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <AvaliarEstabelecimento onVoltar={handleVoltar} />
-    </Suspense>
+    <div className="min-h-dvh bg-muted/50 flex items-center justify-center p-4">
+      <div className="max-w-sm text-center bg-card border border-border rounded-xl p-6">
+        <h1 className="text-lg font-semibold text-foreground">Este link mudou</h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          Os pedidos agora são feitos e acompanhados pelo link da loja. Peça à loja o endereço do catálogo
+          e use a opção "Meus pedidos" para acompanhar seus pedidos.
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -495,34 +465,6 @@ function App() {
     })
   }, [])
 
-  // Componente da página de processamento do pedido
-  function ProcessandoPedidoPage() {
-    const { pedidoId } = useParams<{ pedidoId: string }>()
-    
-    const handleVoltarMenu = () => {
-      window.location.href = '/'
-    }
-
-    if (!pedidoId) {
-      return (
-        <div className="min-h-screen bg-muted/50 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-muted-foreground mb-4">ID do pedido não encontrado</p>
-            <button onClick={handleVoltarMenu} className="bg-destructive text-white px-4 py-2 rounded">
-              Voltar ao Menu
-            </button>
-          </div>
-        </div>
-      )
-    }
-
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <ProcessandoPedido pedidoId={pedidoId} onVoltarMenu={handleVoltarMenu} />
-      </Suspense>
-    )
-  }
-
   return (
     <ErrorProvider>
       <ConfigProvider>
@@ -560,24 +502,10 @@ function App() {
             {/* Raiz do SaaS: não há "loja padrão"; catálogos ficam em /:slug */}
             <Route path="/" element={<Navigate to="/login" replace />} />
 
-            {/* Página de checkout */}
-            <Route path="/checkout" element={<CustomerCheckoutPage />} />
-
-            {/* Página de pagamento PIX */}
-            <Route path="/pagamento-pix" element={
-              <Suspense fallback={<LoadingSpinner />}>
-                <PagamentoPix />
-              </Suspense>
-            } />
-
-            {/* Página de acompanhamento do pedido */}
-            <Route path="/meu-pedido/:pedidoId" element={<ProcessandoPedidoPage />} />
-
-            {/* Página de consulta de pedidos */}
-            <Route path="/meus-pedidos" element={<MeusPedidosPage />} />
-
-            {/* Página de avaliação do estabelecimento */}
-            <Route path="/avaliar" element={<AvaliarEstabelecimentoPage />} />
+            {/* Endereços do delivery antigo (sem loja no link): o cliente usa /:slug */}
+            {['/checkout', '/pagamento-pix', '/meu-pedido/:pedidoId', '/meus-pedidos', '/avaliar'].map((caminho) => (
+              <Route key={caminho} path={caminho} element={<LinkAntigoPage />} />
+            ))}
 
             {/* Páginas públicas de termos e políticas */}
             <Route path="/termos-uso" element={

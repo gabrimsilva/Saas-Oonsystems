@@ -225,10 +225,10 @@ export default function AcompanhamentoPedidos() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Acompanhamento de Pedidos</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Acompanhamento de pedidos</h1>
         <p className="text-muted-foreground">
           Visualize e gerencie todos os pedidos delivery
         </p>
@@ -248,7 +248,7 @@ export default function AcompanhamentoPedidos() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Novos Pedidos</CardTitle>
+            <CardTitle className="text-sm font-medium">Novos pedidos</CardTitle>
             <Package className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -258,7 +258,7 @@ export default function AcompanhamentoPedidos() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Em Separação</CardTitle>
+            <CardTitle className="text-sm font-medium">Em separação</CardTitle>
             <ChefHat className="h-4 w-4 text-warning-foreground" />
           </CardHeader>
           <CardContent>
@@ -268,7 +268,7 @@ export default function AcompanhamentoPedidos() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Prontos p/ Entrega</CardTitle>
+            <CardTitle className="text-sm font-medium">Prontos p/ entrega</CardTitle>
             <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>

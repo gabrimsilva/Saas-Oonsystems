@@ -188,7 +188,7 @@ export default function VariantesModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Gerenciar Variedades
+            Gerenciar variedades
           </DialogTitle>
           <DialogDescription>
             {productName}
@@ -220,7 +220,7 @@ export default function VariantesModal({
           </div>
         ) : variantes.length > 0 ? (
           <div className="space-y-3">
-            <h3 className="font-medium text-sm">Variantes Cadastradas</h3>
+            <h3 className="font-medium text-sm">Variantes cadastradas</h3>
             {variantes.map((variante) => (
               <div
                 key={variante.id}
@@ -315,7 +315,7 @@ export default function VariantesModal({
 
         {/* Formulário para adicionar nova variante */}
         <div className="border-t pt-4 space-y-4">
-          <h3 className="font-medium text-sm">Adicionar Nova Variante</h3>
+          <h3 className="font-medium text-sm">Adicionar nova variante</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div className="space-y-2">

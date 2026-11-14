@@ -234,7 +234,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Avaliar Estabelecimento
+              Avaliar estabelecimento
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Compartilhe sua experiência conosco e ajude outros clientes a descobrir o que torna nosso estabelecimento especial
@@ -272,7 +272,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Star className="h-5 w-5 text-warning-foreground" />
-              Deixe sua Avaliação
+              Deixe sua avaliação
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -401,7 +401,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
         {/* Lista de Avaliações */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">
-            Avaliações dos Clientes
+            Avaliações dos clientes
           </h2>
 
           {loading ? (

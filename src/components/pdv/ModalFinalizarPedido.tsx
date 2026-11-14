@@ -138,7 +138,7 @@ export default function ModalFinalizarPedido({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Finalizar Pedido
+            Finalizar pedido
           </DialogTitle>
           <DialogDescription>
             {consumoInterno 

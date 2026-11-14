@@ -38,7 +38,7 @@ export function ConfiguracoesGerais({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Configurações Gerais
+          Configurações gerais
         </CardTitle>
         <CardDescription>
           Informações básicas do estabelecimento

@@ -97,7 +97,7 @@ export default function ConfiguracoesHorarioPage() {
   return (
     <div className="container mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Horário de Funcionamento</h2>
+        <h2 className="text-2xl font-bold">Horário de funcionamento</h2>
         <p className="text-muted-foreground">
           Configure os dias e horários de atendimento
         </p>

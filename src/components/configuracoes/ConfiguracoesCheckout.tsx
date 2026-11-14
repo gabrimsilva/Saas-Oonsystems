@@ -22,7 +22,7 @@ export function ConfiguracoesCheckout({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Globe className="h-5 w-5" />
-          Configurações de Checkout
+          Configurações de checkout
         </CardTitle>
         <CardDescription>
           Configure o tipo de checkout e modos especiais

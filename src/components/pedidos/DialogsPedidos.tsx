@@ -37,7 +37,7 @@ export function DialogZerarPedidos({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <History className="h-5 w-5 text-destructive" />
-            Confirmar Ação
+            Confirmar ação
           </AlertDialogTitle>
           <AlertDialogDescription>
             Tem certeza que deseja mover os pedidos <strong>finalizados</strong> para o histórico?

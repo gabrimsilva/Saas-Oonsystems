@@ -138,7 +138,7 @@ export default function ListaConsumoInterno({ dataInicio, dataFim }: ListaConsum
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Package className="h-5 w-5 text-primary" />
-          Produtos Consumidos
+          Produtos consumidos
         </CardTitle>
         <CardDescription>
           Detalhamento dos produtos consumidos internamente no período

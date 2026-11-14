@@ -34,7 +34,7 @@ function GridCombos({ combos, onAdicionarCombo }: GridCombosProps) {
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-4 text-foreground">Combos Disponíveis</h3>
+      <h3 className="text-lg font-semibold mb-4 text-foreground">Combos disponíveis</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
         {combos.map((combo) => (
           <Card key={combo.id} className="overflow-hidden hover:shadow-md transition-shadow py-0">

@@ -249,7 +249,7 @@ export default function InformacoesEstabelecimentoModal({
                   }}
                 />
               ) : null}
-              <span className={`text-white text-sm font-bold ${config.logoUrl ? 'hidden' : ''}`}>🍕</span>
+              <span className={`text-white text-sm font-bold ${config.logoUrl ? 'hidden' : ''}`} aria-hidden="true">{(config.nomeEstabelecimento || 'L').trim().charAt(0).toUpperCase()}</span>
             </div>
             {config.nomeEstabelecimento}
           </AlertDialogTitle>
@@ -269,7 +269,7 @@ export default function InformacoesEstabelecimentoModal({
               {/* Informações de Contato */}
               <div className="border border-border rounded-lg p-5">
                 <h3 className="text-base font-semibold text-foreground mb-4">
-                  Informações de Contato
+                  Informações de contato
                 </h3>
 
                 <div className="space-y-4">
@@ -316,7 +316,7 @@ export default function InformacoesEstabelecimentoModal({
               {/* Horários de Funcionamento */}
               <div className="border border-border rounded-lg p-5">
                 <h3 className="text-base font-semibold text-foreground mb-4">
-                  Horários de Funcionamento
+                  Horários de funcionamento
                 </h3>
 
                 <div className="grid gap-3 mb-4">
@@ -350,7 +350,7 @@ export default function InformacoesEstabelecimentoModal({
               {/* Formas de Pagamento */}
               <div className="border border-border rounded-lg p-5">
                 <h3 className="text-base font-semibold text-foreground mb-4">
-                  Formas de Pagamento
+                  Formas de pagamento
                 </h3>
 
                 {obterFormasPagamento().length > 0 ? (

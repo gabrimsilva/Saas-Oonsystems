@@ -117,13 +117,13 @@ export default function SaboresBorda() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Pizza className="h-6 w-6" />
-            Sabores de Borda
+            Sabores de borda
           </h1>
           <p className="text-muted-foreground">
             Gerencie os sabores de borda disponíveis para cada categoria
@@ -140,7 +140,7 @@ export default function SaboresBorda() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <Pizza className="h-6 w-6" />
-            Sabores de Borda
+            Sabores de borda
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
             Gerencie os sabores de borda disponíveis para cada categoria

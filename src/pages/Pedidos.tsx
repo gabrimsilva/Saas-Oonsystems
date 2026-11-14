@@ -24,21 +24,21 @@ import { filtrarPedidosPorBusca, getPedidosPorStatus } from "@/utils/pedidosFilt
 const STATUS_COLUMNS: ColunaConfig[] = [
   {
     id: 'Pedido criado',
-    title: 'Novos Pedidos',
+    title: 'Novos pedidos',
     icon: Package,
     color: 'bg-primary/5 border-primary/15',
     badgeColor: 'bg-primary/10 text-primary'
   },
   {
     id: 'Preparando',
-    title: 'Em Separação',
+    title: 'Em separação',
     icon: ChefHat,
     color: 'bg-warning/5 border-warning/30',
     badgeColor: 'bg-warning/15 text-warning-foreground'
   },
   {
     id: 'Liberado',
-    title: 'Prontos p/ Entrega',
+    title: 'Prontos p/ entrega',
     icon: CheckCircle,
     color: 'bg-success/5 border-success/30',
     badgeColor: 'bg-success/10 text-success'
@@ -337,7 +337,7 @@ export default function Pedidos() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <HeaderPedidos
         novoPedidoRecebido={novoPedidoRecebido}

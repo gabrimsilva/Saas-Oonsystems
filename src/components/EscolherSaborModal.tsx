@@ -439,7 +439,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
 
         <AlertDialogHeader className="max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-card max-md:z-10 max-md:border-b">
           <AlertDialogTitle className="text-xl font-bold max-md:pr-10">
-            Personalize seu Pedido
+            Personalize seu pedido
           </AlertDialogTitle>
           <AlertDialogDescription>
             {tamanhos.length > 0
@@ -461,7 +461,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
               {/* Seleção de Tamanhos - se há tamanhos configurados */}
               {tamanhos.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Tamanhos Disponíveis</h3>
+                  <h3 className="text-lg font-semibold mb-3">Tamanhos disponíveis</h3>
                   <div className="space-y-2">
                     {tamanhos.map((tamanho) => (
                       <div
@@ -592,7 +592,7 @@ export default function EscolherSaborModal({ isOpen, onClose, produto, categoria
               {/* Seleção de Borda - se há bordas configuradas */}
               {categoria?.tem_borda && bordas.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Tipo de Borda</h3>
+                  <h3 className="text-lg font-semibold mb-3">Tipo de borda</h3>
                   <div className="space-y-2">
                     {bordas.map((borda) => (
                       <div

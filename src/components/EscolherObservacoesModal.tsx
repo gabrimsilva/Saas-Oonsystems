@@ -266,7 +266,7 @@ export default function EscolherObservacoesModal({
         </button>
 
         <AlertDialogHeader className="flex-shrink-0 max-md:p-4 max-md:pb-2 max-md:sticky max-md:top-0 max-md:bg-card max-md:z-10 max-md:border-b">
-          <AlertDialogTitle className="max-md:pr-10">Adicionar Observações</AlertDialogTitle>
+          <AlertDialogTitle className="max-md:pr-10">Adicionar observações</AlertDialogTitle>
           <AlertDialogDescription>
             Alguma observação especial para este produto?
           </AlertDialogDescription>

@@ -70,7 +70,7 @@ describe('StatusTimeline Component', () => {
       />
     )
 
-    expect(screen.getByText('Acompanhe seu Pedido')).toBeInTheDocument()
+    expect(screen.getByText('Acompanhe seu pedido')).toBeInTheDocument()
     expect(screen.getByText(/Atualizado/i)).toBeInTheDocument()
   })
 
@@ -364,7 +364,7 @@ describe('StatusTimeline Component', () => {
       />
     )
 
-    expect(screen.getByText('Acompanhe seu Pedido')).toBeInTheDocument()
+    expect(screen.getByText('Acompanhe seu pedido')).toBeInTheDocument()
   })
 
   it('should handle canceled orders', () => {

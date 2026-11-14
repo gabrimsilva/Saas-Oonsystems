@@ -7,6 +7,8 @@ import {
   Clock,
   CreditCard,
   Palette,
+  Printer,
+  Bell,
   ArrowLeft
 } from "lucide-react"
 
@@ -15,6 +17,8 @@ import ConfiguracoesGeraisPage from "@/pages/configuracoes/ConfiguracoesGeraisPa
 import ConfiguracoesHorarioPage from "@/pages/configuracoes/ConfiguracoesHorarioPage"
 import ConfiguracoesPagamentoPage from "@/pages/configuracoes/ConfiguracoesPagamentoPage"
 import ConfiguracoesVisuaisPage from "@/pages/configuracoes/ConfiguracoesVisuaisPage"
+import ConfiguracoesImpressaoPage from "@/pages/configuracoes/ConfiguracoesImpressaoPage"
+import ConfiguracoesNotificacaoPage from "@/pages/configuracoes/ConfiguracoesNotificacaoPage"
 
 type ConfigPage =
   | 'index'
@@ -22,6 +26,8 @@ type ConfigPage =
   | 'horario'
   | 'pagamento'
   | 'visuais'
+  | 'impressao'
+  | 'notificacao'
 
 interface ConfigCard {
   id: ConfigPage
@@ -59,6 +65,20 @@ const configCards: ConfigCard[] = [
     description: 'Logo, cores e personalização visual',
     icon: <Palette className="h-6 w-6" />,
     color: 'text-primary'
+  },
+  {
+    id: 'impressao',
+    title: 'Impressão',
+    description: 'Impressora térmica, impressão automática e tamanho das letras do cupom',
+    icon: <Printer className="h-6 w-6" />,
+    color: 'text-primary'
+  },
+  {
+    id: 'notificacao',
+    title: 'Notificações',
+    description: 'Som e volume do aviso de novos pedidos',
+    icon: <Bell className="h-6 w-6" />,
+    color: 'text-primary'
   }
 ]
 
@@ -84,7 +104,7 @@ export default function ConfiguracoesIndex({ initialPage = 'index' }: Configurac
   // Renderizar página específica
   if (currentPage !== 'index') {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
         <Button
           variant="ghost"
           onClick={handleBack}
@@ -98,13 +118,15 @@ export default function ConfiguracoesIndex({ initialPage = 'index' }: Configurac
         {currentPage === 'horario' && <ConfiguracoesHorarioPage />}
         {currentPage === 'pagamento' && <ConfiguracoesPagamentoPage />}
         {currentPage === 'visuais' && <ConfiguracoesVisuaisPage />}
+        {currentPage === 'impressao' && <ConfiguracoesImpressaoPage />}
+        {currentPage === 'notificacao' && <ConfiguracoesNotificacaoPage />}
       </div>
     )
   }
 
   // Renderizar página inicial com cards
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">

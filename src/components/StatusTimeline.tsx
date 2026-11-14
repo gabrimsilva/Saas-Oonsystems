@@ -108,7 +108,7 @@ export default function StatusTimeline({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Package className="w-5 h-5 text-destructive" />
-            Acompanhe seu Pedido
+            Acompanhe seu pedido
           </CardTitle>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <div className={`w-2 h-2 rounded-full ${atualizandoRealtime ? 'bg-primary animate-pulse' : 'bg-success'}`}></div>

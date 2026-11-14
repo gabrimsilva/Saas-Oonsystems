@@ -249,7 +249,7 @@ export default function Usuarios() {
   const nomeEstab = (id: string | null) => estabs.find((e) => e.id === id)?.nome ?? (id ? '—' : 'Todos')
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Users className="h-7 w-7 text-primary" />

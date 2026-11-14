@@ -267,27 +267,6 @@ export default function Metricas() {
           : venda
       )
 
-      // NOVO: Também incluir pedidos em aberto (não finalizados) de DELIVERY
-      // para rastrear formas de pagamento hoje
-      let pedidosAbertoData = []
-      if (filtroTipoVenda === 'TODOS' || filtroTipoVenda === 'DELIVERY') {
-        let pedidosQuery = supabase
-          .from('pedidos')
-          .select('*')
-          .gte('criado_em', inicio)
-          .lte('criado_em', fim)
-          .neq('status', 'Finalizado')  // Excluir finalizados (já estão em sales)
-          .neq('status', 'Entregue')
-          .neq('status', 'Retirado')
-          .neq('status', 'Cancelado')
-
-        if (estabId) {
-          pedidosQuery = pedidosQuery.eq('estabelecimento_id', estabId)
-        }
-
-        const { data: pedidosData } = await pedidosQuery
-        pedidosAbertoData = pedidosData || []
-      }
 
       // ============================================================
       // VENDAS "A PRAZO": só contam nas métricas quando a PARCELA é
@@ -381,17 +360,28 @@ export default function Metricas() {
       let faturamentoComandas = 0
       let quantidadeVendasComandas = 0
       let unidadesComandas = 0
+      // Partes pagas de cada comanda (respeita o filtro de forma de pagamento)
+      let comandasPagas: { itens: unknown; partes: { metodo: string; valor: number }[] }[] = []
       if (filtroTipoVenda === 'TODOS' || filtroTipoVenda === 'COMANDA') {
         let comandasQuery = supabase
           .from('historico_comandas')
-          .select('total, itens, finalizado_em')
+          .select('total, itens, finalizado_em, forma_pagamento, forma_pagamento_dividido, pagamento_1_tipo, pagamento_1_valor, pagamento_2_tipo, pagamento_2_valor')
           .gte('finalizado_em', inicio)
           .lte('finalizado_em', fim)
         if (estabId) comandasQuery = comandasQuery.eq('estabelecimento_id', estabId)
         const { data: comandasData } = await comandasQuery
 
-        const comandas = comandasData || []
-        faturamentoComandas = comandas.reduce((sum, c) => sum + (parseFloat(c.total) || 0), 0)
+        comandasPagas = (comandasData || [])
+          .map((c: any) => {
+            const partes = partesDaVenda({ ...c, payment_method: c.forma_pagamento, total_amount: c.total })
+            return {
+              itens: c.itens,
+              partes: filtroFormaPagamento === 'TODAS' ? partes : partes.filter((p) => p.metodo === filtroFormaPagamento),
+            }
+          })
+          .filter((c) => c.partes.length > 0)
+        const comandas = comandasPagas
+        faturamentoComandas = comandas.reduce((sum, c) => sum + c.partes.reduce((s, p) => s + p.valor, 0), 0)
         quantidadeVendasComandas = comandas.length
         unidadesComandas = comandas.reduce((sum, c) => {
           const itens = Array.isArray(c.itens) ? c.itens : []
@@ -581,13 +571,12 @@ export default function Metricas() {
         })
       }
 
-      // NOVO: Adicionar dados de pedidos em aberto (delivery)
-      pedidosAbertoData.forEach((pedido: any) => {
-        const forma = traduzirFormaPagamento(pedido.forma_pagamento || "Não informado")
-        const atual = formasPagamentoMap.get(forma) || { total: 0, quantidade: 0 }
-        formasPagamentoMap.set(forma, {
-          total: atual.total + (parseFloat(pedido.total) || 0),
-          quantidade: atual.quantidade + 1
+      // Comandas finalizadas (mesmos códigos de pagamento das vendas)
+      comandasPagas.forEach(({ partes }) => {
+        partes.forEach(({ metodo, valor }) => {
+          const forma = traduzirFormaPagamento(metodo || "Não informado")
+          const atual = formasPagamentoMap.get(forma) || { total: 0, quantidade: 0 }
+          formasPagamentoMap.set(forma, { total: atual.total + valor, quantidade: atual.quantidade + 1 })
         })
       })
 
@@ -761,17 +750,17 @@ export default function Metricas() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Métricas de Vendas</h1>
+          <h1 className="text-2xl font-semibold">Métricas de vendas</h1>
           <p className="text-muted-foreground">Acompanhe o desempenho das vendas da sua loja</p>
         </div>
 
         {/* Seção de filtros e controles */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Filtros e Período</CardTitle>
+            <CardTitle className="text-base">Filtros e período</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {/* Linha 1: Período, datas e botão de relatório */}
@@ -1017,14 +1006,14 @@ export default function Metricas() {
             <TabsTrigger value="vendas" className="whitespace-nowrap">Vendas</TabsTrigger>
             <TabsTrigger value="produtos" className="whitespace-nowrap">Produtos</TabsTrigger>
             <TabsTrigger value="categorias" className="whitespace-nowrap">Categorias</TabsTrigger>
-            <TabsTrigger value="pagamento" className="whitespace-nowrap">Formas de Pagamento</TabsTrigger>
+            <TabsTrigger value="pagamento" className="whitespace-nowrap">Formas de pagamento</TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value="vendas" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Faturamento Diário</CardTitle>
+              <CardTitle>Faturamento diário</CardTitle>
               <CardDescription>Evolução do faturamento ao longo do período</CardDescription>
             </CardHeader>
             <CardContent>
@@ -1096,7 +1085,7 @@ export default function Metricas() {
           <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Produtos Mais Vendidos</CardTitle>
+              <CardTitle>Produtos mais vendidos</CardTitle>
               <CardDescription>Top 10 produtos com maior saída</CardDescription>
             </CardHeader>
             <CardContent className="px-2 md:px-6">
@@ -1148,7 +1137,7 @@ export default function Metricas() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Faturamento por Produto</CardTitle>
+              <CardTitle>Faturamento por produto</CardTitle>
               <CardDescription>Receita gerada por cada produto</CardDescription>
             </CardHeader>
             <CardContent className="px-2 md:px-6">
@@ -1205,7 +1194,7 @@ export default function Metricas() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Faturamento por Categoria</CardTitle>
+                <CardTitle>Faturamento por categoria</CardTitle>
                 <CardDescription>Distribuição do faturamento por categoria de produtos</CardDescription>
               </CardHeader>
               <CardContent>
@@ -1243,7 +1232,7 @@ export default function Metricas() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Volume de Vendas por Categoria</CardTitle>
+                <CardTitle>Volume de vendas por categoria</CardTitle>
                 <CardDescription>Quantidade de produtos vendidos por categoria</CardDescription>
               </CardHeader>
               <CardContent>
@@ -1278,7 +1267,7 @@ export default function Metricas() {
             <Card className="py-0">
               <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
                 <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-6">
-                  <CardTitle>Vendas por Forma de Pagamento</CardTitle>
+                  <CardTitle>Vendas por forma de pagamento</CardTitle>
                   <CardDescription>Análise de vendas por método de pagamento</CardDescription>
                 </div>
                 <div className="flex">
@@ -1352,7 +1341,7 @@ export default function Metricas() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Distribuição de Pagamentos</CardTitle>
+                <CardTitle>Distribuição de pagamentos</CardTitle>
                 <CardDescription>Percentual de faturamento por forma de pagamento</CardDescription>
               </CardHeader>
               <CardContent>
@@ -1394,7 +1383,7 @@ export default function Metricas() {
       {/* Seção de Consumo Interno */}
       <div className="space-y-4">
         <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-          Consumo Interno
+          Consumo interno
         </h3>
 
         {/* Card resumo + Gráfico de evolução */}

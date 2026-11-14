@@ -39,7 +39,7 @@ export default function UsuarioBloqueado() {
           
           <div>
             <CardTitle className="text-2xl font-bold text-foreground">
-              Acesso Bloqueado
+              Acesso bloqueado
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Seu acesso ao sistema foi bloqueado

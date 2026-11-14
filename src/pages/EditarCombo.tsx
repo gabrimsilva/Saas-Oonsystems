@@ -110,7 +110,7 @@ export default function EditarCombo() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package2 className="h-6 w-6" />
-          Editar Combo
+          Editar combo
         </h1>
         <p className="text-muted-foreground">
           Edite as informações do combo

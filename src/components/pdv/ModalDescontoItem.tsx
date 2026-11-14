@@ -80,7 +80,7 @@ export default function ModalDescontoItem({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Aplicar Desconto no Item</DialogTitle>
+          <DialogTitle>Aplicar desconto no item</DialogTitle>
           <DialogDescription>
             {item.produto.nome}
             {item.variantLabel && ` - ${item.variantLabel}`}

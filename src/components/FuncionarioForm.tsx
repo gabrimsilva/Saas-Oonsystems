@@ -162,7 +162,7 @@ export default function FuncionarioForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Funcionário</CardTitle>
+          <CardTitle>Informações do funcionário</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

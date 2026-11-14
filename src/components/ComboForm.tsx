@@ -228,7 +228,7 @@ export default function ComboForm({ comboParaEditar, onSave, onCancel, saving = 
 
       {produtosSelecionados.length > 0 && (
         <div className="space-y-3 border-t pt-4 bg-muted/50 p-4 rounded-lg">
-          <h4 className="font-semibold text-sm">Resumo do Combo:</h4>
+          <h4 className="font-semibold text-sm">Resumo do combo:</h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
             <div>
               <span className="text-muted-foreground">Preço Original:</span>

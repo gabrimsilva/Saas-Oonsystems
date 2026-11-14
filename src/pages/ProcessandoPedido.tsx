@@ -480,7 +480,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
             {/* Itens do Pedido */}
             <Card>
               <CardHeader>
-                <CardTitle>Seus Itens</CardTitle>
+                <CardTitle>Seus itens</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -555,7 +555,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Phone className="w-5 h-5 text-destructive" />
-                  Seus Dados
+                  Seus dados
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -588,7 +588,7 @@ export default function ProcessandoPedido({ pedidoId, onVoltarMenu }: Processand
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-destructive" />
-                    Endereço de Entrega
+                    Endereço de entrega
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

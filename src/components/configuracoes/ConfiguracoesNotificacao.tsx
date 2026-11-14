@@ -38,7 +38,7 @@ export function ConfiguracoesNotificacao({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Volume2 className="h-5 w-5" />
-          Notificações Sonoras
+          Notificações sonoras
         </CardTitle>
         <CardDescription>
           Configure os sons de notificação para novos pedidos

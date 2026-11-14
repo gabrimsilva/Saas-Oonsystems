@@ -23,7 +23,7 @@ const ResumoPedido = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShoppingCart className="w-5 h-5" />
-          Resumo do Pedido
+          Resumo do pedido
         </CardTitle>
       </CardHeader>
       <CardContent>

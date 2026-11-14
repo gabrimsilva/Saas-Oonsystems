@@ -104,7 +104,7 @@ export default function CategoriaForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Informações Básicas</CardTitle>
+          <CardTitle>Informações básicas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">

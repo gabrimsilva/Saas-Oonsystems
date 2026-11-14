@@ -457,7 +457,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
       <div className="max-w-4xl mx-auto p-4">
         {/* Título da página */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-foreground text-center">Finalizar Pedido</h1>
+          <h1 className="text-2xl font-semibold text-foreground text-center">Finalizar pedido</h1>
           <p className="text-center text-muted-foreground mt-2">Modo Cardápio - Retirada no Local</p>
         </div>
 
@@ -467,7 +467,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5" />
-                Seus Dados
+                Seus dados
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -523,7 +523,7 @@ const CheckoutCardapioWhatsapp = ({ onNavigate }: CheckoutCardapioWhatsappProps)
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5" />
-                Resumo do Pedido
+                Resumo do pedido
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

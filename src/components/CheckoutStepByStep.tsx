@@ -134,7 +134,7 @@ const CheckoutStepByStep = ({ onNavigate }: CheckoutStepByStepProps) => {
       <div className="max-w-4xl mx-auto p-4">
         {/* Título da página */}
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-foreground text-center">Finalizar Pedido</h1>
+          <h1 className="text-2xl font-semibold text-foreground text-center">Finalizar pedido</h1>
         </div>
 
         {/* Stepper */}

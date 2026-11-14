@@ -94,7 +94,7 @@ export default function ModalInformacoesEstabelecimento({
               <Clock className="h-5 w-5 text-foreground/80" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-1">Horário de Funcionamento</h3>
+              <h3 className="font-semibold text-foreground mb-1">Horário de funcionamento</h3>
               <p className="text-muted-foreground text-sm whitespace-pre-line">
                 {horarioFormatado}
               </p>

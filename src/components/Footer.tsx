@@ -6,10 +6,12 @@ interface FooterProps {
   nomeEstabelecimento?: string
 }
 
-export default function Footer({ nomeEstabelecimento = "Estabelecimento" }: FooterProps) {
+export default function Footer({ nomeEstabelecimento }: FooterProps) {
   const anoAtual = new Date().getFullYear()
   const navigate = useNavigate()
   const { estabelecimento } = useEstabelecimentoPublico()
+  // Nome da loja aberta (catálogo por slug); sem loja, o nome passado pela página
+  const nome = nomeEstabelecimento?.trim() || estabelecimento?.nome || ""
 
   const handleLinkClick = (tipo: string) => {
     switch (tipo) {
@@ -18,7 +20,7 @@ export default function Footer({ nomeEstabelecimento = "Estabelecimento" }: Foot
         break
       case 'avaliar':
         // Mantém o cliente na loja em que ele está (/:slug/avaliar)
-        navigate(estabelecimento ? `/${estabelecimento.slug}/avaliar` : '/avaliar')
+        if (estabelecimento) navigate(`/${estabelecimento.slug}/avaliar`)
         break
       default:
         break
@@ -34,17 +36,19 @@ export default function Footer({ nomeEstabelecimento = "Estabelecimento" }: Foot
             onClick={() => handleLinkClick('privacidade')}
             className="text-muted-foreground hover:text-destructive text-sm font-medium transition-colors text-center flex items-center gap-1 justify-center py-2 md:py-0 cursor-pointer"
           >
-            Políticas de Privacidade
+            Políticas de privacidade
             <ExternalLink className="h-3 w-3" />
           </button>
 
+          {estabelecimento && (
           <button
             onClick={() => handleLinkClick('avaliar')}
             className="text-muted-foreground hover:text-destructive text-sm font-medium transition-colors text-center flex items-center gap-1 justify-center py-2 md:py-0 cursor-pointer"
           >
-            Avaliar Estabelecimento
+            Avaliar a loja
             <ExternalLink className="h-3 w-3" />
           </button>
+          )}
         </div>
 
         {/* Divisor */}
@@ -52,7 +56,7 @@ export default function Footer({ nomeEstabelecimento = "Estabelecimento" }: Foot
           {/* Direitos autorais e créditos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
             <div className="text-center md:text-left">
-              <p>© {anoAtual} {nomeEstabelecimento}. Todos os direitos reservados.</p>
+              <p>© {anoAtual}{nome ? ` ${nome}` : ""}. Todos os direitos reservados.</p>
             </div>
 
             <div className="text-center md:text-right">

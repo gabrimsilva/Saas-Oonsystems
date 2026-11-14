@@ -97,7 +97,7 @@ export default function TestePrintOrder({ fontSizes: propFontSizes }: {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Printer className="h-5 w-5" />
-          Teste de Impressão
+          Teste de impressão
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -123,7 +123,7 @@ export default function TestePrintOrder({ fontSizes: propFontSizes }: {
 
         {mostrarTeste && (
           <div className="mt-6">
-            <h4 className="font-medium mb-4 text-center">Preview da Impressão Térmica</h4>
+            <h4 className="font-medium mb-4 text-center">Preview da impressão térmica</h4>
             <PrintOrderPreview pedido={pedidoTeste} fontSizes={fontSizes} />
             <p className="text-xs text-muted-foreground text-center mt-2">
               O preview atualiza em tempo real conforme você altera os tamanhos de fonte

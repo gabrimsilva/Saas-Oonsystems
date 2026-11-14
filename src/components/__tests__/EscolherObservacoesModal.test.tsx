@@ -20,7 +20,7 @@ describe('EscolherObservacoesModal', () => {
         />
       )
 
-      expect(screen.getByText('Adicionar Observações')).toBeInTheDocument()
+      expect(screen.getByText('Adicionar observações')).toBeInTheDocument()
       expect(screen.getByText('Alguma observação especial para este produto?')).toBeInTheDocument()
       expect(screen.getByPlaceholderText('Ex: Sem cebola, bem assada...')).toBeInTheDocument()
     })
@@ -34,7 +34,7 @@ describe('EscolherObservacoesModal', () => {
         />
       )
 
-      expect(screen.queryByText('Adicionar Observações')).not.toBeInTheDocument()
+      expect(screen.queryByText('Adicionar observações')).not.toBeInTheDocument()
     })
 
     it('deve renderizar botões "Pular" e "Confirmar"', () => {

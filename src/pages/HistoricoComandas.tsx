@@ -535,13 +535,13 @@ export default function HistoricoComandas() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Desktop */}
       <div className="hidden md:flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <History className="h-6 w-6" />
-            Histórico de Comandas
+            Histórico de comandas
           </h1>
           <p className="text-muted-foreground">
             Todas as comandas finalizadas e canceladas
@@ -571,7 +571,7 @@ export default function HistoricoComandas() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight flex items-center justify-center gap-2">
             <History className="h-6 w-6" />
-            Histórico de Comandas
+            Histórico de comandas
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
             Todas as comandas finalizadas e canceladas
@@ -843,7 +843,7 @@ export default function HistoricoComandas() {
                 <div>
                   <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <Package className="w-5 h-5 text-warning-foreground" />
-                    Informações do Pedido
+                    Informações do pedido
                   </h3>
                   <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
                     {comandaSelecionada?.criado_em && (
@@ -903,7 +903,7 @@ export default function HistoricoComandas() {
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                   <Package className="w-5 h-5 text-destructive" />
-                  Itens da Comanda
+                  Itens da comanda
                 </h3>
                 <div className="space-y-3">
                   {comandaSelecionada?.itens && comandaSelecionada.itens.length > 0 ? (

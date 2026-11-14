@@ -226,12 +226,12 @@ export default function HistoricoMovimentacoes() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
-          Histórico de Movimentações
+          Histórico de movimentações
         </h1>
         <p className="text-muted-foreground">
           Consulte todas as entradas, saídas e ajustes de estoque

@@ -98,12 +98,12 @@ export default function NovoSaborBorda() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Pizza className="h-6 w-6" />
-          Novo Sabor de Borda
+          Novo sabor de borda
         </h1>
         <p className="text-muted-foreground">
           Crie um novo sabor de borda para seus produtos

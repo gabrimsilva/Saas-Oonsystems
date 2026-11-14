@@ -196,7 +196,7 @@ export default function AdicionalForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Adicional</CardTitle>
+          <CardTitle>Informações do adicional</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Toggle para criação múltipla - apenas em modo de criação */}

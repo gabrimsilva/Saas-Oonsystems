@@ -114,7 +114,7 @@ export default function ConfiguracoesGeraisPage() {
   return (
     <div className="container mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Informações Gerais</h2>
+        <h2 className="text-2xl font-bold">Informações gerais</h2>
         <p className="text-muted-foreground">
           Configure os dados básicos do estabelecimento
         </p>

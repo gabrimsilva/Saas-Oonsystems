@@ -45,12 +45,12 @@ export default function NovaCategoria() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Package className="h-6 w-6" />
-          Nova Categoria
+          Nova categoria
         </h1>
         <p className="text-muted-foreground">Crie uma nova categoria para organizar seus produtos</p>
       </div>

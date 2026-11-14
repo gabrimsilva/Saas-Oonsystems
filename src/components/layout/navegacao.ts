@@ -6,6 +6,7 @@
 
 import {
   BadgeCheck,
+  Bell,
   Building2,
   ClipboardList,
   Clock,
@@ -18,6 +19,7 @@ import {
   LayoutDashboard,
   Package,
   Palette,
+  Printer,
   Receipt,
   Settings,
   ShoppingBag,
@@ -107,6 +109,8 @@ export const GRUPOS_MENU: GrupoMenu[] = [
           { id: 'configuracoes-horario', titulo: 'Horários', icone: Clock },
           { id: 'configuracoes-pagamento', titulo: 'Pagamentos', icone: CreditCard },
           { id: 'configuracoes-visuais', titulo: 'Aparência', icone: Palette },
+          { id: 'configuracoes-impressao', titulo: 'Impressão', icone: Printer },
+          { id: 'configuracoes-notificacao', titulo: 'Notificações', icone: Bell },
         ],
       },
     ],

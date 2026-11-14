@@ -19,7 +19,8 @@ import {
   Truck,
   Store,
   User,
-  Package
+  Package,
+  ArrowRight
 } from "lucide-react"
 import { type PedidoSupabase } from "@/services"
 import PrintOrder from "./PrintOrder"
@@ -28,6 +29,13 @@ import NotificarClienteWhatsApp from "./NotificarClienteWhatsApp"
 import { usePedidoExpandido } from "@/hooks/usePedidoExpandido"
 import { renderizarDetalhesCombo } from "@/utils/comboFormatacao"
 import { calcularDescontoEmReais } from "@/utils/descontoCalculation"
+
+/** Próxima etapa do Kanban: no celular as colunas ficam empilhadas e arrastar é inviável */
+const PROXIMA_ETAPA: Record<string, { status: string; rotulo: string }> = {
+  'Pedido criado': { status: 'Preparando', rotulo: 'Separar' },
+  'Preparando': { status: 'Liberado', rotulo: 'Pronto' },
+  'Liberado': { status: 'Finalizado', rotulo: 'Entregue' },
+}
 
 
 
@@ -38,7 +46,7 @@ interface PedidoCardProps {
   isDragging?: boolean
 }
 
-export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDragging = false }: PedidoCardProps) {
+export default function PedidoCard({ pedido, onStatusChange, onCancelar, isDragging = false }: PedidoCardProps) {
   const [showDetalhesModal, setShowDetalhesModal] = useState(false)
   const [showCancelarModal, setShowCancelarModal] = useState(false)
   
@@ -90,14 +98,14 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
           {/* Cabeçalho sempre visível */}
           <div className="flex items-center justify-between mb-2 gap-2">
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <Badge variant="outline" className="text-[10px] sm:text-xs font-mono bg-muted px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
+              <Badge variant="outline" className="text-[11px] sm:text-xs font-mono bg-muted px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
                 #{idCurto}
               </Badge>
               <Badge
                 variant={pedido.entrega_domicilio ? "default" : "secondary"}
-                className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap flex items-center gap-1 ${pedido.entrega_domicilio
+                className={`text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap flex items-center gap-1 ${pedido.entrega_domicilio
                   ? 'bg-[color:var(--secondary-foreground)] hover:bg-[color:var(--secondary-foreground)]/90 text-white border-[color:var(--secondary-foreground)]'
-                  : 'bg-slate-900 hover:bg-slate-800 text-white border-slate-900'
+                  : 'bg-foreground hover:bg-foreground/90 text-background border-foreground'
                   }`}
                 title={pedido.entrega_domicilio ? "Entrega" : "Retirada"}
               >
@@ -110,7 +118,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
               {pedido.forma_pagamento_dividido && (
                 <Badge
                   variant="outline"
-                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-primary/5 text-primary border-primary/30 flex items-center"
+                  className="text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-primary/5 text-primary border-primary/30 flex items-center"
                   title="Pagamento Dividido"
                 >
                   <Split className="w-3 h-3" />
@@ -119,7 +127,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
               {pedido.tipo_venda === 'atacado' && (
                 <Badge
                   variant="outline"
-                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-warning/10 text-warning-foreground border-warning/40"
+                  className="text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-warning/10 text-warning-foreground border-warning/40"
                   title="Venda no atacado (catálogo)"
                 >
                   Atacado
@@ -128,7 +136,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
               {pedido.mercado_pago_status === 'approved' && (
                 <Badge
                   variant="outline"
-                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-success/5 text-success border-success/40"
+                  className="text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap bg-success/5 text-success border-success/40"
                   title="Pago online pelo Mercado Pago"
                 >
                   Pago online
@@ -149,8 +157,9 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                   e.stopPropagation()
                   setShowCancelarModal(true)
                 }}
-                className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
+                className="h-8 w-8 sm:h-6 sm:w-6 p-0 hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
                 title="Cancelar pedido"
+                aria-label="Cancelar pedido"
               >
                 <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
@@ -158,7 +167,9 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                 variant="ghost"
                 size="sm"
                 onClick={toggleExpanded}
-                className="h-6 w-6 p-0 hover:bg-accent flex-shrink-0"
+                className="h-8 w-8 sm:h-6 sm:w-6 p-0 hover:bg-accent flex-shrink-0"
+                aria-label={isExpanded ? "Recolher pedido" : "Expandir pedido"}
+                aria-expanded={isExpanded}
               >
                 {isExpanded ? <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
               </Button>
@@ -181,13 +192,26 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
             <Button
               variant="default"
               size="sm"
-              className="flex-1 min-w-0 text-[10px] sm:text-xs h-7 sm:h-8 bg-primary hover:bg-primary-hover rounded-lg whitespace-nowrap"
+              className="flex-1 min-w-0 text-xs h-8 bg-primary hover:bg-primary-hover rounded-lg whitespace-nowrap"
               onClick={() => setShowDetalhesModal(true)}
             >
               <span className="hidden sm:inline">+ Ver todos</span>
               <span className="sm:hidden">Ver +</span>
             </Button>
           </div>
+
+          {/* Avançar etapa sem precisar arrastar o card */}
+          {PROXIMA_ETAPA[pedido.status] && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-1.5 sm:mt-2 w-full h-8 text-xs rounded-lg"
+              onClick={() => onStatusChange(pedido.pedido_id, PROXIMA_ETAPA[pedido.status].status)}
+            >
+              {PROXIMA_ETAPA[pedido.status].rotulo}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          )}
 
           {/* Conteúdo expansível */}
           {isExpanded && (
@@ -210,11 +234,11 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                 </div>
                 {/* Tag de status de pagamento */}
                 {(pedido as any).mercado_pago_status === 'approved' ? (
-                  <Badge className="bg-success hover:bg-success text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                  <Badge className="bg-success hover:bg-success text-white text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
                     Pago
                   </Badge>
                 ) : (
-                  <Badge className="bg-destructive hover:bg-destructive text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                  <Badge className="bg-destructive hover:bg-destructive text-white text-[11px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
                     Pagar
                   </Badge>
                 )}
@@ -275,7 +299,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                 <div>
                   <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <User className="w-5 h-5 text-primary" />
-                    Dados Pessoais
+                    Dados pessoais
                   </h3>
                   <div className="space-y-2 bg-muted/50 p-4 rounded-lg border border-border">
                     <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
@@ -348,7 +372,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
                 <div>
                   <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                     <Package className="w-5 h-5 text-warning-foreground" />
-                    Informações do Pedido
+                    Informações do pedido
                   </h3>
                   <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-2">
                     <div className="grid grid-cols-[90px_minmax(0,1fr)] sm:grid-cols-[120px_minmax(0,1fr)] gap-2 break-words">
@@ -400,7 +424,7 @@ export default function PedidoCard({ pedido, onStatusChange: _, onCancelar, isDr
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg mb-3 text-foreground flex items-center gap-2">
                   <Package className="w-5 h-5 text-destructive" />
-                  Itens do Pedido
+                  Itens do pedido
                 </h3>
                 <div className="space-y-3">
                   {pedido.itens.map((item: any, index: number) => (

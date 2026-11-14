@@ -514,13 +514,13 @@ export default function PDV() {
     }
 
     return (
-        <div className="container mx-auto p-6 space-y-6 bg-gray-50/30 pb-20 md:pb-6">
+        <div className="container mx-auto p-6 space-y-6 pb-20 md:pb-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
                         <Calculator className="h-6 w-6" />
-                        PDV - Ponto de Venda
+                        Ponto de venda (PDV)
                     </h1>
                     <p className="text-muted-foreground">
                         Registre pedidos diretamente pelo sistema

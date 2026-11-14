@@ -24,7 +24,7 @@ const FormularioRetirada = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="w-5 h-5" />
-          Seus Dados
+          Seus dados
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -75,7 +75,7 @@ const FormularioRetirada = ({
 
         {/* Endereço da loja */}
         <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-          <h3 className="font-medium text-primary mb-2">📍 Endereço da Loja</h3>
+          <h3 className="font-medium text-primary mb-2">📍 Endereço da loja</h3>
           <p className="text-primary">{enderecoEstabelecimento}</p>
         </div>
       </CardContent>

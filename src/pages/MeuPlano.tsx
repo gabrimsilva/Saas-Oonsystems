@@ -112,7 +112,7 @@ export default function MeuPlano() {
   const textoBotao = resumo.status === 'trial' ? 'Assinar agora' : `Pagar ${cicloCobrado === 'anual' ? 'anuidade' : 'mensalidade'}`
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
       <CabecalhoPagina titulo="Meu plano" descricao="Assinatura do OonSystems, vencimento e pagamentos." icone={BadgeCheck} />
 
       {retorno === 'pago' && <Alerta tipo="sucesso" titulo="Pagamento confirmado">Obrigado! Sua assinatura foi atualizada.</Alerta>}

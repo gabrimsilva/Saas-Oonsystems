@@ -296,7 +296,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Printer className="h-5 w-5" />
-            Configurações de Impressão
+            Configurações de impressão
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -314,7 +314,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Printer className="h-5 w-5" />
-          Configurações de Impressão
+          Configurações de impressão
         </CardTitle>
         <CardDescription>
           Configure as informações que aparecerão nos comprovantes impressos dos pedidos
@@ -386,7 +386,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
 
         {/* Configurações de Densidade e Tamanhos de Fonte - Sempre Visíveis */}
         <div className="border-t pt-4 mt-4">
-          <h3 className="text-lg font-semibold mb-2">Configurações de Impressão</h3>
+          <h3 className="text-lg font-semibold mb-2">Configurações de impressão</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Estas configurações afetam tanto a impressão via QZ Tray quanto a impressão normal do navegador
           </p>
@@ -422,7 +422,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
             {/* Tamanhos de Fonte */}
             <div className="space-y-3 border-t pt-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold">Tamanhos de Fonte (px)</h4>
+                <h4 className="text-sm font-semibold">Tamanhos de fonte (px)</h4>
                 <Button
                   type="button"
                   variant="outline"
@@ -628,7 +628,7 @@ export default function ConfiguracaoImpressao({ fontSizes: propFontSizes, onFont
 
         {/* Configurações QZ Tray */}
         <div className="border-t pt-4 mt-4">
-          <h3 className="text-lg font-semibold mb-4">Impressão Automática (QZ Tray)</h3>
+          <h3 className="text-lg font-semibold mb-4">Impressão automática (QZ Tray)</h3>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">

@@ -107,7 +107,7 @@ export default function LineChartConsumoInterno({ dataInicio: dataInicioExterno,
           <div>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              Evolução de Consumo Interno
+              Evolução de consumo interno
             </CardTitle>
             <CardDescription>
               Histórico de consumo ao longo do tempo

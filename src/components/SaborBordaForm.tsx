@@ -247,7 +247,7 @@ export default function SaborBordaForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Sabor de Borda</CardTitle>
+          <CardTitle>Informações do sabor de borda</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Toggle para criação múltipla - apenas em modo de criação */}

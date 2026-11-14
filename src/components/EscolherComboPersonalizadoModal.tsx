@@ -464,7 +464,7 @@ export default function EscolherComboPersonalizadoModal({
           <div className="flex items-start justify-between w-full gap-2">
             <div className="flex-1 min-w-0 max-md:pr-10">
               <AlertDialogTitle className="text-xl font-bold leading-tight">
-                Personalizar Combo:
+                Personalizar combo:
               </AlertDialogTitle>
               <div className="text-xl font-semibold text-foreground/80 mt-1 break-words">
                 {combo.nome}
@@ -540,7 +540,7 @@ export default function EscolherComboPersonalizadoModal({
               {/* Seleção de Tamanhos */}
               {tamanhosDisponiveis.length > 0 && (
                 <div className="w-full overflow-hidden">
-                  <h3 className="text-lg font-semibold mb-3">Tamanhos Disponíveis</h3>
+                  <h3 className="text-lg font-semibold mb-3">Tamanhos disponíveis</h3>
                   <div className="space-y-2">
                     {tamanhosDisponiveis.map((tamanho) => (
                       <div
@@ -637,7 +637,7 @@ export default function EscolherComboPersonalizadoModal({
               {/* Seleção de Borda */}
               {bordasDisponiveis.length > 0 && (
                 <div className="w-full overflow-hidden">
-                  <h3 className="text-lg font-semibold mb-3">Tipo de Borda</h3>
+                  <h3 className="text-lg font-semibold mb-3">Tipo de borda</h3>
                   <div className="space-y-2">
                     {bordasDisponiveis.map((borda) => (
                       <div

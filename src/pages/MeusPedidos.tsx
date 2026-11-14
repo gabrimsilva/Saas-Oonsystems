@@ -277,7 +277,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Meus Pedidos
+              Meus pedidos
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Consulte o histórico dos seus pedidos e acompanhe o status de cada um
@@ -292,7 +292,7 @@ export default function MeusPedidos({ onVoltar }: MeusPedidosProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Phone className="h-5 w-5" />
-              Consultar Pedidos
+              Consultar pedidos
             </CardTitle>
           </CardHeader>
           <CardContent>
