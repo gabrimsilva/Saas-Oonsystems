@@ -120,6 +120,108 @@ export interface PagamentoMensalidade {
   motivo_estorno: string | null
 }
 
+// ---------------------------------------------------------- contas a pagar
+export type CategoriaConta =
+  | 'infraestrutura' | 'ferramentas' | 'marketing' | 'impostos' | 'pessoal' | 'servicos' | 'taxas' | 'outros'
+export type RecorrenciaConta = 'unica' | 'mensal' | 'anual'
+
+/** Custo da plataforma. Paga quando `pago_em` está preenchido. */
+export interface ContaPagar {
+  id: string
+  descricao: string
+  categoria: CategoriaConta
+  fornecedor: string | null
+  valor: number
+  /** yyyy-mm-dd */
+  vencimento: string
+  recorrencia: RecorrenciaConta
+  pago_em: string | null
+  valor_pago: number | null
+  forma: FormaPagamento | null
+  observacao: string | null
+  conta_anterior_id: string | null
+  criado_em: string
+}
+
+export interface DadosConta {
+  descricao: string
+  categoria: CategoriaConta
+  fornecedor?: string | null
+  valor: number
+  vencimento: string
+  recorrencia: RecorrenciaConta
+  observacao?: string | null
+}
+
+export const ROTULO_CATEGORIA_CONTA: Record<CategoriaConta, string> = {
+  infraestrutura: 'Infraestrutura (hospedagem, banco, domínio)',
+  ferramentas: 'Ferramentas e assinaturas',
+  marketing: 'Marketing',
+  impostos: 'Impostos',
+  pessoal: 'Pessoal',
+  servicos: 'Serviços de terceiros',
+  taxas: 'Taxas e tarifas',
+  outros: 'Outros',
+}
+
+export const ROTULO_RECORRENCIA: Record<RecorrenciaConta, string> = {
+  unica: 'Única',
+  mensal: 'Mensal',
+  anual: 'Anual',
+}
+
+export type SituacaoConta = 'paga' | 'vencida' | 'hoje' | 'a_vencer'
+
+const dataLocal = (iso: string) => {
+  const [a, m, d] = iso.slice(0, 10).split('-').map(Number)
+  return new Date(a, m - 1, d)
+}
+
+/** Dias até o vencimento pela data local (negativo = vencida). */
+export function diasParaVencer(vencimento: string, hoje = new Date()): number {
+  const base = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
+  return Math.round((dataLocal(vencimento).getTime() - base.getTime()) / DIA_MS)
+}
+
+export function situacaoConta(c: Pick<ContaPagar, 'pago_em' | 'vencimento'>, hoje = new Date()): SituacaoConta {
+  if (c.pago_em) return 'paga'
+  const dias = diasParaVencer(c.vencimento, hoje)
+  return dias < 0 ? 'vencida' : dias === 0 ? 'hoje' : 'a_vencer'
+}
+
+/**
+ * Totais das contas: pago no mês (pela data do pagamento), vencidas, a pagar
+ * em 30 dias e o custo fixo mensal. Cada recorrência tem sempre uma conta em
+ * aberto (a próxima é criada ao pagar), então o custo fixo soma as recorrentes
+ * em aberto; as anuais entram como 1/12.
+ */
+export function resumoContas(contas: ContaPagar[], mes: string, hoje = new Date()) {
+  const pagasNoMes = contas.filter((c) => c.pago_em?.startsWith(mes))
+  const abertas = contas.filter((c) => !c.pago_em)
+  const vencidas = abertas.filter((c) => diasParaVencer(c.vencimento, hoje) < 0)
+  const proximas = abertas.filter((c) => {
+    const dias = diasParaVencer(c.vencimento, hoje)
+    return dias >= 0 && dias <= 30
+  })
+  const soma = (lista: ContaPagar[], campo: 'valor' | 'valor_pago' = 'valor') =>
+    lista.reduce((t, c) => t + (Number(c[campo]) || 0), 0)
+  return {
+    pagoNoMes: soma(pagasNoMes, 'valor_pago'),
+    qtdPagoNoMes: pagasNoMes.length,
+    vencidas: { qtd: vencidas.length, valor: soma(vencidas) },
+    aPagar30: { qtd: proximas.length, valor: soma(proximas) },
+    custoFixoMensal: abertas
+      .filter((c) => c.recorrencia !== 'unica')
+      .reduce((t, c) => t + (c.recorrencia === 'anual' ? c.valor / 12 : c.valor), 0),
+  }
+}
+
+/** Pago por mês ("yyyy-mm"), na ordem dos meses informados. */
+export function pagoPorMes(contas: ContaPagar[], meses: string[]): number[] {
+  return meses.map((mes) =>
+    contas.filter((c) => c.pago_em?.startsWith(mes)).reduce((t, c) => t + (Number(c.valor_pago) || 0), 0))
+}
+
 export interface NovoPagamento {
   tenantId: string
   valor: number
@@ -620,6 +722,61 @@ export const plataformaService = {
       p_motivo: motivo ?? null,
     })
     if (error) falha('Falha ao estornar o pagamento', error)
+  },
+
+  // -------------------------------------------------------- contas a pagar
+  /** Contas pagas a partir de `pagasDesde` (yyyy-mm-dd) e todas as em aberto. */
+  async listarContas(pagasDesde: string): Promise<ContaPagar[]> {
+    const { data, error } = await supabase
+      .from('plataforma_contas_pagar')
+      .select('*')
+      .or(`pago_em.is.null,pago_em.gte.${pagasDesde}`)
+      .order('vencimento', { ascending: true })
+      .limit(2000)
+    if (error) falha('Falha ao carregar as contas a pagar', error)
+    return ((data ?? []) as ContaPagar[]).map((c) => ({
+      ...c,
+      valor: Number(c.valor) || 0,
+      valor_pago: c.valor_pago === null ? null : Number(c.valor_pago) || 0,
+    }))
+  },
+
+  async salvarConta(dados: DadosConta, id?: string): Promise<void> {
+    const registro = {
+      descricao: dados.descricao.trim(),
+      categoria: dados.categoria,
+      fornecedor: dados.fornecedor?.trim() || null,
+      valor: Math.round(dados.valor * 100) / 100,
+      vencimento: dados.vencimento,
+      recorrencia: dados.recorrencia,
+      observacao: dados.observacao?.trim() || null,
+    }
+    const { error } = id
+      ? await supabase.from('plataforma_contas_pagar').update(registro).eq('id', id)
+      : await supabase.from('plataforma_contas_pagar').insert(registro)
+    if (error) falha('Falha ao salvar a conta', error)
+  },
+
+  async excluirConta(id: string): Promise<void> {
+    const { error } = await supabase.from('plataforma_contas_pagar').delete().eq('id', id)
+    if (error) falha('Falha ao excluir a conta', error)
+  },
+
+  /** Registra o pagamento; se a conta for recorrente, a próxima é criada. Devolve o id da próxima. */
+  async pagarConta(id: string, pagoEm: string, valorPago: number, forma: FormaPagamento): Promise<string | null> {
+    const { data, error } = await supabase.rpc('plataforma_pagar_conta', {
+      p_id: id,
+      p_pago_em: pagoEm,
+      p_valor_pago: valorPago,
+      p_forma: forma,
+    })
+    if (error) falha('Falha ao registrar o pagamento da conta', error)
+    return (data as string | null) ?? null
+  },
+
+  async desfazerPagamentoConta(id: string): Promise<void> {
+    const { error } = await supabase.rpc('plataforma_desfazer_pagamento_conta', { p_id: id })
+    if (error) falha('Falha ao desfazer o pagamento', error)
   },
 
   // ------------------------------------------------------------- auditoria

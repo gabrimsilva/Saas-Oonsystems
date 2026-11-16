@@ -15,7 +15,12 @@ import {
   vencimentoDaAdesao,
   testeExpirado,
   valorMensalDoCliente,
+  diasParaVencer,
+  pagoPorMes,
+  resumoContas,
+  situacaoConta,
   type ClientePlataforma,
+  type ContaPagar,
   type Plano,
 } from './plataformaService'
 
@@ -216,5 +221,63 @@ describe('mensalidades', () => {
     expect(bloqueadoPorAtraso({ status: 'ativo', vigencia_ate: emDias(-6) }, AGORA)).toBe(true)
     expect(bloqueadoPorAtraso({ status: 'ativo', vigencia_ate: null }, AGORA)).toBe(false)
     expect(bloqueadoPorAtraso({ status: 'trial', vigencia_ate: emDias(-30) }, AGORA)).toBe(false)
+  })
+})
+
+describe('contas a pagar', () => {
+  const hoje = new Date(2026, 10, 16) // 16/11/2026
+  const conta = (dados: Partial<ContaPagar>): ContaPagar => ({
+    id: Math.random().toString(36),
+    descricao: 'Conta',
+    categoria: 'infraestrutura',
+    fornecedor: null,
+    valor: 100,
+    vencimento: '2026-11-20',
+    recorrencia: 'unica',
+    pago_em: null,
+    valor_pago: null,
+    forma: null,
+    observacao: null,
+    conta_anterior_id: null,
+    criado_em: '2026-11-01T00:00:00Z',
+    ...dados,
+  })
+
+  it('conta os dias pela data local', () => {
+    expect(diasParaVencer('2026-11-16', hoje)).toBe(0)
+    expect(diasParaVencer('2026-11-17', hoje)).toBe(1)
+    expect(diasParaVencer('2026-11-10', hoje)).toBe(-6)
+  })
+
+  it('classifica a situação', () => {
+    expect(situacaoConta(conta({ pago_em: '2026-11-01', valor_pago: 100 }), hoje)).toBe('paga')
+    expect(situacaoConta(conta({ vencimento: '2026-11-15' }), hoje)).toBe('vencida')
+    expect(situacaoConta(conta({ vencimento: '2026-11-16' }), hoje)).toBe('hoje')
+    expect(situacaoConta(conta({ vencimento: '2026-12-01' }), hoje)).toBe('a_vencer')
+  })
+
+  it('resume o mês: pago pelo valor pago, vencidas, próximos 30 dias e custo fixo', () => {
+    const contas = [
+      conta({ pago_em: '2026-11-05', valor_pago: 95, valor: 100 }),
+      conta({ pago_em: '2026-10-30', valor_pago: 50 }),
+      conta({ vencimento: '2026-11-10', valor: 30 }),
+      conta({ vencimento: '2026-11-25', valor: 40, recorrencia: 'mensal' }),
+      conta({ vencimento: '2027-03-01', valor: 120, recorrencia: 'anual' }),
+    ]
+    const r = resumoContas(contas, '2026-11', hoje)
+    expect(r.pagoNoMes).toBe(95)
+    expect(r.qtdPagoNoMes).toBe(1)
+    expect(r.vencidas).toEqual({ qtd: 1, valor: 30 })
+    expect(r.aPagar30).toEqual({ qtd: 1, valor: 40 })
+    expect(r.custoFixoMensal).toBe(50) // 40 mensal + 120/12
+  })
+
+  it('soma o pago por mês', () => {
+    const contas = [
+      conta({ pago_em: '2026-10-02', valor_pago: 10 }),
+      conta({ pago_em: '2026-11-03', valor_pago: 20 }),
+      conta({ pago_em: '2026-11-04', valor_pago: 5 }),
+    ]
+    expect(pagoPorMes(contas, ['2026-09', '2026-10', '2026-11'])).toEqual([0, 10, 25])
   })
 })

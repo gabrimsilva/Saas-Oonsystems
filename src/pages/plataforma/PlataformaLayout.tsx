@@ -15,6 +15,7 @@ import {
   Menu,
   Package,
   Receipt,
+  WalletCards,
 } from 'lucide-react'
 import { authService, supabase } from '@/services'
 import {
@@ -43,6 +44,7 @@ const MENU = [
   { para: '/plataforma', rotulo: 'Clientes', icone: Building2, fim: true },
   { para: '/plataforma/mensalidades', rotulo: 'Mensalidades', icone: Receipt },
   { para: '/plataforma/financeiro', rotulo: 'Financeiro', icone: DollarSign },
+  { para: '/plataforma/contas-a-pagar', rotulo: 'Contas a pagar', icone: WalletCards },
   { para: '/plataforma/alertas', rotulo: 'Alertas', icone: Bell },
   { para: '/plataforma/planos', rotulo: 'Planos', icone: Package },
   { para: '/plataforma/auditoria', rotulo: 'Auditoria', icone: FileClock },

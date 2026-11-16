@@ -1,21 +1,24 @@
 /**
  * Plataforma > Financeiro: receita recorrente estimada a partir dos planos
- * contratados, mensalidades a vencer e o que foi de fato recebido (pagamentos
- * registrados em Mensalidades).
+ * contratados, mensalidades a vencer, o que foi de fato recebido (pagamentos
+ * registrados em Mensalidades), os custos pagos (Contas a pagar) e o lucro.
  */
 
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { AlertOctagon, CalendarClock, CircleDollarSign, DollarSign, Receipt, TrendingUp, Wallet } from 'lucide-react'
+import { AlertOctagon, CalendarClock, CircleDollarSign, DollarSign, PiggyBank, Receipt, Scale, TrendingUp, Wallet, WalletCards } from 'lucide-react'
 import {
   diasAte,
   ehPagante,
   nomeDoCliente,
+  pagoPorMes,
   plataformaService,
+  resumoContas,
   temMensalidade,
   valorDoCiclo,
   valorMensalDoCliente,
+  type ContaPagar,
   type PagamentoMensalidade,
 } from '@/services/plataformaService'
 import { useDadosPlataforma } from './PlataformaLayout'
@@ -38,6 +41,7 @@ const rotuloMes = (mes: string) =>
 export default function FinanceiroPage() {
   const { clientes, planos, carregando } = useDadosPlataforma()
   const [pagamentos, setPagamentos] = useState<PagamentoMensalidade[] | null>(null)
+  const [contas, setContas] = useState<ContaPagar[] | null>(null)
   const meses = useMemo(() => ultimosMeses(MESES_GRAFICO), [])
 
   useEffect(() => {
@@ -47,6 +51,13 @@ export default function FinanceiroPage() {
       .catch((e) => {
         toast.error(e instanceof Error ? e.message : 'Erro ao carregar os pagamentos', { id: 'financeiro-pagamentos' })
         setPagamentos([])
+      })
+    plataformaService
+      .listarContas(`${meses[0]}-01`)
+      .then(setContas)
+      .catch((e) => {
+        toast.error(e instanceof Error ? e.message : 'Erro ao carregar as contas a pagar', { id: 'financeiro-contas' })
+        setContas([])
       })
   }, [meses])
 
@@ -59,6 +70,10 @@ export default function FinanceiroPage() {
     [meses, pagamentos],
   )
   const recebidoNoMes = recebidoPorMes[recebidoPorMes.length - 1]
+
+  const custosPorMes = useMemo(() => pagoPorMes(contas ?? [], meses), [contas, meses])
+  const custos = useMemo(() => resumoContas(contas ?? [], meses[meses.length - 1]), [contas, meses])
+  const carregandoResultado = !pagamentos || !contas
 
   const resumo = useMemo(() => {
     const pagantes = clientes.filter(ehPagante)
@@ -102,14 +117,17 @@ export default function FinanceiroPage() {
   if (carregando && clientes.length === 0) return <Carregando />
 
   const maiorMrr = Math.max(...resumo.porPlano.map((l) => l.mrr), 0)
-  const maiorRecebido = Math.max(...recebidoPorMes.map((m) => m.total), 0)
+  const maiorBarra = Math.max(...recebidoPorMes.map((m) => m.total), ...custosPorMes, 0)
+  const lucroReal = recebidoNoMes.total - custos.pagoNoMes
+  const margem = recebidoNoMes.total > 0 ? (lucroReal / recebidoNoMes.total) * 100 : null
+  const lucroEstimado = resumo.mrr - custos.custoFixoMensal
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Financeiro</h1>
         <p className="text-sm text-muted-foreground">
-          O que foi recebido (pagamentos registrados em Mensalidades) e a receita estimada pelos planos dos clientes ativos.
+          O que foi recebido (Mensalidades), o que foi pago (Contas a pagar), o lucro e a receita estimada pelos planos dos clientes ativos.
         </p>
       </div>
 
@@ -127,40 +145,78 @@ export default function FinanceiroPage() {
           icone={<Receipt className="h-5 w-5" />} />
       </div>
 
+      {/* Resultado do mês: recebido - pago */}
+      <section aria-labelledby="titulo-resultado" className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="titulo-resultado" className="font-semibold text-foreground">Resultado do mês</h2>
+            <p className="text-xs text-muted-foreground">Lucro real = recebido no mês − custos pagos no mês</p>
+          </div>
+          <Link to="/plataforma/contas-a-pagar" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline whitespace-nowrap">
+            <WalletCards className="h-4 w-4" aria-hidden="true" /> Contas a pagar
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <CartaoIndicador titulo="Custos pagos no mês" valor={contas ? formatarReais(custos.pagoNoMes) : '…'}
+            detalhe={`${custos.qtdPagoNoMes} conta(s) paga(s)`} icone={<Wallet className="h-5 w-5" />} />
+          <CartaoIndicador titulo="Lucro real no mês" valor={carregandoResultado ? '…' : formatarReais(lucroReal)}
+            detalhe={margem === null ? 'sem recebimentos no mês' : `${margem.toFixed(1).replace('.', ',')}% de margem`}
+            icone={<PiggyBank className="h-5 w-5" />}
+            cor={carregandoResultado ? 'text-foreground' : lucroReal < 0 ? 'text-destructive' : 'text-success'} />
+          <CartaoIndicador titulo="Lucro estimado / mês" valor={contas ? formatarReais(lucroEstimado) : '…'}
+            detalhe={`MRR − custo fixo de ${formatarReais(custos.custoFixoMensal)}`} icone={<Scale className="h-5 w-5" />}
+            cor={contas && lucroEstimado < 0 ? 'text-destructive' : 'text-foreground'} />
+          <CartaoIndicador titulo="A pagar em 30 dias" valor={contas ? formatarReais(custos.aPagar30.valor + custos.vencidas.valor) : '…'}
+            detalhe={custos.vencidas.qtd ? `${custos.vencidas.qtd} vencida(s) incluída(s)` : `${custos.aPagar30.qtd} conta(s)`}
+            icone={<CalendarClock className="h-5 w-5" />} cor={custos.vencidas.qtd ? 'text-destructive' : 'text-foreground'} />
+        </div>
+      </section>
+
       {/* Recebido por mês */}
       <section className="bg-card rounded-xl border border-border shadow-sm p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="font-semibold text-foreground">Recebido por mês</h2>
+            <h2 className="font-semibold text-foreground">Recebido e pago por mês</h2>
             <p className="text-xs text-muted-foreground">
-              Pagamentos registrados nos últimos {MESES_GRAFICO} meses · total{' '}
+              Últimos {MESES_GRAFICO} meses · recebido{' '}
               <strong className="text-foreground">{formatarReais(recebidoPorMes.reduce((s, m) => s + m.total, 0))}</strong>
+              {' '}· pago <strong className="text-foreground">{formatarReais(custosPorMes.reduce((s, v) => s + v, 0))}</strong>
+            </p>
+            <p className="mt-1 flex items-center gap-3 text-xs text-muted-foreground" aria-hidden="true">
+              <span className="inline-flex items-center gap-1"><span className="size-2.5 rounded-sm bg-primary" /> Recebido</span>
+              <span className="inline-flex items-center gap-1"><span className="size-2.5 rounded-sm bg-destructive/70" /> Pago</span>
             </p>
           </div>
           <Link to="/plataforma/mensalidades" className="text-sm font-medium text-primary hover:underline whitespace-nowrap">
             Registrar pagamentos
           </Link>
         </div>
-        {!pagamentos ? (
+        {carregandoResultado ? (
           <div className="h-44 mt-4 rounded-lg bg-muted/50 animate-pulse" />
         ) : (
           <ul className="mt-4 grid gap-2 sm:gap-4" style={{ gridTemplateColumns: `repeat(${MESES_GRAFICO}, minmax(0, 1fr))` }}
-            aria-label="Recebido por mês">
+            aria-label="Recebido e pago por mês">
             {recebidoPorMes.map((m, i) => {
               const atual = i === recebidoPorMes.length - 1
-              const altura = maiorRecebido > 0 ? (m.total / maiorRecebido) * 100 : 0
+              const pago = custosPorMes[i] ?? 0
+              const lucro = m.total - pago
+              const altura = (v: number) => (maiorBarra > 0 && v > 0 ? `max(${(v / maiorBarra) * 100}%, 2px)` : 0)
               return (
                 <li key={m.mes} className="group flex flex-col items-center gap-1.5"
-                  title={`${rotuloMes(m.mes)}: ${formatarReais(m.total)} em ${m.qtd} pagamento(s)`}>
+                  title={`${rotuloMes(m.mes)}: recebido ${formatarReais(m.total)} · pago ${formatarReais(pago)} · lucro ${formatarReais(lucro)}`}>
                   <span className={`text-[11px] sm:text-xs tabular-nums whitespace-nowrap ${
-                    atual ? 'font-semibold text-foreground' : 'text-muted-foreground sm:opacity-0 sm:group-hover:opacity-100'
-                  }`}>
-                    {formatarReais(m.total)}
+                    atual ? 'font-semibold' : 'sm:opacity-0 sm:group-hover:opacity-100'
+                  } ${lucro < 0 ? 'text-destructive' : atual ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {formatarReais(lucro)}
                   </span>
-                  <div className="h-32 w-full flex items-end justify-center border-b border-border">
+                  <div className="h-32 w-full flex items-end justify-center gap-0.5 sm:gap-1 border-b border-border">
                     <div
-                      className={`w-full max-w-12 rounded-t ${atual ? 'bg-primary' : 'bg-primary/55 group-hover:bg-primary/80'}`}
-                      style={{ height: m.total > 0 ? `max(${altura}%, 2px)` : 0 }}
+                      className={`w-1/2 max-w-6 rounded-t ${atual ? 'bg-primary' : 'bg-primary/55 group-hover:bg-primary/80'}`}
+                      style={{ height: altura(m.total) }}
+                    />
+                    <div
+                      className={`w-1/2 max-w-6 rounded-t ${atual ? 'bg-destructive/80' : 'bg-destructive/45 group-hover:bg-destructive/70'}`}
+                      style={{ height: altura(pago) }}
                     />
                   </div>
                   <span className={`text-xs ${atual ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>{rotuloMes(m.mes)}</span>
@@ -205,7 +261,7 @@ export default function FinanceiroPage() {
                       <div className="flex items-center gap-2" title={`${l.plano.nome}: ${formatarReais(l.mrr)} por mês`}>
                         <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gray-800 rounded-full"
+                            className="h-full bg-foreground/80 rounded-full"
                             style={{ width: maiorMrr > 0 ? `${(l.mrr / maiorMrr) * 100}%` : 0 }}
                           />
                         </div>
