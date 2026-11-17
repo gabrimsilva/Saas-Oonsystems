@@ -39,6 +39,7 @@ private-key.pem
 
 # Artefato de deploy gerado localmente
 deploy_dist.zip
+deploy-dist.tar.gz
 _diag_hg*.ps1
 
 # Credenciais (NUNCA commitar!)

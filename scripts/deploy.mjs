@@ -19,7 +19,7 @@
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, rmSync } from 'node:fs'
-import { homedir, tmpdir } from 'node:os'
+import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 const args = new Set(process.argv.slice(2))
@@ -49,7 +49,8 @@ const opcoesSsh = ['-i', chave, '-o', 'BatchMode=yes', '-o', 'StrictHostKeyCheck
 const ssh = (script) => rodar('ssh', [...opcoesSsh, '-p', porta, destino, script])
 const aspas = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`
 
-const SITE = aspas(cfg.pasta)
+// Caminho absoluto: relativo à home do usuário quando não começa com /
+const SITE = cfg.pasta.startsWith('/') ? aspas(cfg.pasta) : `"$HOME/"${aspas(cfg.pasta)}`
 const TMP = '"$HOME/.deploy-oonsystems"'
 
 if (args.has('--testar')) {
@@ -78,16 +79,17 @@ if (!args.has('--sem-build')) {
 if (!existsSync(join(raiz, 'dist', 'index.html'))) sair('dist/index.html não existe. Rode o build.')
 if (!existsSync(join(raiz, 'dist', '.htaccess'))) sair('dist/.htaccess não existe: sem ele as rotas dão 404.')
 
-// 2. Pacote
-const pacote = join(tmpdir(), 'oonsystems-dist.tar.gz')
+// 2. Pacote (caminhos relativos: o tar do Git lê "C:" como servidor remoto)
+const NOME_PACOTE = 'deploy-dist.tar.gz'
+const pacote = join(raiz, NOME_PACOTE)
 console.log('→ Compactando o dist...')
 rmSync(pacote, { force: true })
-rodar('tar', ['-czf', pacote, '-C', join(raiz, 'dist'), '.'])
+rodar('tar', ['-czf', NOME_PACOTE, '-C', 'dist', '.'])
 
 // 3. Envio
 console.log(`→ Enviando para ${destino}...`)
 ssh(`mkdir -p ${TMP}/backups`)
-rodar('scp', [...opcoesSsh, '-P', porta, pacote, `${destino}:.deploy-oonsystems/dist.tar.gz`])
+rodar('scp', [...opcoesSsh, '-P', porta, NOME_PACOTE, `${destino}:.deploy-oonsystems/dist.tar.gz`])
 
 // 4. Troca no servidor (com backup)
 console.log('→ Publicando...')
