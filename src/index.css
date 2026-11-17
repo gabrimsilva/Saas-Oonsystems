@@ -322,6 +322,102 @@
   --sidebar-ring: oklch(0.720 0.100 325);
 }
 
+/* Menu lateral escuro na cor do tema (todas as cores redefinidas só dentro do
+   menu: [data-area="menu"] no AppLayout e no menu do celular) e fundo das
+   páginas levemente tingido no claro. O Azul (padrão) mantém o menu claro. */
+:root[data-tema="marinho"]:not(.dark) {
+  --background: oklch(0.975 0.010 264);
+}
+:root[data-tema="marinho"] [data-area="menu"] {
+  --sidebar: oklch(0.270 0.065 264);
+  --background: oklch(0.270 0.065 264);
+  background-color: oklch(0.270 0.065 264);
+  --sidebar-foreground: oklch(0.900 0.015 264);
+  --sidebar-accent: oklch(1 0 0 / 9%);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --foreground: oklch(0.98 0.005 264);
+  --muted-foreground: oklch(0.760 0.025 264);
+  --border: oklch(1 0 0 / 12%);
+  --accent: oklch(1 0 0 / 9%);
+  --accent-foreground: oklch(0.99 0 0);
+  --card: oklch(0.320 0.065 264);
+  --card-foreground: oklch(0.98 0.005 264);
+  --primary: oklch(0.860 0.070 264);
+  --primary-foreground: oklch(0.270 0.065 264);
+  --destructive: oklch(0.74 0.15 25);
+  color: var(--foreground);
+}
+:root[data-tema="petroleo"]:not(.dark) {
+  --background: oklch(0.975 0.010 205);
+}
+:root[data-tema="petroleo"] [data-area="menu"] {
+  --sidebar: oklch(0.300 0.050 205);
+  --background: oklch(0.300 0.050 205);
+  background-color: oklch(0.300 0.050 205);
+  --sidebar-foreground: oklch(0.900 0.015 205);
+  --sidebar-accent: oklch(1 0 0 / 9%);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --foreground: oklch(0.98 0.005 205);
+  --muted-foreground: oklch(0.760 0.025 205);
+  --border: oklch(1 0 0 / 12%);
+  --accent: oklch(1 0 0 / 9%);
+  --accent-foreground: oklch(0.99 0 0);
+  --card: oklch(0.350 0.050 205);
+  --card-foreground: oklch(0.98 0.005 205);
+  --primary: oklch(0.870 0.060 205);
+  --primary-foreground: oklch(0.300 0.050 205);
+  --destructive: oklch(0.74 0.15 25);
+  color: var(--foreground);
+}
+:root[data-tema="grafite"]:not(.dark) {
+  --background: oklch(0.975 0.004 260);
+}
+:root[data-tema="grafite"] [data-area="menu"] {
+  --sidebar: oklch(0.260 0.012 260);
+  --background: oklch(0.260 0.012 260);
+  background-color: oklch(0.260 0.012 260);
+  --sidebar-foreground: oklch(0.900 0.015 260);
+  --sidebar-accent: oklch(1 0 0 / 9%);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --foreground: oklch(0.98 0.005 260);
+  --muted-foreground: oklch(0.760 0.025 260);
+  --border: oklch(1 0 0 / 12%);
+  --accent: oklch(1 0 0 / 9%);
+  --accent-foreground: oklch(0.99 0 0);
+  --card: oklch(0.310 0.012 260);
+  --card-foreground: oklch(0.98 0.005 260);
+  --primary: oklch(0.900 0.020 260);
+  --primary-foreground: oklch(0.260 0.012 260);
+  --destructive: oklch(0.74 0.15 25);
+  color: var(--foreground);
+}
+:root[data-tema="ameixa"]:not(.dark) {
+  --background: oklch(0.975 0.010 325);
+}
+:root[data-tema="ameixa"] [data-area="menu"] {
+  --sidebar: oklch(0.280 0.060 325);
+  --background: oklch(0.280 0.060 325);
+  background-color: oklch(0.280 0.060 325);
+  --sidebar-foreground: oklch(0.900 0.015 325);
+  --sidebar-accent: oklch(1 0 0 / 9%);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --foreground: oklch(0.98 0.005 325);
+  --muted-foreground: oklch(0.760 0.025 325);
+  --border: oklch(1 0 0 / 12%);
+  --accent: oklch(1 0 0 / 9%);
+  --accent-foreground: oklch(0.99 0 0);
+  --card: oklch(0.330 0.060 325);
+  --card-foreground: oklch(0.98 0.005 325);
+  --primary: oklch(0.870 0.060 325);
+  --primary-foreground: oklch(0.280 0.060 325);
+  --destructive: oklch(0.74 0.15 25);
+  color: var(--foreground);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -105,6 +105,7 @@ export default function AppLayout({ children, onLogout, currentPage = "dashboard
     <div className="flex h-dvh w-full bg-background">
       {/* Menu lateral (desktop) */}
       <aside
+        data-area="menu"
         className={cn(
           "hidden md:flex h-dvh flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-out",
           recolhido ? "w-16" : "w-64",

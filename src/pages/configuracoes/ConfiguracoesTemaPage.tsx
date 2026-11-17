@@ -7,25 +7,37 @@ import { TEMAS_SISTEMA, type TemaSistema } from '@/lib/temasSistema'
 
 /** Mini painel com as cores do tema (menu, botão e gráfico) */
 function Previa({ tema }: { tema: TemaSistema }) {
+  // Linhas do menu: claras no menu escuro, cinza no menu claro
+  const linha = tema.menuEscuro ? 'rgb(255 255 255 / 0.28)' : 'rgb(0 0 0 / 0.12)'
   return (
-    <div className="flex h-28 overflow-hidden rounded-lg border border-border bg-background" aria-hidden="true">
-      <div className="flex w-1/3 flex-col gap-1.5 border-r border-border p-2" style={{ background: tema.menu }}>
-        <span className="h-2 w-10 rounded-full bg-foreground/15" />
-        <span className="flex items-center gap-1 rounded px-1 py-1" style={{ background: tema.realce }}>
-          <span className="size-1.5 rounded-full" style={{ background: tema.primaria }} />
-          <span className="h-1.5 w-8 rounded-full" style={{ background: tema.primaria }} />
+    <div className="flex h-32 overflow-hidden rounded-lg border border-border" aria-hidden="true">
+      <div className="flex w-1/3 flex-col gap-2 border-r border-black/5 p-2.5" style={{ background: tema.menu }}>
+        <span className="mb-1 flex items-center gap-1.5">
+          <span className="size-3 rounded" style={{ background: tema.ativo }} />
+          <span className="h-1.5 w-8 rounded-full" style={{ background: linha }} />
         </span>
-        <span className="h-1.5 w-9 rounded-full bg-foreground/15" />
-        <span className="h-1.5 w-7 rounded-full bg-foreground/15" />
+        <span
+          className="flex items-center gap-1.5 rounded px-1 py-1"
+          style={{ background: tema.menuEscuro ? 'rgb(255 255 255 / 0.10)' : 'color-mix(in oklch, ' + tema.primaria + ' 10%, transparent)' }}
+        >
+          <span className="size-1.5 rounded-full" style={{ background: tema.ativo }} />
+          <span className="h-1.5 w-9 rounded-full" style={{ background: tema.ativo }} />
+        </span>
+        {[10, 8, 9].map((w, i) => (
+          <span key={i} className="flex items-center gap-1.5 px-1">
+            <span className="size-1.5 rounded-full" style={{ background: linha }} />
+            <span className="h-1.5 rounded-full" style={{ width: `${w * 4}px`, background: linha }} />
+          </span>
+        ))}
       </div>
-      <div className="flex flex-1 flex-col justify-between bg-card p-2">
+      <div className="flex flex-1 flex-col gap-2 p-2.5" style={{ background: tema.fundo }}>
         <div className="flex items-center justify-between">
-          <span className="h-2 w-12 rounded-full bg-foreground/20" />
-          <span className="h-4 w-10 rounded" style={{ background: tema.primaria }} />
+          <span className="h-2 w-14 rounded-full bg-black/15" />
+          <span className="h-4 w-11 rounded" style={{ background: tema.primaria }} />
         </div>
-        <div className="flex h-12 items-end gap-1">
+        <div className="flex flex-1 items-end gap-1.5 rounded-md border border-black/5 bg-white p-1.5">
           {[55, 80, 40, 95, 65].map((h, i) => (
-            <span key={i} className="flex flex-1 items-end gap-px">
+            <span key={i} className="flex h-full flex-1 items-end gap-px">
               <span className="flex-1 rounded-t-sm" style={{ height: `${h}%`, background: tema.primaria }} />
               <span className="flex-1 rounded-t-sm" style={{ height: `${h * 0.6}%`, background: tema.secundaria }} />
             </span>

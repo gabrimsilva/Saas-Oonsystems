@@ -32,6 +32,16 @@ describe('temas do sistema', () => {
     }
   })
 
+  it('temas de menu escuro têm o CSS do menu com a mesma cor da prévia', () => {
+    for (const t of TEMAS_SISTEMA.filter((t) => t.menuEscuro)) {
+      const bloco = css.split(`:root[data-tema="${t.id}"] [data-area="menu"] {`)[1]?.split('}')[0]
+      expect(bloco, t.id).toBeDefined()
+      expect(bloco).toContain(`--sidebar: ${t.menu.replace(/oklch\(([\d.]+) ([\d.]+) (\d+)\)/, (_, l, c, h) =>
+        `oklch(${Number(l).toFixed(3)} ${Number(c).toFixed(3)} ${h})`)};`)
+    }
+    expect(TEMAS_SISTEMA.find((t) => t.id === TEMA_PADRAO)?.menuEscuro).toBe(false)
+  })
+
   it('aplica o atributo no <html> e o padrão remove', () => {
     aplicarTemaSistema('petroleo')
     expect(document.documentElement.getAttribute('data-tema')).toBe('petroleo')

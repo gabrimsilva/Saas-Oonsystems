@@ -56,7 +56,7 @@ export default function MobileAdminHeader({ onLogout, currentPage = "dashboard",
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="flex w-[300px] max-w-[85vw] flex-col gap-0 p-0">
+          <SheetContent side="left" data-area="menu" className="flex w-[300px] max-w-[85vw] flex-col gap-0 p-0">
             <div className="border-b border-border px-4 py-4 pr-12">
               <SheetTitle className="truncate text-base">{nomeEstabelecimento || "Menu"}</SheetTitle>
               <SheetDescription className="text-xs">Painel de gestão</SheetDescription>
