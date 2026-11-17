@@ -6,12 +6,16 @@
  * catálogo já filtrem por estabelecimento e os inserts públicos (pedido,
  * cliente, avaliação) recebam o estabelecimento_id correto (Req 5.2, 11.x).
  *
+ * Aplica também o tema escolhido pelo cliente dono da loja (o mesmo do painel).
+ *
  * @module contexts/EstabelecimentoPublicoContext
  */
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { estabelecimentoService, setEstabelecimentoAtivo } from '@/services'
+import { supabase } from '@/lib/supabase'
+import { aplicarTemaSistema, temaValido } from '@/lib/temasSistema'
 import type { Estabelecimento } from '@/types/estabelecimento'
 
 interface PublicoContextType {
@@ -40,6 +44,34 @@ export const EstabelecimentoPublicoProvider = ({ slug, children }: ProviderProps
   const [estabelecimento, setEstab] = useState<Estabelecimento | null>(null)
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+
+  // Tema do cliente dono da loja. O último fica no navegador só para não
+  // piscar a cor padrão; vale o que a função devolve.
+  const estabelecimentoId = estabelecimento?.id ?? null
+  useEffect(() => {
+    if (!estabelecimentoId) return
+    const chave = `oonsystems_tema_loja_${estabelecimentoId}`
+    let cancelado = false
+    try {
+      const salvo = localStorage.getItem(chave)
+      if (temaValido(salvo)) aplicarTemaSistema(salvo)
+    } catch { /* sem armazenamento */ }
+    supabase
+      .rpc('catalogo_tema', { p_estabelecimento_id: estabelecimentoId })
+      .then(({ data, error }) => {
+        if (cancelado || error) return
+        const tema = temaValido(data) ? data : null
+        aplicarTemaSistema(tema)
+        try {
+          if (tema) localStorage.setItem(chave, tema)
+          else localStorage.removeItem(chave)
+        } catch { /* sem armazenamento */ }
+      })
+    return () => {
+      cancelado = true
+      aplicarTemaSistema(null)
+    }
+  }, [estabelecimentoId])
 
   useEffect(() => {
     let cancelado = false
