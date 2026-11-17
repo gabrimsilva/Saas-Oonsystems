@@ -11,7 +11,7 @@ import { usePermissoes } from '@/hooks/usePermissoes'
 import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
 import { auditoriaService } from '@/services'
 import type { Estabelecimento } from '@/types/estabelecimento'
-import { COR_TEMA_PADRAO_ANTIGA, corPersonalizada } from '@/utils/cor'
+import { COR_TEMA_PADRAO_ANTIGA } from '@/utils/cor'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,18 +22,6 @@ import { Store } from 'lucide-react'
 import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
 import { avisoComDesfazer } from '@/components/ui/desfazer'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
-
-/** Cores sóbrias sugeridas para a identidade da loja */
-const CORES_TEMA: Array<{ nome: string; valor: string; amostra?: string }> = [
-  { nome: 'Padrão do sistema', valor: COR_TEMA_PADRAO_ANTIGA, amostra: 'oklch(0.50 0.15 258)' },
-  { nome: 'Azul-marinho', valor: '#1E3A8A' },
-  { nome: 'Índigo', valor: '#4338CA' },
-  { nome: 'Petróleo', valor: '#0F766E' },
-  { nome: 'Esmeralda', valor: '#047857' },
-  { nome: 'Grafite', valor: '#334155' },
-  { nome: 'Vinho', valor: '#9F1239' },
-  { nome: 'Âmbar', valor: '#B45309' },
-]
 
 type FormState = {
   id?: string
@@ -190,7 +178,6 @@ export default function Estabelecimentos() {
                 <th className="text-left px-4 py-3">Nome</th>
                 <th className="text-left px-4 py-3">Slug</th>
                 <th className="text-left px-4 py-3">Link do cliente</th>
-                <th className="text-left px-4 py-3">Cor</th>
                 <th className="text-left px-4 py-3">Status</th>
                 <th className="text-right px-4 py-3">Ações</th>
               </tr>
@@ -214,12 +201,6 @@ export default function Estabelecimentos() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-2 text-sm">
-                      <span className="size-3.5 rounded-full ring-1 ring-border" style={{ backgroundColor: corPersonalizada(e.cor_tema) ?? 'var(--primary)' }} />
-                      {corPersonalizada(e.cor_tema) ? (CORES_TEMA.find((c) => c.valor.toLowerCase() === e.cor_tema.toLowerCase())?.nome ?? e.cor_tema) : 'Padrão do sistema'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs ${e.ativo ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
                       {e.ativo ? 'Ativo' : 'Inativo'}
                     </span>
@@ -237,7 +218,7 @@ export default function Estabelecimentos() {
                 </tr>
               ))}
               {lista.length === 0 && (
-                <tr><td colSpan={6}><EstadoVazio icone={Store} titulo="Nenhum estabelecimento cadastrado" descricao="Use o botão Novo estabelecimento para cadastrar o primeiro." /></td></tr>
+                <tr><td colSpan={5}><EstadoVazio icone={Store} titulo="Nenhum estabelecimento cadastrado" descricao="Use o botão Novo estabelecimento para cadastrar o primeiro." /></td></tr>
               )}
             </tbody>
           </table>
@@ -279,40 +260,6 @@ export default function Estabelecimentos() {
                   onChange={(ev) => setForm({ ...form, descricao: ev.target.value })}
                 />
               </div>
-              <fieldset>
-                <legend className="mb-1.5 text-sm font-medium text-foreground">Cor do tema *</legend>
-                <p className="mb-2 text-xs text-muted-foreground">Aparece em botões, menu ativo e destaques desta loja.</p>
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Cor do tema">
-                  {CORES_TEMA.map((c) => {
-                    const selecionada = form.cor_tema.toLowerCase() === c.valor.toLowerCase()
-                    return (
-                      <button
-                        key={c.valor}
-                        type="button"
-                        role="radio"
-                        aria-checked={selecionada}
-                        onClick={() => setForm({ ...form, cor_tema: c.valor })}
-                        className={`flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-medium ${
-                          selecionada ? 'border-primary bg-primary/5 text-foreground' : 'border-border text-muted-foreground hover:border-border-strong hover:text-foreground'
-                        }`}
-                      >
-                        <span className="size-3.5 rounded-full" style={{ backgroundColor: c.amostra ?? c.valor }} aria-hidden="true" />
-                        {c.nome}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={corPersonalizada(form.cor_tema) ?? '#2459C4'}
-                    onChange={(ev) => setForm({ ...form, cor_tema: ev.target.value })}
-                    className="h-9 w-12 cursor-pointer rounded-md border border-input bg-card p-1"
-                    aria-label="Escolher outra cor"
-                  />
-                  <span className="text-xs text-muted-foreground">Ou escolha outra cor</span>
-                </div>
-              </fieldset>
               <label className="flex items-center gap-2 text-sm">
                 <Checkbox checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v === true })} />
                 Ativo

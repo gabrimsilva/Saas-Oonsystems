@@ -6,7 +6,7 @@ import { plataformaService } from "@/services/plataformaService"
 import { ConfigProvider } from "@/contexts/ConfigContext"
 import { ErrorProvider } from "@/contexts/ErrorContext"
 import { EstabelecimentoProvider, useEstabelecimento } from "@/contexts/EstabelecimentoContext"
-import { TemaEstabelecimentoProvider } from "@/contexts/TemaEstabelecimentoContext"
+import { TemaClienteProvider } from "@/contexts/TemaClienteContext"
 import { EstabelecimentoPublicoProvider } from "@/contexts/EstabelecimentoPublicoContext"
 import { preCarregarConfiguracoes } from "@/lib/configService"
 import { useImpressaoAutomaticaGlobal } from "@/hooks/useImpressaoAutomaticaGlobal"
@@ -225,7 +225,7 @@ function AdminSystem() {
   // Verificar se o usuário tem permissão para acessar a página
   if (!podeAcessarPagina(currentPage)) {
     return (
-      <AppLayout 
+      <AppLayout
         onLogout={handleLogout}
         onToggleView={handleBackToCustomer}
         currentPage={currentPage}
@@ -263,7 +263,7 @@ function AdminSystem() {
   }
 
   return (
-    <AppLayout 
+    <AppLayout
       onLogout={handleLogout}
       onToggleView={handleBackToCustomer}
       currentPage={currentPage}
@@ -292,22 +292,22 @@ function AdminSystem() {
           <Route path="/historico-comandas" element={<HistoricoComandas />} />
 
           <Route path="/metricas" element={<Metricas />} />
-          
+
           {/* Funcionários */}
           <Route path="/funcionarios" element={<Funcionarios />} />
           <Route path="/novo-funcionario" element={<NovoFuncionario />} />
           <Route path="/editar-funcionario/:id" element={<EditarFuncionario />} />
-          
+
           {/* Produtos */}
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/novo-produto" element={<NovoProduto />} />
           <Route path="/editar-produto/:id" element={<EditarProduto />} />
-          
+
           {/* Pedidos */}
           <Route path="/pedidos" element={<Pedidos />} />
           <Route path="/historico" element={<Historico />} />
           <Route path="/aguardando-pagamento" element={<AguardandoPagamento />} />
-          
+
           {/* Estoque */}
           <Route path="/estoque" element={<Estoque />} />
           <Route path="/estoque-produtos" element={<EstoqueProdutos />} />
@@ -319,7 +319,7 @@ function AdminSystem() {
           <Route path="/categorias" element={<Categorias />} />
           <Route path="/nova-categoria" element={<NovaCategoria />} />
           <Route path="/editar-categoria/:id" element={<EditarCategoria />} />
-          
+
           {/* Configurações */}
           <Route path="/configuracoes" element={<Configuracoes initialPage="index" />} />
           <Route path="/configuracoes-gerais" element={<Configuracoes initialPage="gerais" />} />
@@ -328,13 +328,14 @@ function AdminSystem() {
           <Route path="/configuracoes-visuais" element={<Configuracoes initialPage="visuais" />} />
           <Route path="/configuracoes-impressao" element={<Configuracoes initialPage="impressao" />} />
           <Route path="/configuracoes-notificacao" element={<Configuracoes initialPage="notificacao" />} />
+          <Route path="/configuracoes-tema" element={<Configuracoes initialPage="tema" />} />
 
           {/* Multi-estabelecimento */}
           <Route path="/estabelecimentos" element={<Estabelecimentos />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/auditoria" element={<Auditoria />} />
           <Route path="/meu-plano" element={<MeuPlano />} />
-          
+
           {/* Rota padrão */}
           <Route path="*" element={<Navigate to="/sistema/dashboard" replace />} />
         </Routes>
@@ -544,9 +545,9 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EstabelecimentoProvider>
-                    <TemaEstabelecimentoProvider>
+                    <TemaClienteProvider>
                       <AdminSystem />
-                    </TemaEstabelecimentoProvider>
+                    </TemaClienteProvider>
                   </EstabelecimentoProvider>
                 </ProtectedRoute>
               }

@@ -9,6 +9,7 @@ import {
   Palette,
   Printer,
   Bell,
+  SwatchBook,
   ArrowLeft
 } from "lucide-react"
 
@@ -19,6 +20,7 @@ import ConfiguracoesPagamentoPage from "@/pages/configuracoes/ConfiguracoesPagam
 import ConfiguracoesVisuaisPage from "@/pages/configuracoes/ConfiguracoesVisuaisPage"
 import ConfiguracoesImpressaoPage from "@/pages/configuracoes/ConfiguracoesImpressaoPage"
 import ConfiguracoesNotificacaoPage from "@/pages/configuracoes/ConfiguracoesNotificacaoPage"
+import ConfiguracoesTemaPage from "@/pages/configuracoes/ConfiguracoesTemaPage"
 import { CabecalhoPagina } from '@/components/ui/feedback'
 
 type ConfigPage =
@@ -29,6 +31,7 @@ type ConfigPage =
   | 'visuais'
   | 'impressao'
   | 'notificacao'
+  | 'tema'
 
 interface ConfigCard {
   id: ConfigPage
@@ -39,6 +42,13 @@ interface ConfigCard {
 }
 
 const configCards: ConfigCard[] = [
+  {
+    id: 'tema',
+    title: 'Tema do sistema',
+    description: 'Cores do painel para todas as lojas da empresa',
+    icon: <SwatchBook className="h-6 w-6" />,
+    color: 'text-primary'
+  },
   {
     id: 'gerais',
     title: 'Loja',
@@ -121,6 +131,7 @@ export default function ConfiguracoesIndex({ initialPage = 'index' }: Configurac
         {currentPage === 'visuais' && <ConfiguracoesVisuaisPage />}
         {currentPage === 'impressao' && <ConfiguracoesImpressaoPage />}
         {currentPage === 'notificacao' && <ConfiguracoesNotificacaoPage />}
+        {currentPage === 'tema' && <ConfiguracoesTemaPage />}
       </div>
     )
   }

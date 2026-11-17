@@ -12,7 +12,6 @@ import { useState } from 'react'
 import { Building2, ChevronDown, Check, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
-import { corPersonalizada } from '@/utils/cor'
 
 export default function SeletorEstabelecimento() {
   const {
@@ -25,7 +24,7 @@ export default function SeletorEstabelecimento() {
   const [aberto, setAberto] = useState(false)
   const [trocando, setTrocando] = useState(false)
 
-  const cor = corPersonalizada(estabelecimentoAtual?.cor_tema) ?? 'var(--primary)'
+  const cor = 'var(--primary)'
 
   const handleTrocar = async (id: string) => {
     if (id === estabelecimentoAtual?.id) {
@@ -59,7 +58,7 @@ export default function SeletorEstabelecimento() {
         className="flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-foreground"
         title="Você não tem permissão para trocar de estabelecimento"
       >
-        <span className="size-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ backgroundColor: cor }} aria-hidden="true" />
+        <span className="size-2.5 shrink-0 rounded-full ring-2 ring-card" style={{ backgroundColor: cor }} aria-hidden="true" />
         <span className="max-w-[200px] truncate text-sm font-medium">
           {estabelecimentoAtual?.nome ?? 'Nenhum estabelecimento'}
         </span>
@@ -89,7 +88,7 @@ export default function SeletorEstabelecimento() {
         aria-expanded={aberto}
         title="Trocar de estabelecimento"
       >
-        <span className="size-2.5 shrink-0 rounded-full ring-2 ring-white" style={{ backgroundColor: cor }} aria-hidden="true" />
+        <span className="size-2.5 shrink-0 rounded-full ring-2 ring-card" style={{ backgroundColor: cor }} aria-hidden="true" />
         <span className="max-w-[200px] truncate text-sm font-medium">
           {estabelecimentoAtual?.nome ?? 'Selecione'}
         </span>
@@ -114,7 +113,7 @@ export default function SeletorEstabelecimento() {
                 >
                   <span
                     className="inline-block size-2.5 flex-shrink-0 rounded-full"
-                    style={{ backgroundColor: corPersonalizada(e.cor_tema) ?? 'var(--primary)' }}
+                    style={{ backgroundColor: 'var(--primary)' }}
                   />
                   <span className="flex-1 truncate">{e.nome}</span>
                   {ativoSel && <Check className="size-4 text-primary" />}

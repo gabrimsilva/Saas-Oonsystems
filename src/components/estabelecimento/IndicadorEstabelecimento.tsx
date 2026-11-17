@@ -7,7 +7,6 @@
 
 import { Building2, AlertTriangle } from 'lucide-react'
 import { useEstabelecimento } from '@/contexts/EstabelecimentoContext'
-import { corPersonalizada } from '@/utils/cor'
 
 export default function IndicadorEstabelecimento() {
   const { estabelecimentoAtual, loading } = useEstabelecimento()
@@ -26,7 +25,7 @@ export default function IndicadorEstabelecimento() {
     )
   }
 
-  const cor = corPersonalizada(estabelecimentoAtual.cor_tema) ?? 'var(--primary)'
+  const cor = 'var(--primary)'
 
   return (
     <div

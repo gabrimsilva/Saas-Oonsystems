@@ -24,6 +24,7 @@ import {
   Settings,
   ShoppingBag,
   Store,
+  SwatchBook,
   TrendingUp,
   UserCog,
   Users,
@@ -106,6 +107,7 @@ export const GRUPOS_MENU: GrupoMenu[] = [
         apenasGrupo: true,
         submenu: [
           { id: 'configuracoes-gerais', titulo: 'Informações gerais', icone: Info },
+          { id: 'configuracoes-tema', titulo: 'Tema do sistema', icone: SwatchBook },
           { id: 'configuracoes-horario', titulo: 'Horários', icone: Clock },
           { id: 'configuracoes-pagamento', titulo: 'Pagamentos', icone: CreditCard },
           { id: 'configuracoes-visuais', titulo: 'Aparência', icone: Palette },
