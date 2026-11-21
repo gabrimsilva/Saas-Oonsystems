@@ -199,6 +199,27 @@ export const lojaOnlineService = {
     return data as StatusPedidoCatalogo
   },
 
+  /** Envia a avaliação pública da loja (validada e limitada por IP no servidor) */
+  async avaliar(dados: {
+    estabelecimentoId: string
+    nome: string
+    estrelas: number
+    descricao: string
+    badges: string[]
+  }): Promise<void> {
+    const { error } = await supabase.functions.invoke('catalogo-pedidos', {
+      body: {
+        action: 'avaliar',
+        estabelecimento_id: dados.estabelecimentoId,
+        nome: dados.nome,
+        estrelas: dados.estrelas,
+        descricao: dados.descricao,
+        badges: dados.badges,
+      }
+    })
+    if (error) throw new Error(await mensagemDeErro(error))
+  },
+
   /** Pedidos do catálogo feitos com este telefone nesta loja (últimos 90 dias) */
   async buscarMeusPedidos(estabelecimentoId: string, telefone: string): Promise<MeuPedidoCatalogo[]> {
     const { data, error } = await supabase.functions.invoke('catalogo-pedidos', {

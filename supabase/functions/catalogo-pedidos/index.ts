@@ -6,6 +6,7 @@
 //                                     senão vai direto para o Kanban ("Pedido criado").
 // POST { action: 'confirmar', ... } → consulta o pagamento no Mercado Pago e atualiza o pedido
 // POST { action: 'meus_pedidos' }  → pedidos do catálogo de um telefone nesta loja (últimos 90 dias)
+// POST { action: 'avaliar' }       → avaliação pública da loja (validada e limitada por IP)
 // POST ?webhook=1&e=<estab_id>     → notificação do Mercado Pago (mesmo processamento do 'confirmar')
 //
 // Deploy com verify_jwt = false: o webhook do Mercado Pago não envia JWT. Nenhuma
@@ -131,6 +132,9 @@ async function registrarHistorico(db: SupabaseClient, pedido: { codigo_pedido: s
 async function criarPedido(req: Request, body: any) {
   const entrada = validarEntradaCriar(body)
   const db = admin()
+  // Evita pedidos falsos em série (cada pedido em aberto reserva estoque)
+  const chaveLimite = await verificarLimite(db, req, 'criar_pedido', entrada.estabelecimentoId, PEDIDOS_POR_IP, 15,
+    'Muitos pedidos seguidos. Aguarde alguns minutos ou fale com a loja.')
 
   const origin = req.headers.get('origin') ?? ''
   let baseRetorno: URL
@@ -330,6 +334,7 @@ async function criarPedido(req: Request, body: any) {
     status,
     cfg.pagamento_online ? 'Pedido feito pelo catálogo, aguardando pagamento online' : 'Pedido recebido pelo catálogo',
   )
+  await registrarUso(db, chaveLimite)
 
   const urlStatus = `${baseRetorno.origin}/${estab.slug}/pedido/${pedido.id}`
 
@@ -615,6 +620,95 @@ async function limitarConsulta(db: SupabaseClient, req: Request, telefone: strin
   }
 }
 
+// ---------------------------------------------------------------------------
+// Limites por IP e loja (pedidos e avaliações)
+// ---------------------------------------------------------------------------
+const PEDIDOS_POR_IP = 5 // a cada 15 minutos, por loja
+const AVALIACOES_POR_IP = 3 // por dia, por loja
+
+const ipDe = (req: Request) =>
+  (req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for')?.split(',')[0] ?? '').trim()
+
+/**
+ * Lança 429 se o IP já fez `maximo` vezes a ação nesta loja na janela. Devolve
+ * a chave para `registrarUso`, chamado só depois do sucesso (tentativas com
+ * erro de validação ou estoque não contam). Guarda só o hash do IP.
+ */
+async function verificarLimite(
+  db: SupabaseClient,
+  req: Request,
+  acao: string,
+  estabelecimentoId: string,
+  maximo: number,
+  janelaMinutos: number,
+  mensagem: string,
+): Promise<string | null> {
+  const ip = ipDe(req)
+  if (!ip) return null
+  const chave = `${acao}:${await hashCurto(ip)}:${estabelecimentoId}`
+  const { count, error } = await db
+    .from('consultas_publicas')
+    .select('id', { count: 'exact', head: true })
+    .eq('chave', chave)
+    .gte('criado_em', new Date(Date.now() - janelaMinutos * 60 * 1000).toISOString())
+  if (error) {
+    // Falha no controle não derruba a ação do cliente
+    console.error('Falha ao ler limite', acao, error)
+    return chave
+  }
+  if ((count ?? 0) >= maximo) throw new ErroCliente(mensagem, 429)
+  return chave
+}
+
+async function registrarUso(db: SupabaseClient, chave: string | null) {
+  if (!chave) return
+  const { error } = await db.from('consultas_publicas').insert({ chave })
+  if (error) console.error('Falha ao registrar uso', error)
+}
+
+// ---------------------------------------------------------------------------
+// avaliar: avaliação pública da loja (antes ia direto à tabela, sem limite)
+// ---------------------------------------------------------------------------
+async function avaliar(req: Request, body: any) {
+  const estabelecimentoId = String(body?.estabelecimento_id ?? '')
+  const nome = String(body?.nome ?? '').trim().replace(/\s+/g, ' ')
+  const estrelas = Number(body?.estrelas)
+  const descricao = String(body?.descricao ?? '').trim()
+  const badges = (Array.isArray(body?.badges) ? body.badges : [])
+    .map((b: unknown) => String(b).trim())
+    .filter(Boolean)
+
+  if (!UUID_RE.test(estabelecimentoId)) throw new ErroCliente('Loja inválida.')
+  if (nome.length < 2 || nome.length > 60) throw new ErroCliente('Informe seu nome.')
+  if (!Number.isInteger(estrelas) || estrelas < 1 || estrelas > 5) throw new ErroCliente('Escolha de 1 a 5 estrelas.')
+  if (descricao.length > 500) throw new ErroCliente('O comentário pode ter até 500 caracteres.')
+  if (badges.length > 8 || badges.some((b: string) => b.length > 40)) throw new ErroCliente('Destaques inválidos.')
+
+  const db = admin()
+  const { data: estab, error: errEstab } = await db
+    .from('estabelecimentos')
+    .select('id')
+    .eq('id', estabelecimentoId)
+    .eq('ativo', true)
+    .maybeSingle()
+  if (errEstab) throw errEstab
+  if (!estab) throw new ErroCliente('Loja não encontrada.', 404)
+
+  const chaveLimite = await verificarLimite(db, req, 'avaliar', estabelecimentoId, AVALIACOES_POR_IP, 24 * 60,
+    'Você já enviou avaliações hoje. Obrigado!')
+
+  const { error } = await db.from('avaliacoes').insert({
+    estabelecimento_id: estabelecimentoId,
+    nome_cliente: nome,
+    estrelas,
+    descricao: descricao || null,
+    badges,
+  })
+  if (error) throw error
+  await registrarUso(db, chaveLimite)
+  return json({ ok: true })
+}
+
 async function meusPedidos(req: Request, body: any) {
   const estabelecimentoId = String(body?.estabelecimento_id ?? '')
   const digitos = String(body?.telefone ?? '').replace(/\D/g, '')
@@ -737,6 +831,7 @@ Deno.serve(async (req) => {
     if (body?.action === 'criar') return await criarPedido(req, body)
     if (body?.action === 'confirmar') return await confirmarPedido(body)
     if (body?.action === 'meus_pedidos') return await meusPedidos(req, body)
+    if (body?.action === 'avaliar') return await avaliar(req, body)
     return json({ error: 'Ação inválida' }, 400)
   } catch (e) {
     if (e instanceof ErroCliente) return json({ error: e.message }, e.status)

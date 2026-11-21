@@ -15,7 +15,8 @@ import {
   Users,
   Award
 } from "lucide-react"
-import { supabase, configuracaoService, comTenant, getEstabelecimentoAtivo } from "@/services"
+import { supabase, configuracaoService, getEstabelecimentoAtivo } from "@/services"
+import { lojaOnlineService } from "@/services/lojaOnlineService"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import InformacoesEstabelecimentoModal from "@/components/InformacoesEstabelecimentoModal"
@@ -144,20 +145,19 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
       setEnviando(true)
       setErro("")
 
-      const { error } = await supabase
-        .from('avaliacoes')
-        .insert(comTenant({
-          nome_cliente: nomeCliente.trim(),
-          estrelas,
-          descricao: descricao.trim() || null,
-          badges: badgesSelecionados
-        }))
-
-      if (error) {
-        console.error('Erro ao enviar avaliação:', error)
-        setErro("Erro ao enviar avaliação. Tente novamente.")
+      const estabelecimentoId = getEstabelecimentoAtivo()
+      if (!estabelecimentoId) {
+        setErro("Loja não encontrada. Abra a avaliação pelo link da loja.")
         return
       }
+      // Pelo servidor: valida os dados e limita envios repetidos
+      await lojaOnlineService.avaliar({
+        estabelecimentoId,
+        nome: nomeCliente.trim(),
+        estrelas,
+        descricao: descricao.trim(),
+        badges: badgesSelecionados,
+      })
 
       // Limpar formulário
       setNomeCliente("")
@@ -174,7 +174,7 @@ export default function AvaliarEstabelecimento({ onVoltar }: AvaliarEstabelecime
 
     } catch (error) {
       console.error('Erro ao enviar avaliação:', error)
-      setErro("Erro ao enviar avaliação. Tente novamente.")
+      setErro(error instanceof Error && error.message ? error.message : "Erro ao enviar avaliação. Tente novamente.")
     } finally {
       setEnviando(false)
     }
