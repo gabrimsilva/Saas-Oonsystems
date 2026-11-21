@@ -455,6 +455,40 @@ export const stockService = {
   },
 
   /**
+   * Movimentações recentes da loja ativa numa consulta só (mais recentes primeiro).
+   */
+  async buscarMovimentosDaLoja(limit: number = 2000): Promise<StockMovement[]> {
+    const { data, error } = await supabase
+      .from('stock_movements')
+      .select('*')
+      .eq('estabelecimento_id', tenantId())
+      .order('criado_em', { ascending: false })
+      .limit(limit)
+    if (error) throw new Error(`Falha ao buscar movimentações: ${error.message}`)
+    return data || []
+  },
+
+  /** Variantes de todos os itens da loja ativa. */
+  async buscarVariantesDaLoja(): Promise<StockVariant[]> {
+    const { data, error } = await supabase
+      .from('stock_variants')
+      .select('*')
+      .eq('estabelecimento_id', tenantId())
+    if (error) throw new Error(`Falha ao buscar variantes: ${error.message}`)
+    return data || []
+  },
+
+  /** Nome de todos os produtos da loja ativa, inclusive desativados (id → nome). */
+  async buscarNomesProdutosDaLoja(): Promise<Map<string, string>> {
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('id, nome')
+      .eq('estabelecimento_id', tenantId())
+    if (error) throw new Error(`Falha ao buscar produtos: ${error.message}`)
+    return new Map((data ?? []).map((p: { id: string; nome: string }) => [p.id, p.nome]))
+  },
+
+  /**
    * Busca histórico de movimentações
    */
   async buscarMovimentos(stockItemId: string, limit: number = 50): Promise<StockMovement[]> {

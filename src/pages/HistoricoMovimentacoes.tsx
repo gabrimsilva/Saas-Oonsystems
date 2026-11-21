@@ -22,7 +22,7 @@ import {
   Filter,
   X
 } from "lucide-react"
-import { stockService, produtoService, type StockMovement } from "@/services"
+import { stockService, type StockMovement } from "@/services"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { CarregandoPagina, CabecalhoPagina } from '@/components/ui/feedback'
@@ -59,55 +59,40 @@ export default function HistoricoMovimentacoes() {
       setLoading(true)
       setError(null)
 
-      // Buscar todos os itens de estoque
-      const stockItems = await stockService.buscarTodos()
+      // Tudo da loja em 4 consultas paralelas (antes eram 3 por item de estoque,
+      // em sequência: com ~100 itens a tela ficava presa carregando)
+      const [stockItems, movimentos, variantes, nomesProdutos] = await Promise.all([
+        stockService.buscarTodos(),
+        stockService.buscarMovimentosDaLoja(),
+        stockService.buscarVariantesDaLoja(),
+        stockService.buscarNomesProdutosDaLoja(),
+      ])
 
-      // Buscar movimentações de cada item
-      const todasMovimentacoes: MovementWithProduct[] = []
+      const produtoDoItem = new Map(stockItems.map((i) => [i.id, i.product_id]))
+      const variantesMap = new Map(variantes.map((v) => [v.id, v.label ?? v.nome]))
 
-      for (const item of stockItems) {
-        try {
-          const movimentos = await stockService.buscarMovimentos(item.id)
-          
-          // Buscar nome do produto
-          const produto = await produtoService.buscarPorId(item.product_id)
-          
-          // Buscar variantes se houver
-          const variantes = await stockService.buscarVariantes(item.id)
-          const variantesMap = new Map(variantes.map(v => [v.id, v.label ?? v.nome]))
+      // Só itens de estoque ativos, como antes. As movimentações são gravadas em
+      // português (criado_em, tipo, quantidade, motivo); normalizamos para a tela.
+      const todasMovimentacoes: MovementWithProduct[] = movimentos
+        .filter((mov: any) => produtoDoItem.has(mov.stock_item_id))
+        .map((mov: any) => {
+          const tipoRaw = mov.type ?? mov.tipo ?? ''
+          const tipoNorm = tipoRaw === 'entrada' ? 'IN'
+            : tipoRaw === 'saida' ? 'OUT'
+            : tipoRaw === 'ajuste' ? 'ADJUST'
+            : tipoRaw
 
-          // Adicionar informações do produto a cada movimento.
-          // As movimentações são gravadas em português (criado_em, tipo,
-          // quantidade, motivo); normalizamos para o formato usado pela tela.
-          const movimentosComProduto: MovementWithProduct[] = movimentos.map((mov: any) => {
-            const tipoRaw = mov.type ?? mov.tipo ?? ''
-            const tipoNorm = tipoRaw === 'entrada' ? 'IN'
-              : tipoRaw === 'saida' ? 'OUT'
-              : tipoRaw === 'ajuste' ? 'ADJUST'
-              : tipoRaw
-
-            return {
-              ...mov,
-              created_at: mov.created_at || mov.criado_em || new Date().toISOString(),
-              type: tipoNorm,
-              qty: mov.qty ?? mov.quantidade ?? 0,
-              ref_type: mov.ref_type ?? mov.motivo,
-              notes: mov.notes ?? mov.motivo,
-              product_name: produto?.nome || 'Produto não encontrado',
-              variant_label: mov.variant_id ? variantesMap.get(mov.variant_id) : undefined
-            }
-          })
-
-          todasMovimentacoes.push(...movimentosComProduto)
-        } catch (err) {
-          console.error(`Erro ao carregar movimentações do item ${item.id}:`, err)
-        }
-      }
-
-      // Ordenar por data (mais recentes primeiro)
-      todasMovimentacoes.sort((a, b) => 
-        new Date(b.created_at ?? '').getTime() - new Date(a.created_at ?? '').getTime()
-      )
+          return {
+            ...mov,
+            created_at: mov.created_at || mov.criado_em || new Date().toISOString(),
+            type: tipoNorm,
+            qty: mov.qty ?? mov.quantidade ?? 0,
+            ref_type: mov.ref_type ?? mov.motivo,
+            notes: mov.notes ?? mov.motivo,
+            product_name: nomesProdutos.get(produtoDoItem.get(mov.stock_item_id) ?? '') || 'Produto não encontrado',
+            variant_label: mov.variant_id ? variantesMap.get(mov.variant_id) : undefined
+          }
+        })
 
       setMovimentacoes(todasMovimentacoes)
     } catch (err) {
