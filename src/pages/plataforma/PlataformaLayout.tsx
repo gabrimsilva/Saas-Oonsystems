@@ -28,6 +28,7 @@ import {
   type Plano,
 } from '@/services/plataformaService'
 import { Carregando } from './comum'
+import VerificacaoDuasEtapas from './VerificacaoDuasEtapas'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
 
 export interface DadosPlataforma {
@@ -76,13 +77,19 @@ export default function PlataformaLayout() {
     }
   }, [])
 
+  // A plataforma só abre com a segunda etapa concluída (o banco exige aal2)
+  const [verificado, setVerificado] = useState<boolean | null>(null)
+
   useEffect(() => {
     plataformaService.ehAdminPlataforma().then(async (ok) => {
       setAutorizado(ok)
       if (!ok) return
       const { data } = await supabase.auth.getUser()
       setEmail(data.user?.email ?? '')
-      recarregar()
+      const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      const jaVerificado = nivel?.currentLevel === 'aal2'
+      setVerificado(jaVerificado)
+      if (jaVerificado) recarregar()
     })
   }, [recarregar])
 
@@ -95,12 +102,24 @@ export default function PlataformaLayout() {
     return s === 'vencida' || s === 'hoje'
   }).length
 
-  if (autorizado === null) return <div className="min-h-screen"><Carregando /></div>
-  if (!autorizado) return <Navigate to="/sistema" replace />
-
   const sair = async () => {
     await authService.logout()
     window.location.href = '/login'
+  }
+
+  if (autorizado === null) return <div className="min-h-screen"><Carregando /></div>
+  if (!autorizado) return <Navigate to="/sistema" replace />
+  if (verificado === null) return <div className="min-h-screen"><Carregando /></div>
+  if (!verificado) {
+    return (
+      <VerificacaoDuasEtapas
+        onSair={sair}
+        onConcluido={() => {
+          setVerificado(true)
+          recarregar()
+        }}
+      />
+    )
   }
 
   const menu = (

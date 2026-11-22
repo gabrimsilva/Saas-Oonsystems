@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { MENSAGEM_EXIGE_MFA, nivelDaSessao } from '../_shared/sessao.ts'
 
 /**
  * Ações da administração da plataforma que exigem service_role.
@@ -140,6 +141,7 @@ Deno.serve(async (req) => {
     .eq('user_id', chamador.id)
     .maybeSingle()
   if (!adminPlataforma) return jsonResponse({ error: 'Acesso restrito à administração da plataforma' }, 403)
+  if (nivelDaSessao(token) !== 'aal2') return jsonResponse({ error: MENSAGEM_EXIGE_MFA }, 403)
 
   try {
     const body = await req.json().catch(() => ({})) as Record<string, unknown>
