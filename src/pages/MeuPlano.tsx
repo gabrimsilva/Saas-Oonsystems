@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { BadgeCheck, CalendarClock, CreditCard, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Alerta, CabecalhoPagina, Carregando, EstadoVazio } from '@/components/ui/feedback'
-import { CONTATO_ASSINATURA } from '@/config/plataforma'
+import { linkWhatsAppOonSystems, mensagemPagamento } from '@/config/plataforma'
 import {
   assinaturaService,
   type CicloAssinatura,
@@ -110,6 +110,11 @@ export default function MeuPlano() {
   const cicloCobrado = resumo.pode_escolher_plano ? ciclo : resumo.ciclo
   const valor = planoCobrado ? preco(planoCobrado, cicloCobrado) : 0
   const textoBotao = resumo.status === 'trial' ? 'Assinar agora' : `Pagar ${cicloCobrado === 'anual' ? 'anuidade' : 'mensalidade'}`
+  // WhatsApp da OonSystems com a mensagem pronta (pagamento ou assinatura)
+  const contato = linkWhatsAppOonSystems(mensagemPagamento({
+    vencimento: resumo.vigencia_ate ? data(resumo.vigencia_ate) : null,
+    assinar: resumo.status === 'trial',
+  }))
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
@@ -219,15 +224,15 @@ export default function MeuPlano() {
           ) : (
             <Alerta tipo="info">
               O pagamento online ainda não está disponível.{' '}
-              <a href={CONTATO_ASSINATURA} className="font-medium underline underline-offset-4">Fale com a OonSystems</a> para pagar.
+              <a href={contato} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4">Fale com a OonSystems pelo WhatsApp</a> para pagar.
             </Alerta>
           )}
         </section>
       )}
 
       {!resumo.pode_pagar && (
-        <a href={CONTATO_ASSINATURA} className="inline-flex text-sm font-medium text-primary hover:underline underline-offset-4">
-          Falar com a OonSystems
+        <a href={contato} target="_blank" rel="noopener noreferrer" className="inline-flex text-sm font-medium text-primary hover:underline underline-offset-4">
+          Falar com a OonSystems pelo WhatsApp
         </a>
       )}
 

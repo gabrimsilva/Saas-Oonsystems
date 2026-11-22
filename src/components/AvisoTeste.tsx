@@ -1,16 +1,16 @@
 /**
  * Faixa no topo do sistema avisando o cliente sobre prazos da assinatura:
  * dias restantes do período de teste, ou mensalidade vencendo/vencida (com a
- * data em que o acesso será suspenso por atraso). O botão leva a "Meu plano".
+ * data em que o acesso será suspenso por atraso). O botão abre o WhatsApp da
+ * OonSystems com a mensagem de pagamento (ou assinatura) já escrita.
  *
  * @module components/AvisoTeste
  */
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { CONTATO_ASSINATURA } from '@/config/plataforma'
+import { linkWhatsAppOonSystems, mensagemPagamento } from '@/config/plataforma'
 import { dataBloqueioPorAtraso } from '@/services/plataformaService'
 import { usePermissoes } from '@/hooks/usePermissoes'
 
@@ -27,11 +27,13 @@ interface Aviso {
   texto: string
   urgente: boolean
   acao: string
+  /** WhatsApp da OonSystems com a mensagem pronta */
+  link: string
 }
 
 export default function AvisoTeste() {
   const [aviso, setAviso] = useState<Aviso | null>(null)
-  // Só o administrador geral paga a assinatura (Meu plano); os demais falam com a OonSystems
+  // O administrador geral vê "Pagar agora"; os demais, "Falar com a OonSystems" (mesmo WhatsApp)
   const { perfil } = usePermissoes()
 
   useEffect(() => {
@@ -39,10 +41,11 @@ export default function AvisoTeste() {
     // A RLS devolve apenas o tenant do usuário logado
     supabase
       .from('tenants')
-      .select('status, trial_ate, vigencia_ate')
+      .select('status, trial_ate, vigencia_ate, nome_fantasia, razao_social')
       .maybeSingle()
       .then(({ data }) => {
         if (cancelado || !data) return
+        const empresa = data.nome_fantasia || data.razao_social
 
         if (data.status === 'trial' && data.trial_ate) {
           const fim = new Date(data.trial_ate)
@@ -51,6 +54,7 @@ export default function AvisoTeste() {
             texto: `Seu período de teste termina ${quando(dias)} (${fim.toLocaleDateString('pt-BR')}).`,
             urgente: dias <= 3,
             acao: 'Assinar agora',
+            link: linkWhatsAppOonSystems(mensagemPagamento({ empresa, assinar: true })),
           })
           return
         }
@@ -58,18 +62,23 @@ export default function AvisoTeste() {
         if (data.status === 'ativo' && data.vigencia_ate) {
           const vencimento = new Date(data.vigencia_ate)
           const bloqueio = dataBloqueioPorAtraso(data.vigencia_ate)!
+          const link = linkWhatsAppOonSystems(
+            mensagemPagamento({ empresa, vencimento: vencimento.toLocaleDateString('pt-BR') }),
+          )
           if (vencimento.getTime() < Date.now()) {
             setAviso({
               texto: `Sua mensalidade venceu em ${vencimento.toLocaleDateString('pt-BR')}. ` +
                 `Regularize para evitar a suspensão do acesso ${quando(diasAte(bloqueio))} (${bloqueio.toLocaleDateString('pt-BR')}).`,
               urgente: true,
               acao: 'Pagar agora',
+              link,
             })
           } else if (diasAte(vencimento) <= DIAS_AVISO_MENSALIDADE) {
             setAviso({
               texto: `Sua mensalidade vence ${quando(diasAte(vencimento))} (${vencimento.toLocaleDateString('pt-BR')}).`,
               urgente: false,
               acao: 'Pagar agora',
+              link,
             })
           }
         }
@@ -91,11 +100,9 @@ export default function AvisoTeste() {
         <Clock className={`size-4 flex-shrink-0 ${urgente ? 'text-warning-foreground' : 'text-primary'}`} />
         {aviso.texto}
       </span>
-      {perfil === 'administrador_geral' ? (
-        <Link to="/sistema/meu-plano" className={classeBotao}>{aviso.acao}</Link>
-      ) : (
-        <a href={CONTATO_ASSINATURA} className={classeBotao}>Falar com a OonSystems</a>
-      )}
+      <a href={aviso.link} target="_blank" rel="noopener noreferrer" className={classeBotao}>
+        {perfil === 'administrador_geral' ? aviso.acao : 'Falar com a OonSystems'}
+      </a>
     </div>
   )
 }
