@@ -91,7 +91,7 @@ export default function Categorias() {
   const categoriasFiltradas = categorias.filter(categoria =>
     categoria.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
     categoria.descricao.toLowerCase().includes(termoBusca.toLowerCase())
-  ).sort((a, b) => a.ordem - b.ordem)
+  ).sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome))
 
   const getStatusColor = (ativa: boolean) => {
     return ativa ? 'bg-success/10 text-success' : 'bg-muted text-foreground'
