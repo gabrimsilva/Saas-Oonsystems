@@ -5,11 +5,17 @@ declare global {
   }
 }
 
+import { supabase } from '@/lib/supabase'
+
+/** Certificado público do OonSystems para o QZ Tray (a chave fica no servidor) */
+const URL_CERTIFICADO_QZ = '/qz/oonsystems-qz.crt'
+
 /**
  * Serviço para gerenciar impressão via QZ Tray
  */
 class QZTrayService {
   private connected = false
+  private segurancaConfigurada = false
   private get qz() {
     if (!window.qz) {
       throw new Error('QZ Tray não está carregado. Certifique-se de que o QZ Tray está rodando.')
@@ -18,9 +24,34 @@ class QZTrayService {
   }
 
   /**
+   * Identifica o OonSystems para o QZ Tray: envia o certificado público e assina
+   * cada pedido pela Edge Function qz-assinar (só usuário logado). Assim o QZ
+   * mostra quem está pedindo e o computador pode confiar de vez no OonSystems.
+   */
+  private configurarSeguranca() {
+    if (this.segurancaConfigurada || !window.qz?.security) return
+    const qz = window.qz
+    qz.security.setCertificatePromise((resolve: (c: string) => void, reject: (e: unknown) => void) => {
+      fetch(URL_CERTIFICADO_QZ, { cache: 'no-store' })
+        .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`Certificado: HTTP ${r.status}`))))
+        .then(resolve)
+        .catch(reject)
+    })
+    qz.security.setSignatureAlgorithm('SHA512')
+    qz.security.setSignaturePromise((dado: string) => (resolve: (s: string) => void, reject: (e: unknown) => void) => {
+      supabase.functions
+        .invoke('qz-assinar', { body: { dado } })
+        .then(({ data, error }) => (error || !data?.assinatura ? reject(error ?? new Error('Sem assinatura')) : resolve(data.assinatura)))
+        .catch(reject)
+    })
+    this.segurancaConfigurada = true
+  }
+
+  /**
    * Conecta ao QZ Tray com timeout
    */
   async connect(timeoutMs: number = 3000): Promise<boolean> {
+    this.configurarSeguranca()
     try {
       // Criar promise com timeout
       const connectPromise = new Promise<boolean>(async (resolve) => {
