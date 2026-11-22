@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef, Suspense, lazy } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
+import { lazyComRecarga } from "@/lib/lazyComRecarga"
+import ErroInesperado from "@/components/ErroInesperado"
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation, useNavigate } from "react-router-dom"
 import AppLayout from "@/components/layout/AppLayout"
 import { authService } from "@/services"
@@ -17,56 +19,56 @@ import { ConfirmacaoGlobal } from "@/components/ui/confirmar"
 import { AlertCircle } from "lucide-react"
 
 // Lazy loading das páginas principais
-const Login = lazy(() => import("@/pages/Login"))
-const UsuarioBloqueado = lazy(() => import("@/pages/UsuarioBloqueado"))
-const Dashboard = lazy(() => import("@/pages/Dashboard"))
-const Funcionarios = lazy(() => import("@/pages/Funcionarios"))
-const NovoFuncionario = lazy(() => import("@/pages/NovoFuncionario"))
-const EditarFuncionario = lazy(() => import("@/pages/EditarFuncionario"))
-const Produtos = lazy(() => import("@/pages/Produtos"))
-const NovoProduto = lazy(() => import("@/pages/NovoProduto"))
-const EditarProduto = lazy(() => import("@/pages/EditarProduto"))
-const Pedidos = lazy(() => import("@/pages/Pedidos"))
-const Historico = lazy(() => import("@/pages/Historico"))
-const AguardandoPagamento = lazy(() => import("@/pages/AguardandoPagamento"))
-const Estoque = lazy(() => import("@/pages/Estoque"))
-const EstoqueProdutos = lazy(() => import("@/pages/EstoqueProdutos"))
-const HistoricoMovimentacoes = lazy(() => import("@/pages/HistoricoMovimentacoes"))
-const NovoItemEstoque = lazy(() => import("@/pages/NovoItemEstoque"))
-const EditarItemEstoque = lazy(() => import("@/pages/EditarItemEstoque"))
-const Categorias = lazy(() => import("@/pages/Categorias"))
-const NovaCategoria = lazy(() => import("@/pages/NovaCategoria"))
-const EditarCategoria = lazy(() => import("@/pages/EditarCategoria"))
-const Configuracoes = lazy(() => import("@/pages/ConfiguracoesIndex"))
-const PDV = lazy(() => import("@/pages/PDV"))
+const Login = lazyComRecarga(() => import("@/pages/Login"))
+const UsuarioBloqueado = lazyComRecarga(() => import("@/pages/UsuarioBloqueado"))
+const Dashboard = lazyComRecarga(() => import("@/pages/Dashboard"))
+const Funcionarios = lazyComRecarga(() => import("@/pages/Funcionarios"))
+const NovoFuncionario = lazyComRecarga(() => import("@/pages/NovoFuncionario"))
+const EditarFuncionario = lazyComRecarga(() => import("@/pages/EditarFuncionario"))
+const Produtos = lazyComRecarga(() => import("@/pages/Produtos"))
+const NovoProduto = lazyComRecarga(() => import("@/pages/NovoProduto"))
+const EditarProduto = lazyComRecarga(() => import("@/pages/EditarProduto"))
+const Pedidos = lazyComRecarga(() => import("@/pages/Pedidos"))
+const Historico = lazyComRecarga(() => import("@/pages/Historico"))
+const AguardandoPagamento = lazyComRecarga(() => import("@/pages/AguardandoPagamento"))
+const Estoque = lazyComRecarga(() => import("@/pages/Estoque"))
+const EstoqueProdutos = lazyComRecarga(() => import("@/pages/EstoqueProdutos"))
+const HistoricoMovimentacoes = lazyComRecarga(() => import("@/pages/HistoricoMovimentacoes"))
+const NovoItemEstoque = lazyComRecarga(() => import("@/pages/NovoItemEstoque"))
+const EditarItemEstoque = lazyComRecarga(() => import("@/pages/EditarItemEstoque"))
+const Categorias = lazyComRecarga(() => import("@/pages/Categorias"))
+const NovaCategoria = lazyComRecarga(() => import("@/pages/NovaCategoria"))
+const EditarCategoria = lazyComRecarga(() => import("@/pages/EditarCategoria"))
+const Configuracoes = lazyComRecarga(() => import("@/pages/ConfiguracoesIndex"))
+const PDV = lazyComRecarga(() => import("@/pages/PDV"))
 
-const Comandas = lazy(() => import("@/pages/Comandas"))
-const HistoricoVendas = lazy(() => import("@/pages/HistoricoVendas"))
-const HistoricoComandas = lazy(() => import("@/pages/HistoricoComandas"))
-const CatalogoPage = lazy(() => import("@/pages/CatalogoPage"))
-const PedidoCatalogoStatus = lazy(() => import("@/pages/PedidoCatalogoStatus"))
-const MeusPedidosCatalogo = lazy(() => import("@/pages/MeusPedidosCatalogo"))
-const AvaliarEstabelecimento = lazy(() => import("@/pages/AvaliarEstabelecimento"))
-const Metricas = lazy(() => import("@/pages/Metricas"))
-const TermosUso = lazy(() => import("@/pages/TermosUso"))
-const PoliticasPrivacidade = lazy(() => import("@/pages/PoliticasPrivacidade"))
-const Estabelecimentos = lazy(() => import("@/pages/Estabelecimentos"))
-const Usuarios = lazy(() => import("@/pages/Usuarios"))
-const Auditoria = lazy(() => import("@/pages/Auditoria"))
-const MeuPlano = lazy(() => import("@/pages/MeuPlano"))
-const PlataformaLayout = lazy(() => import("@/pages/plataforma/PlataformaLayout"))
+const Comandas = lazyComRecarga(() => import("@/pages/Comandas"))
+const HistoricoVendas = lazyComRecarga(() => import("@/pages/HistoricoVendas"))
+const HistoricoComandas = lazyComRecarga(() => import("@/pages/HistoricoComandas"))
+const CatalogoPage = lazyComRecarga(() => import("@/pages/CatalogoPage"))
+const PedidoCatalogoStatus = lazyComRecarga(() => import("@/pages/PedidoCatalogoStatus"))
+const MeusPedidosCatalogo = lazyComRecarga(() => import("@/pages/MeusPedidosCatalogo"))
+const AvaliarEstabelecimento = lazyComRecarga(() => import("@/pages/AvaliarEstabelecimento"))
+const Metricas = lazyComRecarga(() => import("@/pages/Metricas"))
+const TermosUso = lazyComRecarga(() => import("@/pages/TermosUso"))
+const PoliticasPrivacidade = lazyComRecarga(() => import("@/pages/PoliticasPrivacidade"))
+const Estabelecimentos = lazyComRecarga(() => import("@/pages/Estabelecimentos"))
+const Usuarios = lazyComRecarga(() => import("@/pages/Usuarios"))
+const Auditoria = lazyComRecarga(() => import("@/pages/Auditoria"))
+const MeuPlano = lazyComRecarga(() => import("@/pages/MeuPlano"))
+const PlataformaLayout = lazyComRecarga(() => import("@/pages/plataforma/PlataformaLayout"))
 // Vitrine do design system: só existe em desenvolvimento
-const VitrineUI = import.meta.env.DEV ? lazy(() => import("@/pages/dev/VitrineUI")) : null
-const PlataformaClientes = lazy(() => import("@/pages/plataforma/ClientesPage"))
-const PlataformaMensalidades = lazy(() => import("@/pages/plataforma/MensalidadesPage"))
-const PlataformaFinanceiro = lazy(() => import("@/pages/plataforma/FinanceiroPage"))
-const PlataformaContasPagar = lazy(() => import("@/pages/plataforma/ContasPagarPage"))
-const PlataformaAlertas = lazy(() => import("@/pages/plataforma/AlertasPage"))
-const PlataformaPlanos = lazy(() => import("@/pages/plataforma/PlanosPage"))
-const PlataformaAuditoria = lazy(() => import("@/pages/plataforma/AuditoriaPage"))
-const Cadastro = lazy(() => import("@/pages/Cadastro"))
-const RecuperarSenha = lazy(() => import("@/pages/RecuperarSenha"))
-const RedefinirSenha = lazy(() => import("@/pages/RedefinirSenha"))
+const VitrineUI = import.meta.env.DEV ? lazyComRecarga(() => import("@/pages/dev/VitrineUI")) : null
+const PlataformaClientes = lazyComRecarga(() => import("@/pages/plataforma/ClientesPage"))
+const PlataformaMensalidades = lazyComRecarga(() => import("@/pages/plataforma/MensalidadesPage"))
+const PlataformaFinanceiro = lazyComRecarga(() => import("@/pages/plataforma/FinanceiroPage"))
+const PlataformaContasPagar = lazyComRecarga(() => import("@/pages/plataforma/ContasPagarPage"))
+const PlataformaAlertas = lazyComRecarga(() => import("@/pages/plataforma/AlertasPage"))
+const PlataformaPlanos = lazyComRecarga(() => import("@/pages/plataforma/PlanosPage"))
+const PlataformaAuditoria = lazyComRecarga(() => import("@/pages/plataforma/AuditoriaPage"))
+const Cadastro = lazyComRecarga(() => import("@/pages/Cadastro"))
+const RecuperarSenha = lazyComRecarga(() => import("@/pages/RecuperarSenha"))
+const RedefinirSenha = lazyComRecarga(() => import("@/pages/RedefinirSenha"))
 
 // Componente de loading
 const LoadingSpinner = () => (
@@ -282,6 +284,7 @@ function AdminSystem() {
           </div>
         </div>
       ) : (
+        <ErroInesperado key={location.pathname}>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
           <Route path="/" element={<Navigate to="/sistema/dashboard" replace />} />
@@ -340,6 +343,7 @@ function AdminSystem() {
           <Route path="*" element={<Navigate to="/sistema/dashboard" replace />} />
         </Routes>
       </Suspense>
+        </ErroInesperado>
       )}
     </AppLayout>
   )
@@ -471,6 +475,7 @@ function App() {
         />
         <ConfirmacaoGlobal />
         <Router>
+          <ErroInesperado>
           <Routes>
             {/* Página principal - Catálogo */}
             {/* Raiz do SaaS: não há "loja padrão"; catálogos ficam em /:slug */}
@@ -567,6 +572,7 @@ function App() {
             {/* Redirecionar rotas não encontradas para a página principal */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </ErroInesperado>
         </Router>
       </ConfigProvider>
     </ErrorProvider>

@@ -13,8 +13,9 @@
  *     "pasta": "domains/oonsystems.com.br/public_html",
  *     "chave": "~/.ssh/hostinger_oonsystems" }
  *
- * No servidor: guarda um backup do site atual (os 5 últimos), apaga a pasta
- * assets antiga e copia o dist novo por cima. Arquivos que não vêm do dist
+ * No servidor: guarda um backup do site atual (os 5 últimos) e copia o dist
+ * novo por cima. Os arquivos antigos de assets ficam 30 dias (quem está com o
+ * painel aberto na versão anterior ainda acha as telas). Arquivos que não vêm do dist
  * (ex.: .well-known) continuam lá.
  */
 import { spawnSync } from 'node:child_process'
@@ -100,8 +101,8 @@ ssh(`set -e
   rm -rf ${TMP}/novo && mkdir -p ${TMP}/novo
   tar -xzf ${TMP}/dist.tar.gz -C ${TMP}/novo
   test -f ${TMP}/novo/index.html
-  rm -rf ${SITE}/assets
   cp -a ${TMP}/novo/. ${SITE}/
+  find ${SITE}/assets -type f -mtime +30 -delete
   rm -rf ${TMP}/novo ${TMP}/dist.tar.gz
   ls -1t ${TMP}/backups/site-*.tar.gz | tail -n +6 | xargs -r rm -f
   echo "Publicado em $(pwd) — backup site-$STAMP.tar.gz"`)
