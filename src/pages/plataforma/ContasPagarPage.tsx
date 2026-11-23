@@ -270,10 +270,9 @@ export default function ContasPagarPage() {
                     <td className="px-2 py-2">
                       <div className="flex items-center justify-end gap-1">
                         {c.pago_em ? (
-                          <button onClick={() => desfazer(c)} className="p-2 rounded-lg hover:bg-accent text-foreground/80 cursor-pointer"
-                            title="Desfazer pagamento" aria-label={`Desfazer pagamento de ${c.descricao}`}>
-                            <Undo2 className="h-4 w-4" />
-                          </button>
+                          <Button size="sm" variant="outline" onClick={() => desfazer(c)} aria-label={`Desfazer pagamento de ${c.descricao}`}>
+                            <Undo2 /> Desfazer
+                          </Button>
                         ) : (
                           <>
                             <button onClick={() => setEditando(c)} className="p-2 rounded-lg hover:bg-accent text-foreground/80 cursor-pointer"
@@ -284,9 +283,16 @@ export default function ContasPagarPage() {
                               title="Excluir" aria-label={`Excluir ${c.descricao}`}>
                               <Trash2 className="h-4 w-4" />
                             </button>
-                            <Button size="sm" onClick={() => setPagando(c)}>
-                              <CheckCircle2 /> Pagar
-                            </Button>
+                            {diasParaVencer(c.vencimento) > DIAS_PAGAMENTO_ADIANTADO ? (
+                              // Ainda longe do vencimento (ex.: a próxima criada ao pagar a anterior)
+                              <Button size="sm" variant="outline" onClick={() => setPagando(c)} title="Vence daqui a mais de 7 dias">
+                                <CheckCircle2 /> Adiantar
+                              </Button>
+                            ) : (
+                              <Button size="sm" onClick={() => setPagando(c)}>
+                                <CheckCircle2 /> Pagar
+                              </Button>
+                            )}
                           </>
                         )}
                       </div>
