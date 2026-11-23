@@ -35,6 +35,7 @@ import {
 } from '@/services/plataformaService'
 import { Button } from '@/components/ui/button'
 import { confirmar } from '@/components/ui/confirmar'
+import { InputMoeda } from '@/components/ui/input-moeda'
 import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 import {
@@ -316,15 +317,14 @@ function ModalConta({ conta, onFechar, onSalvo }: { conta: ContaPagar | null; on
     recorrencia: conta?.recorrencia ?? 'mensal',
     observacao: conta?.observacao ?? '',
   }))
-  const [valorTexto, setValorTexto] = useState(conta ? String(conta.valor).replace('.', ',') : '')
+  const [valor, setValor] = useState<number>(conta?.valor ?? 0)
   const [salvando, setSalvando] = useState(false)
   const muda = <K extends keyof DadosConta>(campo: K, valor: DadosConta[K]) => setDados((d) => ({ ...d, [campo]: valor }))
 
   const salvar = async (e: React.FormEvent) => {
     e.preventDefault()
-    const valor = Number(valorTexto.replace(/\./g, '').replace(',', '.'))
     if (!dados.descricao.trim()) return toast.error('Informe a descrição')
-    if (!Number.isFinite(valor) || valor < 0) return toast.error('Valor inválido')
+    if (!(valor > 0)) return toast.error('Informe o valor')
     if (!dados.vencimento) return toast.error('Informe o vencimento')
     setSalvando(true)
     try {
@@ -368,9 +368,8 @@ function ModalConta({ conta, onFechar, onSalvo }: { conta: ContaPagar | null; on
             <input className={`${classeInput} w-full`} value={dados.fornecedor ?? ''} maxLength={120}
               onChange={(e) => muda('fornecedor', e.target.value)} />
           </Campo>
-          <Campo rotulo="Valor (R$)">
-            <input className={`${classeInput} w-full tabular-nums`} inputMode="decimal" value={valorTexto} placeholder="0,00"
-              onChange={(e) => setValorTexto(e.target.value.replace(/[^\d.,]/g, ''))} />
+          <Campo rotulo="Valor">
+            <InputMoeda className={`${classeInput} w-full tabular-nums`} value={valor} onChange={setValor} />
           </Campo>
           <Campo rotulo="Vencimento">
             <input type="date" className={`${classeInput} w-full`} value={dados.vencimento}
@@ -394,14 +393,13 @@ function ModalConta({ conta, onFechar, onSalvo }: { conta: ContaPagar | null; on
 
 function ModalPagarConta({ conta, onFechar, onPago }: { conta: ContaPagar; onFechar: () => void; onPago: () => void }) {
   const [pagoEm, setPagoEm] = useState(paraInputData(new Date()))
-  const [valorTexto, setValorTexto] = useState(conta.valor.toFixed(2).replace('.', ','))
+  const [valor, setValor] = useState<number>(conta.valor)
   const [forma, setForma] = useState<FormaPagamento>('pix')
   const [salvando, setSalvando] = useState(false)
 
   const pagar = async (e: React.FormEvent) => {
     e.preventDefault()
-    const valor = Number(valorTexto.replace(/\./g, '').replace(',', '.'))
-    if (!Number.isFinite(valor) || valor < 0) return toast.error('Valor inválido')
+    if (!(valor > 0)) return toast.error('Informe o valor pago')
     if (!pagoEm) return toast.error('Informe a data do pagamento')
     setSalvando(true)
     try {
@@ -435,9 +433,8 @@ function ModalPagarConta({ conta, onFechar, onPago }: { conta: ContaPagar; onFec
         <Campo rotulo="Pago em">
           <input type="date" className={`${classeInput} w-full`} value={pagoEm} onChange={(e) => setPagoEm(e.target.value)} />
         </Campo>
-        <Campo rotulo="Valor pago (R$)">
-          <input className={`${classeInput} w-full tabular-nums`} inputMode="decimal" value={valorTexto} autoFocus
-            onChange={(e) => setValorTexto(e.target.value.replace(/[^\d.,]/g, ''))} />
+        <Campo rotulo="Valor pago">
+          <InputMoeda className={`${classeInput} w-full tabular-nums`} value={valor} onChange={setValor} />
         </Campo>
         <Campo rotulo="Forma">
           <select className={`${classeInput} w-full`} value={forma} onChange={(e) => setForma(e.target.value as FormaPagamento)}>
