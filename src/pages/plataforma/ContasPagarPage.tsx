@@ -39,6 +39,7 @@ import { InputMoeda } from '@/components/ui/input-moeda'
 import { avisoComDesfazer } from '@/components/ui/desfazer'
 import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
+import { useDadosPlataforma } from './PlataformaLayout'
 import {
   BotaoPrimario,
   BotaoSecundario,
@@ -103,15 +104,17 @@ export default function ContasPagarPage() {
   const [editando, setEditando] = useState<ContaPagar | 'nova' | null>(null)
   const [pagando, setPagando] = useState<ContaPagar | null>(null)
   const tabelaRef = useTabelaResponsiva()
+  const { recarregarContas } = useDadosPlataforma()
 
   const carregar = useCallback(async () => {
+    recarregarContas() // número do menu e página Alertas
     try {
       setContas(await plataformaService.listarContas(pagasDesde()))
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao carregar as contas', { id: 'contas-pagar' })
       setContas([])
     }
-  }, [])
+  }, [recarregarContas])
 
   useEffect(() => { carregar() }, [carregar])
 

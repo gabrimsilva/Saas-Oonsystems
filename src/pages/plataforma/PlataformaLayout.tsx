@@ -20,11 +20,14 @@ import {
 import { authService, supabase } from '@/services'
 import {
   calcularAlertas,
+  calcularAlertasContas,
   plataformaService,
   situacaoMensalidade,
   temMensalidade,
   type AlertaCliente,
+  type AlertaConta,
   type ClientePlataforma,
+  type ContaPagar,
   type Plano,
 } from '@/services/plataformaService'
 import { Carregando } from './comum'
@@ -35,8 +38,12 @@ export interface DadosPlataforma {
   clientes: ClientePlataforma[]
   planos: Plano[]
   alertas: AlertaCliente[]
+  /** Contas a pagar vencidas ou vencendo em até 7 dias */
+  alertasContas: AlertaConta[]
   carregando: boolean
   recarregar: () => Promise<void>
+  /** Atualiza os alertas de contas (chamar depois de pagar/editar contas) */
+  recarregarContas: () => Promise<void>
 }
 
 export const useDadosPlataforma = () => useOutletContext<DadosPlataforma>()
@@ -58,6 +65,18 @@ export default function PlataformaLayout() {
   const [planos, setPlanos] = useState<Plano[]>([])
   const [carregando, setCarregando] = useState(true)
   const [menuAberto, setMenuAberto] = useState(false)
+  const [contasAbertas, setContasAbertas] = useState<ContaPagar[]>([])
+
+  // Só as contas em aberto importam para os alertas (pagas desde hoje = nenhuma antiga)
+  const recarregarContas = useCallback(async () => {
+    try {
+      const hoje = new Date()
+      const desde = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`
+      setContasAbertas((await plataformaService.listarContas(desde)).filter((c) => !c.pago_em))
+    } catch (e) {
+      console.error('Erro ao carregar contas a pagar para os alertas', e)
+    }
+  }, [])
 
   const recarregar = useCallback(async () => {
     setCarregando(true)
@@ -89,12 +108,19 @@ export default function PlataformaLayout() {
       const { data: nivel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
       const jaVerificado = nivel?.currentLevel === 'aal2'
       setVerificado(jaVerificado)
-      if (jaVerificado) recarregar()
+      if (jaVerificado) {
+        recarregar()
+        recarregarContas()
+      }
     })
-  }, [recarregar])
+  }, [recarregar, recarregarContas])
 
   const alertas = useMemo(() => calcularAlertas(clientes, planos), [clientes, planos])
-  const alertasImportantes = alertas.filter((a) => a.gravidade !== 'info').length
+  const alertasContas = useMemo(() => calcularAlertasContas(contasAbertas), [contasAbertas])
+  const alertasImportantes =
+    alertas.filter((a) => a.gravidade !== 'info').length + alertasContas.filter((a) => a.gravidade !== 'info').length
+  // Contas vencidas ou vencendo hoje
+  const contasPendentes = alertasContas.filter((a) => a.dias <= 0).length
   // Mensalidades vencidas ou vencendo hoje
   const mensalidadesPendentes = clientes.filter((c) => {
     if (!temMensalidade(c)) return false
@@ -158,6 +184,14 @@ export default function PlataformaLayout() {
                   {mensalidadesPendentes}
                 </span>
               )}
+              {para.endsWith('contas-a-pagar') && contasPendentes > 0 && (
+                <span
+                  className="min-w-5 h-5 px-1.5 rounded-full bg-destructive/15 text-[11px] font-semibold text-destructive flex items-center justify-center"
+                  aria-label={`${contasPendentes} contas vencidas ou vencendo hoje`}
+                >
+                  {contasPendentes}
+                </span>
+              )}
               {para.endsWith('alertas') && alertasImportantes > 0 && (
                 <span
                   className="min-w-5 h-5 px-1.5 rounded-full bg-warning/20 text-[11px] font-semibold text-warning-foreground flex items-center justify-center"
@@ -209,7 +243,7 @@ export default function PlataformaLayout() {
           <span className="text-sm font-semibold">OonSystems · Plataforma</span>
         </header>
         <main className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto">
-          <Outlet context={{ clientes, planos, alertas, carregando, recarregar } satisfies DadosPlataforma} />
+          <Outlet context={{ clientes, planos, alertas, alertasContas, carregando, recarregar, recarregarContas } satisfies DadosPlataforma} />
         </main>
       </div>
     </div>

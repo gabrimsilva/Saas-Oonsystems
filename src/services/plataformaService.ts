@@ -216,6 +216,37 @@ export function resumoContas(contas: ContaPagar[], mes: string, hoje = new Date(
   }
 }
 
+export interface AlertaConta {
+  tipo: 'conta_vencida' | 'conta_vence_hoje' | 'conta_vence_logo' | 'conta_vence_semana'
+  gravidade: GravidadeAlerta
+  conta: ContaPagar
+  dias: number
+  mensagem: string
+}
+
+/**
+ * Alertas das contas em aberto: vencida (crítico), vence hoje ou em até 3
+ * dias (atenção) e em até 7 dias (info). Mais urgentes primeiro.
+ */
+export function calcularAlertasContas(contas: ContaPagar[], hoje = new Date()): AlertaConta[] {
+  const alertas: AlertaConta[] = []
+  for (const conta of contas) {
+    if (conta.pago_em) continue
+    const dias = diasParaVencer(conta.vencimento, hoje)
+    const valor = conta.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    if (dias < 0) {
+      alertas.push({ tipo: 'conta_vencida', gravidade: 'critico', conta, dias, mensagem: `${valor} venceu há ${-dias} dia(s).` })
+    } else if (dias === 0) {
+      alertas.push({ tipo: 'conta_vence_hoje', gravidade: 'atencao', conta, dias, mensagem: `${valor} vence hoje.` })
+    } else if (dias <= 3) {
+      alertas.push({ tipo: 'conta_vence_logo', gravidade: 'atencao', conta, dias, mensagem: `${valor} vence em ${dias} dia(s).` })
+    } else if (dias <= 7) {
+      alertas.push({ tipo: 'conta_vence_semana', gravidade: 'info', conta, dias, mensagem: `${valor} vence em ${dias} dias.` })
+    }
+  }
+  return alertas.sort((a, b) => a.dias - b.dias)
+}
+
 /** Pago por mês ("yyyy-mm"), na ordem dos meses informados. */
 export function pagoPorMes(contas: ContaPagar[], meses: string[]): number[] {
   return meses.map((mes) =>

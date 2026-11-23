@@ -15,6 +15,7 @@ import {
   vencimentoDaAdesao,
   testeExpirado,
   valorMensalDoCliente,
+  calcularAlertasContas,
   diasParaVencer,
   pagoPorMes,
   resumoContas,
@@ -270,6 +271,25 @@ describe('contas a pagar', () => {
     expect(r.vencidas).toEqual({ qtd: 1, valor: 30 })
     expect(r.aPagar30).toEqual({ qtd: 1, valor: 40 })
     expect(r.custoFixoMensal).toBe(50) // 40 mensal + 120/12
+  })
+
+  it('alertas: vencida crítico, hoje/até 3 dias atenção, até 7 dias info; ignora pagas e distantes', () => {
+    const contas = [
+      conta({ descricao: 'Longe', vencimento: '2026-12-10' }),
+      conta({ descricao: 'Semana', vencimento: '2026-11-21' }),
+      conta({ descricao: 'Hoje', vencimento: '2026-11-16' }),
+      conta({ descricao: 'Vencida', vencimento: '2026-11-14' }),
+      conta({ descricao: 'Logo', vencimento: '2026-11-19' }),
+      conta({ descricao: 'Paga', vencimento: '2026-11-10', pago_em: '2026-11-10', valor_pago: 100 }),
+    ]
+    const r = calcularAlertasContas(contas, hoje)
+    expect(r.map((a) => [a.conta.descricao, a.gravidade, a.dias])).toEqual([
+      ['Vencida', 'critico', -2],
+      ['Hoje', 'atencao', 0],
+      ['Logo', 'atencao', 3],
+      ['Semana', 'info', 5],
+    ])
+    expect(r[0].mensagem).toContain('venceu há 2 dia(s)')
   })
 
   it('soma o pago por mês', () => {
