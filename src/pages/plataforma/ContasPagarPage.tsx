@@ -36,6 +36,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { confirmar } from '@/components/ui/confirmar'
 import { InputMoeda } from '@/components/ui/input-moeda'
+import { avisoComDesfazer } from '@/components/ui/desfazer'
 import { EstadoVazio, TabelaCarregando } from '@/components/ui/feedback'
 import { useTabelaResponsiva } from '@/hooks/useTabelaResponsiva'
 import {
@@ -391,20 +392,41 @@ function ModalConta({ conta, onFechar, onSalvo }: { conta: ContaPagar | null; on
   )
 }
 
+/** Pagar com mais que isto de antecedência pede confirmação (evita pagar a do mês seguinte por engano) */
+const DIAS_PAGAMENTO_ADIANTADO = 7
+
 function ModalPagarConta({ conta, onFechar, onPago }: { conta: ContaPagar; onFechar: () => void; onPago: () => void }) {
   const [pagoEm, setPagoEm] = useState(paraInputData(new Date()))
   const [valor, setValor] = useState<number>(conta.valor)
   const [forma, setForma] = useState<FormaPagamento>('pix')
   const [salvando, setSalvando] = useState(false)
+  const diasAteVencer = diasParaVencer(conta.vencimento)
+  const adiantada = diasAteVencer > DIAS_PAGAMENTO_ADIANTADO
+  const [confirmouAdiantado, setConfirmouAdiantado] = useState(false)
 
   const pagar = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (salvando) return
     if (!(valor > 0)) return toast.error('Informe o valor pago')
     if (!pagoEm) return toast.error('Informe a data do pagamento')
+    if (adiantada && !confirmouAdiantado) return toast.error('Confirme que é um pagamento adiantado')
     setSalvando(true)
     try {
       const proxima = await plataformaService.pagarConta(conta.id, pagoEm, valor, forma)
-      toast.success(proxima ? 'Pagamento registrado. A próxima conta já foi criada.' : 'Pagamento registrado')
+      // Desfazer na hora, sem precisar procurar em "Pagas"
+      avisoComDesfazer(
+        proxima ? `"${conta.descricao}" paga. A próxima já foi criada.` : `"${conta.descricao}" paga.`,
+        async () => {
+          try {
+            await plataformaService.desfazerPagamentoConta(conta.id)
+            toast.success('Pagamento desfeito')
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Erro ao desfazer')
+          }
+          onPago()
+        },
+        10000,
+      )
       onPago()
       onFechar()
     } catch (err) {
@@ -425,10 +447,31 @@ function ModalPagarConta({ conta, onFechar, onPago }: { conta: ContaPagar; onFec
       rodape={
         <>
           <BotaoSecundario onClick={onFechar}>Cancelar</BotaoSecundario>
-          <BotaoPrimario type="submit" form="form-pagar-conta" carregando={salvando}>Registrar pagamento</BotaoPrimario>
+          <BotaoPrimario type="submit" form="form-pagar-conta" carregando={salvando} disabled={adiantada && !confirmouAdiantado}>
+            Registrar pagamento
+          </BotaoPrimario>
         </>
       }
     >
+      {adiantada && (
+        <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm text-foreground" role="alert">
+          <p className="font-medium">
+            Esta conta só vence em {formatarData(conta.vencimento)} (daqui a {diasAteVencer} dias).
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            Confira se não é a do próximo {conta.recorrencia === 'anual' ? 'ano' : 'mês'}, criada quando a anterior foi paga.
+          </p>
+          <label className="mt-2 flex items-center gap-2 font-medium cursor-pointer">
+            <input
+              type="checkbox"
+              checked={confirmouAdiantado}
+              onChange={(e) => setConfirmouAdiantado(e.target.checked)}
+              className="size-4 accent-[var(--primary)]"
+            />
+            Sim, quero pagar adiantado
+          </label>
+        </div>
+      )}
       <form id="form-pagar-conta" onSubmit={pagar} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Campo rotulo="Pago em">
           <input type="date" className={`${classeInput} w-full`} value={pagoEm} onChange={(e) => setPagoEm(e.target.value)} />
