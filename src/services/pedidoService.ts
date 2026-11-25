@@ -99,11 +99,6 @@ export interface PedidoService {
    */
   removerRealtime(channel: any): Promise<'ok' | 'timed out' | 'error'>
 
-  /**
-   * Move pedidos finalizados para o histórico geral
-   * @returns Promise com quantidade de pedidos movidos
-   */
-  moverFinalizadosParaHistorico(): Promise<number>
 }
 
 /**
@@ -467,115 +462,6 @@ export const pedidoService: PedidoService = {
    */
   removerRealtime(channel: any) {
     return supabase.removeChannel(channel)
-  },
-
-  /**
-   * Move pedidos finalizados para o histórico geral
-   * Move apenas pedidos com status "Finalizado", mantendo "Entregue" no kanban
-   * @returns Promise com quantidade de pedidos movidos
-   */
-  async moverFinalizadosParaHistorico(): Promise<number> {
-    try {
-      const estabId = getEstabelecimentoAtivo()
-      
-      // Buscar pedidos finalizados (não "Entregue")
-      const { data: pedidos, error: errorBuscar } = await supabase
-        .from('pedidos')
-        .select('*')
-        .eq('status', 'Finalizado')
-        .eq('estabelecimento_id', estabId || '00000000-0000-0000-0000-000000000000')
-
-      if (errorBuscar) {
-        console.error('Erro ao buscar pedidos finalizados:', errorBuscar)
-        throw errorBuscar
-      }
-
-      if (!pedidos || pedidos.length === 0) {
-        console.log('Nenhum pedido finalizado encontrado')
-        return 0
-      }
-
-      console.log(`📦 Movendo ${pedidos.length} pedido(s) finalizado(s) para histórico...`)
-
-      let pedidosMovidos = 0
-      const agora = new Date().toISOString()
-
-      for (const pedido of pedidos) {
-        try {
-          // Preparar dados para o histórico
-          const dadosHistorico = {
-            pedido_id: pedido.pedido_id,
-            codigo_pedido: pedido.codigo_pedido,
-            cliente_nome: pedido.cliente_nome ?? 'Cliente',
-            cliente_sobrenome: pedido.cliente_sobrenome ?? '',
-            cliente_telefone: pedido.cliente_telefone ?? '',
-            cliente_email: pedido.cliente_email,
-            cliente_endereco: pedido.cliente_endereco,
-            cliente_numero: pedido.cliente_numero,
-            cliente_complemento: pedido.cliente_complemento,
-            cliente_bairro: pedido.cliente_bairro,
-            cliente_cidade: pedido.cliente_cidade,
-            cliente_estado: pedido.cliente_estado,
-            cliente_cep: pedido.cliente_cep,
-            entrega_domicilio: pedido.entrega_domicilio,
-            forma_pagamento: pedido.forma_pagamento ?? 'nao_informado',
-            precisa_troco: pedido.precisa_troco,
-            valor_troco: pedido.valor_troco,
-            subtotal: pedido.subtotal ?? 0,
-            taxa_entrega: pedido.taxa_entrega,
-            taxa_extra_km: pedido.taxa_extra_km || 0,
-            desconto: pedido.desconto || 0,
-            tipo_desconto: pedido.tipo_desconto || 'valor',
-            total: pedido.total ?? 0,
-            itens: pedido.itens ?? [],
-            status: 'Finalizado',
-            observacoes: pedido.observacoes,
-            criado_em: pedido.criado_em,
-            movido_em: agora,
-            forma_pagamento_dividido: pedido.forma_pagamento_dividido || false,
-            pagamento_1_tipo: pedido.pagamento_1_tipo || null,
-            pagamento_1_valor: pedido.pagamento_1_valor || null,
-            pagamento_2_tipo: pedido.pagamento_2_tipo || null,
-            pagamento_2_valor: pedido.pagamento_2_valor || null,
-            estabelecimento_id: pedido.estabelecimento_id
-          }
-
-          // Inserir no histórico
-          const { error: errorInserir } = await supabase
-            .from('historico_geral')
-            .insert(dadosHistorico)
-
-          // Se já existe (23505), ignorar erro e remover mesmo assim
-          if (errorInserir && errorInserir.code !== '23505') {
-            console.error(`Erro ao inserir pedido ${pedido.pedido_id}:`, errorInserir)
-            continue
-          }
-
-          // Remover da tabela de pedidos
-          const { data: removidos, error: errorRemover } = await supabase
-            .from('pedidos')
-            .delete()
-            .eq('pedido_id', pedido.pedido_id)
-            .select('pedido_id')
-
-          if (errorRemover || !removidos || removidos.length === 0) {
-            console.error(`Erro ao remover pedido ${pedido.pedido_id}`)
-            continue
-          }
-
-          pedidosMovidos++
-        } catch (error) {
-          console.error(`Erro ao processar pedido ${pedido.pedido_id}:`, error)
-          continue
-        }
-      }
-
-      console.log(`✅ ${pedidosMovidos} pedido(s) movido(s) para histórico`)
-      return pedidosMovidos
-    } catch (error) {
-      console.error('Erro geral ao mover pedidos:', error)
-      throw error
-    }
   }
 }
 

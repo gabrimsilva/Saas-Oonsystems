@@ -161,6 +161,19 @@ export default function Historico() {
         console.error('Erro ao carregar pedidos cancelados:', canceladosError)
       }
 
+      // Entregues de hoje: continuam no Kanban até a meia-noite (o banco arquiva
+      // às 00:05), mas já aparecem aqui
+      const { data: entreguesData, error: entreguesError } = await supabase
+        .from('pedidos')
+        .select('*')
+        .eq('status', 'Finalizado')
+        .eq('estabelecimento_id', estabId)
+        .or('cancelado.is.null,cancelado.eq.false')
+
+      if (entreguesError) {
+        console.error('Erro ao carregar pedidos entregues:', entreguesError)
+      }
+
       // Mapear pedidos cancelados para o formato do histórico
       const pedidosCancelados = (canceladosData || []).map(p => ({
         ...p,
@@ -168,8 +181,13 @@ export default function Historico() {
         status: 'Cancelado'
       }))
 
+      const jaNoHistorico = new Set((historicoData || []).map(h => h.pedido_id))
+      const pedidosEntregues = (entreguesData || [])
+        .filter(p => !jaNoHistorico.has(p.pedido_id))
+        .map(p => ({ ...p, movido_em: p.atualizado_em || p.criado_em, status: 'Finalizado' }))
+
       // Combinar e ordenar por data
-      const todosPedidos = [...(historicoData || []), ...pedidosCancelados]
+      const todosPedidos = [...(historicoData || []), ...pedidosEntregues, ...pedidosCancelados]
         .sort((a, b) => new Date(b.movido_em).getTime() - new Date(a.movido_em).getTime())
 
       setPedidos(todosPedidos)

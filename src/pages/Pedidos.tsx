@@ -7,9 +7,8 @@ import { DragDropContext } from '@hello-pangea/dnd'
 import { useNotificacao } from "@/hooks/useNotificacao"
 import { useRealtimePedidos } from "@/hooks/useRealtimePedidos"
 import { useGerenciarPedidos } from "@/hooks/useGerenciarPedidos"
-import { useAutoArquivarPedidos } from "@/hooks/useAutoArquivarPedidos"
-import { 
-  ColunaKanban, 
+import {
+  ColunaKanban,
   type ColunaConfig,
   HeaderPedidos,
   BarraBuscaPedidos,
@@ -61,7 +60,7 @@ export default function Pedidos() {
   const [tipoResultado, setTipoResultado] = useState<'sucesso' | 'erro'>('sucesso')
 
   const { permissao, solicitarPermissao, notificarNovoPedido } = useNotificacao()
-  
+
   // Hook de gerenciamento de pedidos
   const {
     pedidos,
@@ -71,21 +70,15 @@ export default function Pedidos() {
     atualizarStatus,
     limparPedidos
   } = useGerenciarPedidos(notificarNovoPedido, notificacoesAtivas)
-  
+
   // Hook de realtime
   const { isConnected: realtimeConnected, lastUpdate, reconnect } = useRealtimePedidos(
     carregarPedidos,
     { autoRefresh: true }
   )
 
-  // Hook de arquivamento automático à meia-noite
-  useAutoArquivarPedidos({
-    enabled: true,
-    onArquivamento: (quantidade) => {
-      console.log(`🌙 ${quantidade} pedidos arquivados automaticamente à meia-noite`)
-      carregarPedidos() // Recarregar lista após arquivamento
-    }
-  })
+  // Pedidos entregues vão para o histórico pelo próprio banco (pg_cron, 00:05),
+  // sem depender desta tela estar aberta à meia-noite.
 
   // Carregar pedidos na inicialização
   useEffect(() => {
@@ -102,7 +95,7 @@ export default function Pedidos() {
 
       // Tentar abordagem direta primeiro
       console.log('🚀 Tentando zerar pedidos diretamente...')
-      
+
       // 1. Buscar apenas pedidos FINALIZADOS (somente do estabelecimento atual)
       // Status "Entregue" mantém no kanban, apenas "Finalizado" vai para histórico
       const { data: pedidosParaMover, error: errorBuscar } = await supabase
@@ -110,9 +103,9 @@ export default function Pedidos() {
         .select('*')
         .eq('estabelecimento_id', getEstabelecimentoAtivo() ?? '00000000-0000-0000-0000-000000000000')
         .eq('status', 'Finalizado')
-      
+
       console.log('📊 Pedidos encontrados:', pedidosParaMover?.length || 0)
-      
+
       if (errorBuscar) {
         console.error('❌ Erro ao buscar pedidos:', errorBuscar)
         throw errorBuscar
@@ -216,7 +209,7 @@ export default function Pedidos() {
 
       // Limpar estado local
       limparPedidos()
-      
+
       // Aguardar um pouco e recarregar
       await new Promise(resolve => setTimeout(resolve, 1000))
       await carregarPedidos(true)
@@ -260,7 +253,7 @@ export default function Pedidos() {
   const handleDragEnd = (result: any) => {
     const { destination, draggableId } = result
     if (!destination) return
-    if (destination.droppableId === result.source.droppableId && 
+    if (destination.droppableId === result.source.droppableId &&
         destination.index === result.source.index) return
     atualizarStatus(draggableId, destination.droppableId)
   }
