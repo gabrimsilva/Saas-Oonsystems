@@ -17,7 +17,34 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * const { data } = await supabase.from('tabela').select('*')
  * ```
  */
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const clientePainel = createClient(supabaseUrl, supabaseAnonKey)
+
+/**
+ * Conexão sem login, usada pelas páginas públicas da loja (/:slug).
+ * Quem está logado no painel de uma loja só enxerga os dados do próprio
+ * cliente; sem isso, o catálogo de outra loja aparecia como "não encontrado".
+ */
+const clientePublico = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'sb-oonsystems-publico' },
+})
+
+let acessoPublico = false
+
+/** Liga/desliga o acesso como visitante (chamado pelo EstabelecimentoPublicoProvider). */
+export function usarAcessoPublico(ativo: boolean) {
+  acessoPublico = ativo
+}
+
+// Login e tempo real ficam sempre na conexão do painel (os canais são criados e removidos nela).
+const SEMPRE_PAINEL = new Set<PropertyKey>(['auth', 'realtime', 'channel', 'getChannels', 'removeChannel', 'removeAllChannels'])
+
+export const supabase = new Proxy(clientePainel, {
+  get(painel, prop) {
+    const alvo = acessoPublico && !SEMPRE_PAINEL.has(prop) ? clientePublico : painel
+    const valor = Reflect.get(alvo, prop, alvo)
+    return typeof valor === 'function' ? valor.bind(alvo) : valor
+  },
+})
 
 /**
  * IMPORTANTE: Todos os services foram migrados para @/services

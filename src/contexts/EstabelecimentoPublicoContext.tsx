@@ -14,7 +14,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { estabelecimentoService, setEstabelecimentoAtivo } from '@/services'
-import { supabase } from '@/lib/supabase'
+import { supabase, usarAcessoPublico } from '@/lib/supabase'
 import { aplicarTemaSistema, temaValido } from '@/lib/temasSistema'
 import type { Estabelecimento } from '@/types/estabelecimento'
 
@@ -72,6 +72,13 @@ export const EstabelecimentoPublicoProvider = ({ slug, children }: ProviderProps
       aplicarTemaSistema(null)
     }
   }, [estabelecimentoId])
+
+  // Páginas da loja consultam sempre como visitante, mesmo com alguém logado no painel
+  // (senão a loja de outro cliente aparece como "não encontrada").
+  useEffect(() => {
+    usarAcessoPublico(true)
+    return () => usarAcessoPublico(false)
+  }, [])
 
   useEffect(() => {
     let cancelado = false
